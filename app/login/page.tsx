@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../lib/auth';
+import Image from 'next/image';
 import Link from 'next/link';
 
 export default function LoginPage() {
@@ -30,7 +31,7 @@ export default function LoginPage() {
       <div className="animate-fadeInUp" style={{ width:'100%', maxWidth:420 }}>
         {/* Logo area */}
         <div style={{ textAlign:'center', marginBottom:32 }}>
-            <img src="/logo.png" alt="CPR Logo" style={{ width:80, height:80, objectFit:'contain', marginBottom:16, background:'#fff', borderRadius:'50%', padding:4, boxShadow:'0 4px 12px rgba(0,0,0,0.1)' }} />
+            <Image src="/logo.png" alt="CPR Logo" width={80} height={80} style={{ objectFit:'contain', marginBottom:16, background:'#fff', borderRadius:'50%', padding:4, boxShadow:'0 4px 12px rgba(0,0,0,0.1)' }} />
             <h1 style={{ fontSize:22, fontWeight:900, color:'#1e1b4b', margin:0, letterSpacing:'-0.5px' }}>
               CPR Gifted Program Database
             </h1>

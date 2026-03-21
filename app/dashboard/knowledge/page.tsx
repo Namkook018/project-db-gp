@@ -144,7 +144,7 @@ export default function KnowledgePage() {
             <div style={{ textAlign:'center', padding:48 }}>
               <div style={{ fontSize:48, marginBottom:12 }}>📭</div>
               <div style={{ fontWeight:700, color:'#6b7280', fontSize:16 }}>ยังไม่มีไฟล์ในหมวดนี้</div>
-              {user?.role === 'admin' && <div style={{ fontSize:13, color:'#9ca3af', marginTop:4 }}>กดปุ่ม "อัปโหลดไฟล์" เพื่อเพิ่มไฟล์</div>}
+              {user?.role === 'admin' && <div style={{ fontSize:13, color:'#9ca3af', marginTop:4 }}>กดปุ่ม &quot;อัปโหลดไฟล์&quot; เพื่อเพิ่มไฟล์</div>}
             </div>
           ) : (
             <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(240px, 1fr))', gap:14 }}>

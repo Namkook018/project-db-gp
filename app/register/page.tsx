@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { apiRegister } from '../lib/api';
 import { ALL_CLASSES, RELIGIONS, BLOOD_TYPES, SUBJECTS } from '../lib/config';
@@ -72,7 +73,7 @@ export default function RegisterPage() {
     <div className="auth-bg" style={{ minHeight:'100vh', padding:'24px 16px' }}>
       <div style={{ maxWidth:600, margin:'0 auto' }}>
         <div style={{ textAlign:'center', marginBottom:32 }}>
-          <img src="/logo.png" alt="CPR Logo" style={{ width:72, height:72, objectFit:'contain', marginBottom:12, background:'#fff', borderRadius:'50%', padding:4, boxShadow:'0 4px 12px rgba(0,0,0,0.1)' }} />
+          <Image src="/logo.png" alt="CPR Logo" width={72} height={72} style={{ objectFit:'contain', marginBottom:12, background:'#fff', borderRadius:'50%', padding:4, boxShadow:'0 4px 12px rgba(0,0,0,0.1)' }} />
           <h1 style={{ fontSize:20, fontWeight:900, color:'#1e1b4b', margin:0, letterSpacing:'-0.5px' }}>
             CPR Gifted Program Database
           </h1>

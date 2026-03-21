@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '../../lib/auth';
 import { apiGetScores, apiUpdateScore, apiImportScores, apiGetUsers, type ScoreRecord } from '../../lib/api';
-import { SUBJECTS, ALL_CLASSES, EXAM_TYPES } from '../../lib/config';
+import { SUBJECTS, EXAM_TYPES } from '../../lib/config';
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
@@ -39,7 +39,6 @@ export default function ExamResultsPage() {
   const [editForm, setEditForm] = useState<Record<string, string>>({});
   const [uploading, setUploading] = useState(false);
   const [uploadMsg, setUploadMsg] = useState('');
-  const [students, setStudents] = useState<{id:string; name:string; class?:string}[]>([]);
 
   const canEdit = user?.role === 'admin' || user?.role === 'teacher';
 
@@ -51,9 +50,8 @@ export default function ExamResultsPage() {
       else filter.studentId = user.username;
     }
     if (user?.role === 'teacher') filter.class = user.roomAdvisor;
-    const [sc, us] = await Promise.all([apiGetScores(filter), apiGetUsers()]);
+    const [sc] = await Promise.all([apiGetScores(filter), apiGetUsers()]);
     setScores(sc);
-    setStudents(us.map(u => ({ id:u.id, name:`${u.name} ${u.surname}`, class:u.class })));
     setLoading(false);
   }, [user]);
 
@@ -115,7 +113,7 @@ export default function ExamResultsPage() {
       if (classA !== classB) return classA.localeCompare(classB);
       return String(a.studentId || '').localeCompare(String(b.studentId || ''));
     });
-  }, [filtered]);
+  }, [filtered, user]);
 
   // Radar chart data (for student or single class average)
   const radarData = SUBJECTS.map(sub => {

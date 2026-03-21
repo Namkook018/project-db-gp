@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '../lib/auth';
+import Image from 'next/image';
 
 const NAV_ITEMS = [
   { href:'/dashboard',              icon:'🏠', label:'หน้าหลัก',     roles:['admin','teacher','student'] },
@@ -43,7 +44,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Logo */}
         <div className="sidebar-logo" style={{ padding: '20px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
           <div style={{ display:'flex', alignItems:'center', gap:12 }}>
-            <img src="/logo.png" alt="CPR Logo" style={{ width:48, height:48, objectFit:'contain', background:'#fff', borderRadius:'50%', padding:2, flexShrink:0 }} />
+            <Image src="/logo.png" alt="CPR Logo" width={48} height={48} style={{ objectFit:'contain', background:'#fff', borderRadius:'50%', padding:2, flexShrink:0 }} />
             <div>
               <div style={{ color:'#fff', fontWeight:800, fontSize:12, lineHeight:1.2, letterSpacing:'0.5px' }}>CPR GIFTED PROGRAM</div>
               <div style={{ color:'rgba(255,255,255,0.6)', fontSize:10, marginTop:2 }}>DATABASE</div>
