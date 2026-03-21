@@ -5,6 +5,29 @@ import { apiGetUsers, apiGetStudentProfile, apiUpdateProfile, apiDeleteUser, typ
 
 const SECTION_BG = '#f9fafb';
 
+const F = ({ label, k, edit, readonly, options, form, profile, set }: { 
+  label: string; k: string; edit: boolean; readonly?: boolean; options?: string[]; 
+  form: StudentProfile; profile: StudentProfile; set: (k: string, v: string) => void 
+}) => (
+  <div>
+    <label className="form-label" style={{ fontSize:11 }}>{label}</label>
+    {edit && !readonly ? (
+      options ? (
+        <select className="form-input" style={{ padding:'6px 10px', fontSize:13 }} value={((form as unknown) as Record<string,string>)[k]||''} onChange={e => set(k, e.target.value)}>
+          <option value="">-- เลือก --</option>
+          {options.map(o => <option key={o} value={o}>{o}</option>)}
+        </select>
+      ) : (
+        <input className="form-input" style={{ padding:'6px 10px', fontSize:13 }} value={((form as unknown) as Record<string,string>)[k]||''} onChange={e => set(k, e.target.value)} />
+      )
+    ) : (
+      <div style={{ fontSize:13, color:'#374151', padding:'5px 0', borderBottom:'1px solid #f3f4f6' }}>
+        {edit && readonly ? (((form as unknown) as Record<string,string>)[k] || '—') : (((profile as unknown) as Record<string,string>)[k] || '—')}
+      </div>
+    )}
+  </div>
+);
+
 function ProfileDetailModal({ profile, onClose, onSave, viewerRole }: {
   profile: StudentProfile; onClose: () => void;
   onSave: (data: Partial<StudentProfile>) => void; viewerRole: string;
@@ -16,27 +39,8 @@ function ProfileDetailModal({ profile, onClose, onSave, viewerRole }: {
   // Everyone can edit the rows they are allowed to see based on our current logic.
   const canEdit = true; 
 
-  const F = ({ label, k, readonly, options }: { label: string; k: string; readonly?: boolean; options?: string[] }) => (
-    <div>
-      <label className="form-label" style={{ fontSize:11 }}>{label}</label>
-      {edit && !readonly ? (
-        options ? (
-          <select className="form-input" style={{ padding:'6px 10px', fontSize:13 }} value={(form as Record<string,string>)[k]||''} onChange={e => set(k, e.target.value)}>
-            <option value="">-- เลือก --</option>
-            {options.map(o => <option key={o} value={o}>{o}</option>)}
-          </select>
-        ) : (
-          <input className="form-input" style={{ padding:'6px 10px', fontSize:13 }} value={(form as Record<string,string>)[k]||''} onChange={e => set(k, e.target.value)} />
-        )
-      ) : (
-        <div style={{ fontSize:13, color:'#374151', padding:'5px 0', borderBottom:'1px solid #f3f4f6' }}>
-          {edit && readonly ? ((form as Record<string,string>)[k] || '—') : (((profile as unknown) as Record<string,string>)[k] || '—')}
-        </div>
-      )}
-    </div>
-  );
-
   const isStudent = profile.role === 'student';
+  const fProps = { edit, form, profile, set };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -63,14 +67,14 @@ function ProfileDetailModal({ profile, onClose, onSave, viewerRole }: {
             <div style={{ marginBottom:20 }}>
               <div style={{ fontSize:12, fontWeight:800, color:'#5b21b6', letterSpacing:'0.05em', textTransform:'uppercase', marginBottom:12 }}>ข้อมูลบุคลากร</div>
               <div style={{ background:SECTION_BG, borderRadius:12, padding:16, display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
-                <F label="คำนำหน้า" k="prefix" options={['นาย','นาง','น.ส.', 'ดร.', 'ศ.']} />
-                <F label="ชื่อ" k="name" />
-                <F label="นามสกุล" k="surname" />
-                <F label="ชื่อภาษาอังกฤษ" k="englishName" />
-                <F label="สอนรายวิชา" k="favoriteSubject" />
-                <F label="ที่ปรึกษาชั้น" k="roomAdvisor" />
-                <F label="อีเมล" k="email" />
-                <F label="ลิงก์รูปโปรไฟล์" k="profilePic" />
+                <F {...fProps} label="คำนำหน้า" k="prefix" options={['นาย','นาง','น.ส.', 'ดร.', 'ศ.']} />
+                <F {...fProps} label="ชื่อ" k="name" />
+                <F {...fProps} label="นามสกุล" k="surname" />
+                <F {...fProps} label="ชื่อภาษาอังกฤษ" k="englishName" />
+                <F {...fProps} label="สอนรายวิชา" k="favoriteSubject" />
+                <F {...fProps} label="ที่ปรึกษาชั้น" k="roomAdvisor" />
+                <F {...fProps} label="อีเมล" k="email" />
+                <F {...fProps} label="ลิงก์รูปโปรไฟล์" k="profilePic" />
               </div>
             </div>
           )}
@@ -82,20 +86,20 @@ function ProfileDetailModal({ profile, onClose, onSave, viewerRole }: {
               <div style={{ marginBottom:20 }}>
                 <div style={{ fontSize:12, fontWeight:800, color:'#5b21b6', letterSpacing:'0.05em', textTransform:'uppercase', marginBottom:12 }}>ข้อมูลส่วนตัว</div>
                 <div style={{ background:SECTION_BG, borderRadius:12, padding:16, display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:12 }}>
-                  <F label="รหัสประจำตัวนักเรียน" k="username" readonly />
-                  <F label="คำนำหน้า" k="prefix" />
-                  <F label="ชื่อ" k="name" />
-                  <F label="นามสกุล" k="surname" />
-                  <F label="ชั้นเรียน" k="class" readonly={viewerRole === 'student'} />
-                  <F label="หมายเลขบัตรประชาชน" k="idCard" />
-                  <F label="เพศ" k="gender" />
-                  <F label="วันเกิด (YYYY-MM-DD)" k="birthdate" />
-                  <F label="เชื้อชาติ" k="ethnicity" />
-                  <F label="สัญชาติ" k="nationality" />
-                  <F label="ศาสนา" k="religion" />
-                  <F label="น้ำหนัก" k="weight" />
-                  <F label="ส่วนสูง" k="height" />
-                  <F label="หมู่เลือด" k="bloodType" />
+                  <F {...fProps} label="รหัสประจำตัวนักเรียน" k="username" readonly />
+                  <F {...fProps} label="คำนำหน้า" k="prefix" />
+                  <F {...fProps} label="ชื่อ" k="name" />
+                  <F {...fProps} label="นามสกุล" k="surname" />
+                  <F {...fProps} label="ชั้นเรียน" k="class" readonly={viewerRole === 'student'} />
+                  <F {...fProps} label="หมายเลขบัตรประชาชน" k="idCard" />
+                  <F {...fProps} label="เพศ" k="gender" />
+                  <F {...fProps} label="วันเกิด (YYYY-MM-DD)" k="birthdate" />
+                  <F {...fProps} label="เชื้อชาติ" k="ethnicity" />
+                  <F {...fProps} label="สัญชาติ" k="nationality" />
+                  <F {...fProps} label="ศาสนา" k="religion" />
+                  <F {...fProps} label="น้ำหนัก" k="weight" />
+                  <F {...fProps} label="ส่วนสูง" k="height" />
+                  <F {...fProps} label="หมู่เลือด" k="bloodType" />
                 </div>
               </div>
 
@@ -103,12 +107,12 @@ function ProfileDetailModal({ profile, onClose, onSave, viewerRole }: {
               <div style={{ marginBottom:20 }}>
                 <div style={{ fontSize:12, fontWeight:800, color:'#5b21b6', letterSpacing:'0.05em', textTransform:'uppercase', marginBottom:12 }}>การศึกษา</div>
                 <div style={{ background:SECTION_BG, borderRadius:12, padding:16, display:'grid', gridTemplateColumns:'2fr 1fr 1fr', gap:12 }}>
-                  <F label="โรงเรียนเดิม" k="prevSchool" />
-                  <F label="จังหวัด" k="prevProvince" />
-                  <F label="ชั้นสุดท้าย" k="prevGrade" />
-                  <F label="วิชาที่ชอบ" k="favoriteSubject" />
-                  <F label="วิชาที่ไม่ชอบ" k="leastFavoriteSubject" />
-                  <F label="ความสามารถพิเศษ" k="specialAbility" />
+                  <F {...fProps} label="โรงเรียนเดิม" k="prevSchool" />
+                  <F {...fProps} label="จังหวัด" k="prevProvince" />
+                  <F {...fProps} label="ชั้นสุดท้าย" k="prevGrade" />
+                  <F {...fProps} label="วิชาที่ชอบ" k="favoriteSubject" />
+                  <F {...fProps} label="วิชาที่ไม่ชอบ" k="leastFavoriteSubject" />
+                  <F {...fProps} label="ความสามารถพิเศษ" k="specialAbility" />
                 </div>
               </div>
 
@@ -116,15 +120,15 @@ function ProfileDetailModal({ profile, onClose, onSave, viewerRole }: {
               <div style={{ marginBottom:20 }}>
                 <div style={{ fontSize:12, fontWeight:800, color:'#5b21b6', letterSpacing:'0.05em', textTransform:'uppercase', marginBottom:12 }}>ที่อยู่</div>
                 <div style={{ background:SECTION_BG, borderRadius:12, padding:16, display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:12 }}>
-                  <F label="บ้านเลขที่" k="houseNo" />
-                  <F label="หมู่ที่" k="moo" />
-                  <F label="ซอย/ถนน" k="road" />
-                  <F label="ตำบล/แขวง" k="subdistrict" />
-                  <F label="อำเภอ/เขต" k="district" />
-                  <F label="จังหวัด" k="province" />
-                  <F label="อีเมล" k="email" />
-                  <F label="โทรศัพท์มือถือ" k="mobilePhone" />
-                  <F label="รหัสไปรษณีย์" k="postalCode" />
+                  <F {...fProps} label="บ้านเลขที่" k="houseNo" />
+                  <F {...fProps} label="หมู่ที่" k="moo" />
+                  <F {...fProps} label="ซอย/ถนน" k="road" />
+                  <F {...fProps} label="ตำบล/แขวง" k="subdistrict" />
+                  <F {...fProps} label="อำเภอ/เขต" k="district" />
+                  <F {...fProps} label="จังหวัด" k="province" />
+                  <F {...fProps} label="อีเมล" k="email" />
+                  <F {...fProps} label="โทรศัพท์มือถือ" k="mobilePhone" />
+                  <F {...fProps} label="รหัสไปรษณีย์" k="postalCode" />
                 </div>
               </div>
 
@@ -132,11 +136,11 @@ function ProfileDetailModal({ profile, onClose, onSave, viewerRole }: {
               <div style={{ marginBottom:20 }}>
                 <div style={{ fontSize:12, fontWeight:800, color:'#5b21b6', letterSpacing:'0.05em', textTransform:'uppercase', marginBottom:12 }}>ข้อมูลผู้ปกครอง</div>
                 <div style={{ background:SECTION_BG, borderRadius:12, padding:16, display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
-                  <F label="ชื่อบิดา" k="fatherName" />
-                  <F label="อาชีพบิดา" k="fatherOccupation" />
-                  <F label="ชื่อมารดา" k="motherName" />
-                  <F label="อาชีพมารดา" k="motherOccupation" />
-                  {profile.guardianName && <><F label="ชื่อผู้ปกครอง" k="guardianName" /><F label="ความสัมพันธ์" k="guardianRelation" /></>}
+                  <F {...fProps} label="ชื่อบิดา" k="fatherName" />
+                  <F {...fProps} label="อาชีพบิดา" k="fatherOccupation" />
+                  <F {...fProps} label="ชื่อมารดา" k="motherName" />
+                  <F {...fProps} label="อาชีพมารดา" k="motherOccupation" />
+                  {profile.guardianName && <><F {...fProps} label="ชื่อผู้ปกครอง" k="guardianName" /><F {...fProps} label="ความสัมพันธ์" k="guardianRelation" /></>}
                 </div>
               </div>
             </>
