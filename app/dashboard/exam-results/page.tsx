@@ -243,52 +243,60 @@ export default function ExamResultsPage() {
   };
 
   // PDF export
-  const handleExportPDF = () => {
+  const handleExportPDF = async () => {
     const doc = new jsPDF('l', 'mm', 'a4');
-    doc.setFontSize(14);
+    
+    // Add Thai Font (Sarabun)
+    try {
+      const fontUrl = 'https://cdn.jsdelivr.net/gh/googlefonts/sarabun@main/fonts/ttf/Sarabun-Regular.ttf';
+      const res = await fetch(fontUrl);
+      const arrayBuffer = await res.arrayBuffer();
+      const base64 = Buffer.from(arrayBuffer).toString('base64');
+      doc.addFileToVFS('Sarabun-Regular.ttf', base64);
+      doc.addFont('Sarabun-Regular.ttf', 'Sarabun', 'normal');
+      doc.setFont('Sarabun');
+    } catch (e) {
+      console.error('Failed to load Thai font', e);
+    }
+
+    doc.setFontSize(16);
     doc.text('รายงานผลการสอบ', 148, 15, { align: 'center' });
-    doc.setFontSize(9);
-    doc.text(`จำนวน ${groupedScores.length} นักเรียน`, 148, 22, { align: 'center' });
+    doc.setFontSize(10);
+    doc.text(`จำนวนนักเรียนทั้งหมด: ${groupedScores.length} คน`, 148, 22, { align: 'center' });
+    
     autoTable(doc, {
       startY: 28,
       head: [
         !canEdit
-          ? ['ห้อง', 'คณิต', 'ฟิสิกส์', 'เคมี', 'ชีวะ', 'อังกฤษ', 'ไทย', 'สังคม', 'รวม', 'ประเภทการสอบ', 'ครั้งที่']
-          : ['รหัสนักเรียน', 'ชื่อ-นามสกุล', 'ห้อง', 'คณิต', 'ฟิสิกส์', 'เคมี', 'ชีวะ', 'อังกฤษ', 'ไทย', 'สังคม', 'รวม', 'ประเภทการสอบ', 'ครั้งที่']
+          ? ['ห้อง', 'คณิตศาสตร์', 'ฟิสิกส์', 'เคมี', 'ชีววิทยา', 'ภาษาอังกฤษ', 'ภาษาไทย', 'สังคมฯ', 'รวม', 'ประเภทการสอบ', 'ครั้งที่']
+          : ['รหัส', 'ชื่อ-นามสกุล', 'ห้อง', 'คณิต', 'ฟิสิกส์', 'เคมี', 'ชีวะ', 'อังกฤษ', 'ไทย', 'สังคม', 'รวม', 'ประเภทการสอบ', 'ครั้งที่']
       ],
       body: groupedScores.map((g) => {
+        const s = g.subjects;
         if (!canEdit) {
           return [
             g.class,
-            g.subjects['คณิตศาสตร์']?.score ?? '-',
-            g.subjects['ฟิสิกส์']?.score ?? '-',
-            g.subjects['เคมี']?.score ?? '-',
-            g.subjects['ชีววิทยา']?.score ?? '-',
-            g.subjects['ภาษาอังกฤษ']?.score ?? '-',
-            g.subjects['ภาษาไทย']?.score ?? '-',
-            g.subjects['สังคมศึกษา']?.score ?? '-',
-            g.total,
-            g.examType,
-            g.examRound
+            s['คณิตศาสตร์']?.score ?? '-', s['ฟิสิกส์']?.score ?? '-', s['เคมี']?.score ?? '-',
+            s['ชีววิทยา']?.score ?? '-', s['ภาษาอังกฤษ']?.score ?? '-', s['ภาษาไทย']?.score ?? '-',
+            s['สังคมศึกษา']?.score ?? '-',
+            g.total, g.examType, g.examRound
           ];
         } else {
           return [
             g.studentId, g.studentName, g.class,
-            g.subjects['คณิตศาสตร์']?.score ?? '-',
-            g.subjects['ฟิสิกส์']?.score ?? '-',
-            g.subjects['เคมี']?.score ?? '-',
-            g.subjects['ชีววิทยา']?.score ?? '-',
-            g.subjects['ภาษาอังกฤษ']?.score ?? '-',
-            g.subjects['ภาษาไทย']?.score ?? '-',
-            g.subjects['สังคมศึกษา']?.score ?? '-',
-            g.total,
-            g.examType,
-            g.examRound
+            s['คณิตศาสตร์']?.score ?? '-', s['ฟิสิกส์']?.score ?? '-', s['เคมี']?.score ?? '-',
+            s['ชีววิทยา']?.score ?? '-', s['ภาษาอังกฤษ']?.score ?? '-', s['ภาษาไทย']?.score ?? '-',
+            s['สังคมศึกษา']?.score ?? '-',
+            g.total, g.examType, g.examRound
           ];
         }
       }),
-      styles: { fontSize: 8 },
-      headStyles: { fillColor: [99, 102, 241] },
+      styles: { font: 'Sarabun', fontSize: 8 },
+      headStyles: { fillColor: [99, 102, 241], font: 'Sarabun', fontStyle: 'normal' },
+      columnStyles: {
+        0: { cellWidth: canEdit ? 20 : 15 },
+        1: { cellWidth: canEdit ? 35 : 'auto' },
+      }
     });
     doc.save('exam-results.pdf');
   };
