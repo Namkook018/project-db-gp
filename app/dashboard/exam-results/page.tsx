@@ -248,7 +248,7 @@ export default function ExamResultsPage() {
     
     // Add Thai Font (Sarabun)
     try {
-      const fontUrl = 'https://cdn.jsdelivr.net/gh/googlefonts/sarabun@main/fonts/ttf/Sarabun-Regular.ttf';
+      const fontUrl = 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/sarabun/Sarabun-Regular.ttf';
       const res = await fetch(fontUrl);
       const arrayBuffer = await res.arrayBuffer();
       const base64 = Buffer.from(arrayBuffer).toString('base64');
