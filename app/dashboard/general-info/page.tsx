@@ -69,6 +69,7 @@ function ProfileDetailModal({ profile, onClose, onSave, viewerRole }: {
                 <F label="ชื่อภาษาอังกฤษ" k="englishName" />
                 <F label="สอนรายวิชา" k="favoriteSubject" />
                 <F label="ที่ปรึกษาชั้น" k="roomAdvisor" />
+                <F label="อีเมล" k="email" />
                 <F label="ลิงก์รูปโปรไฟล์" k="profilePic" />
               </div>
             </div>

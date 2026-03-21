@@ -126,6 +126,7 @@ export default function RegisterPage() {
                 <F label="สอนรายวิชา" val={form.favoriteSubject} onChange={v=>set('favoriteSubject',v)} options={SUBJECTS} />
                 <F label="ที่ปรึกษาชั้น" val={form.roomAdvisor} onChange={v=>set('roomAdvisor',v)} options={ALL_CLASSES} />
               </div>
+              <F label="อีเมล" val={form.email} onChange={v=>set('email',v)} type="email" />
               <F label="ลิงก์รูปโปรไฟล์ (URL)" val={form.profilePic} onChange={v=>set('profilePic',v)} />
             </div>
           )}
