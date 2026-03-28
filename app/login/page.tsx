@@ -31,7 +31,7 @@ export default function LoginPage() {
       <div className="animate-fadeInUp" style={{ width: '100%', maxWidth: 420 }}>
         {/* Logo area */}
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <Image src="/logo.png" alt="CPR Logo" width={80} height={80} style={{ objectFit: 'contain', marginBottom: 16, background: '#fff', borderRadius: '50%', padding: 4, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
+          <Image src="/logo.png" alt="CPR Logo" width={80} height={80} style={{ objectFit: 'contain', marginBottom: 16, background: '#fff', borderRadius: '50%', padding: 4, boxShadow: '0 4px 12px rgba(0,0,0,0.1)', display: 'block', margin: '0 auto 16px' }} />
           <h1 style={{ fontSize: 22, fontWeight: 900, color: '#1e1b4b', margin: 0, letterSpacing: '-0.5px' }}>
             Gifted CPR Database
           </h1>
