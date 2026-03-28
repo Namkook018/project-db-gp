@@ -35,6 +35,7 @@ export default function ExamResultsPage() {
   const [filterSubject, setFilterSubject] = useState('');
   const [filterExamType, setFilterExamType] = useState('');
   const [activeTab, setActiveTab] = useState<'table' | 'chart'>('table');
+  const [profilePics, setProfilePics] = useState<Record<string, string>>({});
   const [editModal, setEditModal] = useState<GroupedScore | null>(null);
   const [editForm, setEditForm] = useState<Record<string, string>>({});
   const [uploading, setUploading] = useState(false);
@@ -50,8 +51,17 @@ export default function ExamResultsPage() {
       else filter.studentId = user.username;
     }
     if (user?.role === 'teacher') filter.class = user.roomAdvisor;
-    const [sc] = await Promise.all([apiGetScores(filter), apiGetUsers()]);
+    const [sc, allUsers] = await Promise.all([apiGetScores(filter), apiGetUsers()]);
     setScores(sc);
+    // Map users for profile pictures
+    const userMap: Record<string, string> = {};
+    allUsers.forEach(u => { 
+      if (u.profilePic) {
+        userMap[u.id] = u.profilePic;
+        if (u.username) userMap[u.username] = u.profilePic;
+      }
+    });
+    setProfilePics(userMap);
     setLoading(false);
   }, [user]);
 
@@ -251,7 +261,10 @@ export default function ExamResultsPage() {
       const fontUrl = 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/sarabun/Sarabun-Regular.ttf';
       const res = await fetch(fontUrl);
       const arrayBuffer = await res.arrayBuffer();
-      const base64 = Buffer.from(arrayBuffer).toString('base64');
+      const base64 = btoa(
+        new Uint8Array(arrayBuffer)
+          .reduce((data, byte) => data + String.fromCharCode(byte), '')
+      );
       doc.addFileToVFS('Sarabun-Regular.ttf', base64);
       doc.addFont('Sarabun-Regular.ttf', 'Sarabun', 'normal');
       doc.setFont('Sarabun');
@@ -410,6 +423,7 @@ export default function ExamResultsPage() {
                 <thead>
                   <tr style={{ background: '#f9fafb' }}>
                     <th style={{ width: 50, color: '#6b7280' }}>ลำดับ</th>
+                    {canEdit && <th style={{ width: 60 }}>รูป</th>}
                     {canEdit && <th style={{ width: 100 }}>รหัสนักเรียน</th>}
                     {canEdit && <th style={{ width: 180 }}>ชื่อ-นามสกุล</th>}
                     <th style={{ width: 60, textAlign: 'center' }}>ห้อง</th>
@@ -426,6 +440,17 @@ export default function ExamResultsPage() {
                   {groupedScores.map((g, i) => (
                     <tr key={g.key}>
                       <td style={{ color: '#9ca3af', fontSize: 12 }}>{i + 1}</td>
+                      {canEdit && (
+                        <td>
+                          <div className={`avatar ${!profilePics[g.studentId] ? 'avatar-placeholder' : ''}`} style={{ width:32, height:32, fontSize:12, overflow:'hidden' }}>
+                            {profilePics[g.studentId] ? (
+                              <img src={profilePics[g.studentId]} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+                            ) : (
+                              g.studentName.charAt(0)
+                            )}
+                          </div>
+                        </td>
+                      )}
                       {canEdit && <td><span className="badge badge-student">{g.studentId}</span></td>}
                       {canEdit && <td style={{ fontWeight: 600 }}>{g.studentName}</td>}
                       <td><span className="badge badge-info">{g.class}</span></td>

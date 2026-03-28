@@ -4,6 +4,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '../lib/auth';
 import Image from 'next/image';
+import { getDirectImageUrl } from '../lib/utils';
 
 const NAV_ITEMS = [
   { href: '/dashboard', icon: '🏠', label: 'หน้าหลัก', roles: ['admin', 'teacher', 'student'] },
@@ -76,8 +77,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* User profile at bottom */}
         <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 10px', borderRadius: 12, background: 'rgba(255,255,255,0.06)', cursor: 'pointer' }} onClick={() => setProfileOpen(!profileOpen)}>
-            <div className="avatar avatar-placeholder" style={{ width: 36, height: 36, borderRadius: 10, fontSize: 14, fontWeight: 700 }}>
-              {user.name.charAt(0)}
+            <div className={`avatar ${!getDirectImageUrl(user.profilePic) ? 'avatar-placeholder' : ''}`} style={{ width: 36, height: 36, borderRadius: 10, fontSize: 14, fontWeight: 700, overflow: 'hidden' }}>
+              {getDirectImageUrl(user.profilePic) ? (
+                <img src={getDirectImageUrl(user.profilePic)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                user.name.charAt(0)
+              )}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ color: '#fff', fontSize: 13, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.name} {user.surname}</div>
@@ -125,8 +130,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <div style={{ fontSize: 13, fontWeight: 600, color: '#1e1b4b' }}>{user.name} {user.surname}</div>
               <div style={{ fontSize: 11, color: '#6b7280' }}>{roleLabel}</div>
             </div>
-            <div className="avatar avatar-placeholder" style={{ width: 38, height: 38, fontSize: 15, fontWeight: 700, cursor: 'pointer', borderRadius: 12 }}>
-              {user.name.charAt(0)}
+            <div className={`avatar ${!getDirectImageUrl(user.profilePic) ? 'avatar-placeholder' : ''}`} style={{ width: 38, height: 38, fontSize: 15, fontWeight: 700, cursor: 'pointer', borderRadius: 12, overflow: 'hidden' }}>
+              {getDirectImageUrl(user.profilePic) ? (
+                <img src={getDirectImageUrl(user.profilePic)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                user.name.charAt(0)
+              )}
             </div>
           </div>
         </header>

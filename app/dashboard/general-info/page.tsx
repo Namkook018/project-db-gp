@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../lib/auth';
 import { apiGetUsers, apiGetStudentProfile, apiUpdateProfile, apiDeleteUser, type StudentProfile } from '../../lib/api';
+import { getDirectImageUrl } from '../../lib/utils';
 
 const SECTION_BG = '#f9fafb';
 
@@ -48,8 +49,23 @@ function ProfileDetailModal({ profile, onClose, onSave, viewerRole }: {
         {/* Header */}
         <div style={{ background:'linear-gradient(135deg,#4f46e5,#6366f1)', padding:'24px 28px', borderRadius:'20px 20px 0 0', position:'relative' }}>
           <div style={{ display:'flex', alignItems:'center', gap:16 }}>
-            <div className="avatar avatar-placeholder avatar-lg" style={{ borderRadius:16, fontSize:28, fontWeight:800, border:'3px solid rgba(255,255,255,0.3)' }}>
-              {profile.name?.charAt(0) || '?'}
+            <div className={`avatar ${!getDirectImageUrl(edit ? form.profilePic : profile.profilePic) ? 'avatar-placeholder' : ''} avatar-lg`} style={{ borderRadius:16, fontSize:28, fontWeight:800, border:'3px solid rgba(255,255,255,0.3)', overflow:'hidden', position:'relative' }}>
+              {getDirectImageUrl(edit ? form.profilePic : profile.profilePic) ? (
+                <img src={getDirectImageUrl(edit ? form.profilePic : profile.profilePic)} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+              ) : (
+                profile.name?.charAt(0) || '?'
+              )}
+              {edit && (
+                <div 
+                  onClick={() => {
+                    const url = prompt('กรอกลิงก์รูปโปรไฟล์ใหม่:', form.profilePic || '');
+                    if (url !== null) set('profilePic', url);
+                  }}
+                  style={{ position:'absolute', inset:0, background:'rgba(0,0,0,0.4)', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', fontSize:12, color:'#fff', fontWeight:600 }}
+                >
+                  📷 แก้ไข
+                </div>
+              )}
             </div>
             <div>
               <h3 style={{ color:'#fff', fontWeight:800, fontSize:18 }}>{profile.prefix} {profile.name} {profile.surname}</h3>
@@ -220,8 +236,12 @@ export default function GeneralInfoPage() {
           <div className="section-card animate-fadeInUp">
             <div style={{ background:'linear-gradient(135deg,#4f46e5,#6366f1)', padding:'28px 32px', borderRadius:'16px 16px 0 0' }}>
               <div style={{ display:'flex', alignItems:'center', gap:20 }}>
-                <div className="avatar avatar-placeholder avatar-lg" style={{ borderRadius:20, fontSize:32, fontWeight:800, border:'3px solid rgba(255,255,255,0.3)' }}>
-                  {me.name?.charAt(0) || '?'}
+                <div className={`avatar ${!me.profilePic ? 'avatar-placeholder' : ''} avatar-lg`} style={{ borderRadius:20, fontSize:32, fontWeight:800, border:'3px solid rgba(255,255,255,0.3)', overflow:'hidden' }}>
+                  {me.profilePic ? (
+                    <img src={me.profilePic} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+                  ) : (
+                    me.name?.charAt(0) || '?'
+                  )}
                 </div>
                 <div>
                   <h2 style={{ color:'#fff', fontWeight:800, fontSize:22 }}>{me.prefix} {me.name} {me.surname}</h2>
@@ -294,7 +314,13 @@ export default function GeneralInfoPage() {
                     <td style={{ color:'#9ca3af', fontSize:12 }}>{i+1}</td>
                     <td>
                       <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-                        <div className="avatar avatar-placeholder" style={{ fontSize:14, fontWeight:700, flexShrink:0 }}>{u.name?.charAt(0) || '?'}</div>
+                        <div className={`avatar ${!u.profilePic ? 'avatar-placeholder' : ''}`} style={{ fontSize:14, fontWeight:700, flexShrink:0, overflow:'hidden' }}>
+                          {u.profilePic ? (
+                            <img src={u.profilePic} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+                          ) : (
+                            u.name?.charAt(0) || '?'
+                          )}
+                        </div>
                         <div>
                           <div style={{ fontWeight:700, fontSize:14 }}>{u.prefix} {u.name} {u.surname}</div>
                           <div style={{ fontSize:11, color:'#9ca3af' }}>{u.username}</div>
