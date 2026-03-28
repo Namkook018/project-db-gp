@@ -8,13 +8,13 @@ import { getDirectImageUrl } from '../lib/utils';
 import { ALL_CLASSES, RELIGIONS, BLOOD_TYPES, SUBJECTS } from '../lib/config';
 
 const UploadButton = ({ onUpload, loading }: { onUpload: (file: File) => void; loading: boolean }) => (
-  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
     <label style={{ 
-      display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', 
-      background: '#4f46e5', border: '1px solid rgba(0,0,0,0.1)', borderRadius: 8, 
-      fontSize: 12, fontWeight: 600, color: '#fff', cursor: loading ? 'not-allowed' : 'pointer' 
+      display: 'inline-flex', alignItems: 'center', gap: 6, 
+      fontSize: 13, fontWeight: 600, color: '#4f46e5', cursor: loading ? 'not-allowed' : 'pointer',
+      textDecoration: 'underline'
     }}>
-      {loading ? '⌛ อัปโหลด...' : '📁 อัปโหลดรูปใหม่'}
+      {loading ? '⌛ อัปโหลด...' : <><span style={{fontSize:16}}>🖼️</span> เปลี่ยนรูปโปรไฟล์</>}
       <input type="file" accept="image/*" style={{ display: 'none' }} disabled={loading} onChange={e => e.target.files?.[0] && onUpload(e.target.files[0])} />
     </label>
   </div>
@@ -64,11 +64,11 @@ export default function RegisterPage() {
     const reader = new FileReader();
     reader.onload = async () => {
       const base64Data = (reader.result as string).split(',')[1];
-      const res = await apiUploadProfilePic(file.name, file.type, base64Data);
+      const res = await apiUploadProfilePic(file.name, file.type, base64Data, form.profilePic);
       if (res.success && res.url) {
         set('profilePic', res.url);
       } else {
-        alert('อัปโหลดล้มเหลว: ' + (res.error || 'Unknown error'));
+        alert('อัปโหลดล้มเหลว: ' + ((res as any).message || 'ไม่ทราบสาเหตุ'));
       }
       setUploading(false);
     };
@@ -134,30 +134,27 @@ export default function RegisterPage() {
 
         <div className="glass-card" style={{ padding:28 }}>
           {/* Profile Picture Preview at the top */}
-          <div style={{ display:'flex', alignItems:'center', gap:20, marginBottom:24, paddingBottom:20, borderBottom:'1px solid #f3f4f6' }}>
-            <div className={`avatar ${!getDirectImageUrl(form.profilePic) ? 'avatar-placeholder' : ''} avatar-lg`} style={{ borderRadius:16, fontSize:28, fontWeight:800, border:'3px solid #e5e7eb', overflow:'hidden', flexShrink:0 }}>
+          <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:10, marginBottom:24, paddingBottom:20, borderBottom:'1px solid #f3f4f6' }}>
+            <div className={`avatar ${!getDirectImageUrl(form.profilePic) ? 'avatar-placeholder' : ''} avatar-lg`} style={{ borderRadius:16, fontSize:32, fontWeight:800, border:'3px solid #e5e7eb', overflow:'hidden', flexShrink:0 }}>
               {getDirectImageUrl(form.profilePic) ? (
                 <img src={getDirectImageUrl(form.profilePic)} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
               ) : (
                 form.name?.charAt(0) || '?'
               )}
             </div>
-            <div>
-              <div style={{ fontSize:14, fontWeight:700, color:'#1e1b4b', marginBottom:4 }}>รูปโปรไฟล์</div>
-              <div style={{ display:'flex', gap:8 }}>
-                <UploadButton onUpload={handleFileUpload} loading={uploading} />
-                <button 
-                  onClick={() => {
-                    const url = prompt('กรอกลิงก์รูปโปรไฟล์:', form.profilePic || '');
-                    if (url !== null) set('profilePic', url);
-                  }}
-                  className="btn-secondary btn-sm"
-                >
-                  🔗 แนบลิงก์ URL
-                </button>
-              </div>
-              <div style={{ fontSize:11, color:'#9ca3af', marginTop:6 }}>แนะนำรูปทรงจตุรัส ขนาดไม่เกิน 2MB</div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+              <UploadButton onUpload={handleFileUpload} loading={uploading} />
+              <button 
+                onClick={() => {
+                  const url = prompt('กรอกลิงก์รูปโปรไฟล์:', form.profilePic || '');
+                  if (url !== null) set('profilePic', url);
+                }}
+                style={{ background: 'none', border: 'none', padding: 0, color: '#6b7280', fontSize: 10, textDecoration: 'underline', cursor: 'pointer' }}
+              >
+                หรือแนบลิงก์ URL
+              </button>
             </div>
+            <div style={{ fontSize:11, color:'#9ca3af', marginTop:2 }}>แนะนำรูปทรงจตุรัส ขนาดไม่เกิน 2MB</div>
           </div>
 
           {step === 0 && (

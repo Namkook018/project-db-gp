@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '../../lib/auth';
+import { useAuth, type User } from '../../lib/auth';
 import { apiGetUsers, apiGetStudentProfile, apiUpdateProfile, apiDeleteUser, apiUploadProfilePic, type StudentProfile } from '../../lib/api';
 import { getDirectImageUrl } from '../../lib/utils';
 
@@ -29,38 +29,50 @@ const F = ({ label, k, edit, readonly, options, form, profile, set }: {
   </div>
 );
 
-const UploadButton = ({ onUpload, loading, currentUrl }: { onUpload: (file: File) => void; loading: boolean; currentUrl?: string }) => (
-  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+const UploadButton = ({ onUpload, loading }: { onUpload: (file: File) => void; loading: boolean }) => (
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
     <label style={{ 
-      display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', 
-      background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 8, 
-      fontSize: 12, fontWeight: 600, color: '#fff', cursor: loading ? 'not-allowed' : 'pointer' 
+      display: 'inline-flex', alignItems: 'center', gap: 6, 
+      fontSize: 13, fontWeight: 600, color: '#fff', cursor: loading ? 'not-allowed' : 'pointer',
+      textDecoration: 'underline'
     }}>
-      {loading ? '⌛ อัปโหลด...' : '📁 อัปโหลดรูปใหม่'}
+      {loading ? '⌛ อัปโหลด...' : <><span style={{fontSize:16}}>🖼️</span> เปลี่ยนรูปโปรไฟล์</>}
       <input type="file" accept="image/*" style={{ display: 'none' }} disabled={loading} onChange={e => e.target.files?.[0] && onUpload(e.target.files[0])} />
     </label>
   </div>
 );
 
-function ProfileDetailModal({ profile, onClose, onSave, viewerRole }: {
+function ProfileDetailModal({ profile, onClose, onSave, viewerRole, currentUser, updateUser, loadUsers }: {
   profile: StudentProfile; onClose: () => void;
   onSave: (data: Partial<StudentProfile>) => void; viewerRole: string;
+  currentUser: User | null; updateUser: (data: Partial<User>) => void; loadUsers: (silent?: boolean) => void;
 }) {
   const [edit, setEdit] = useState(false);
   const [form, setForm] = useState({...profile});
   const [uploading, setUploading] = useState(false);
   const set = (k: string, v: string) => setForm(p => ({...p, [k]: v}));
 
+  const handleSetUrl = async (url: string) => {
+    set('profilePic', url);
+    const result = await apiUpdateProfile(profile.id, { profilePic: url });
+    if (!result?.success) {
+      alert('⚠️ ไม่สามารถบันทึกรูปโปรไฟล์ได้ กรุณาไปอัปเดต GAS และ Redeploy ใหม่ครับ');
+      return;
+    }
+    if (profile.id === currentUser?.id) updateUser({ profilePic: url });
+    loadUsers(true);
+  };
+
   const handleFileUpload = async (file: File) => {
     setUploading(true);
     const reader = new FileReader();
     reader.onload = async () => {
       const base64Data = (reader.result as string).split(',')[1];
-      const res = await apiUploadProfilePic(file.name, file.type, base64Data);
+      const res = await apiUploadProfilePic(file.name, file.type, base64Data, form.profilePic);
       if (res.success && res.url) {
-        set('profilePic', res.url);
+        await handleSetUrl(res.url);
       } else {
-        alert('อัปโหลดล้มเหลว');
+        alert('อัปโหลดล้มเหลว: ' + ((res as any).message || 'ไม่ทราบสาเหตุ'));
       }
       setUploading(false);
     };
@@ -78,12 +90,28 @@ function ProfileDetailModal({ profile, onClose, onSave, viewerRole }: {
       <div className="modal-box" style={{ maxWidth:700, padding:0 }} onClick={e => e.stopPropagation()}>
         {/* Header */}
         <div style={{ background:'linear-gradient(135deg,#4f46e5,#6366f1)', padding:'24px 28px', borderRadius:'20px 20px 0 0', position:'relative' }}>
-          <div style={{ display:'flex', alignItems:'center', gap:16 }}>
-            <div className={`avatar ${!getDirectImageUrl(edit ? form.profilePic : profile.profilePic) ? 'avatar-placeholder' : ''} avatar-lg`} style={{ borderRadius:16, fontSize:28, fontWeight:800, border:'3px solid rgba(255,255,255,0.3)', overflow:'hidden' }}>
-              {getDirectImageUrl(edit ? form.profilePic : profile.profilePic) ? (
-                <img src={getDirectImageUrl(edit ? form.profilePic : profile.profilePic)} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
-              ) : (
-                profile.name?.charAt(0) || '?'
+          <div style={{ display:'flex', alignItems:'center', gap:24 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+              <div className={`avatar ${!getDirectImageUrl(edit ? form.profilePic : profile.profilePic) ? 'avatar-placeholder' : ''} avatar-lg`} style={{ borderRadius:16, fontSize:28, fontWeight:800, border:'3px solid rgba(255,255,255,0.3)', overflow:'hidden' }}>
+                {getDirectImageUrl(edit ? form.profilePic : profile.profilePic) ? (
+                  <img src={getDirectImageUrl(edit ? form.profilePic : profile.profilePic)} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+                ) : (
+                  profile.name?.charAt(0) || '?'
+                )}
+              </div>
+              {edit && (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                  <UploadButton onUpload={handleFileUpload} loading={uploading} />
+                  <button 
+                    onClick={async () => {
+                      const url = prompt('กรอกลิงก์รูปโปรไฟล์ใหม่:', form.profilePic || '');
+                      if (url !== null) await handleSetUrl(url);
+                    }}
+                    style={{ background: 'none', border: 'none', padding: 0, color: 'rgba(255,255,255,0.8)', fontSize: 10, textDecoration: 'underline', cursor: 'pointer' }}
+                  >
+                    หรือแนบลิงก์ URL
+                  </button>
+                </div>
               )}
             </div>
             <div style={{ flex: 1 }}>
@@ -91,21 +119,6 @@ function ProfileDetailModal({ profile, onClose, onSave, viewerRole }: {
               <div style={{ color:'rgba(255,255,255,0.8)', fontSize:13, marginTop:2 }}>
                 {isStudent ? `ชั้น ${profile.class || '—'}` : `ตำแหน่ง: ${profile.role === 'admin' ? 'ผู้ดูแลระบบ' : 'ครู'}`} • {profile.englishName || ''}
               </div>
-              {edit && (
-                <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
-                  <UploadButton onUpload={handleFileUpload} loading={uploading} />
-                  <button 
-                    onClick={() => {
-                      const url = prompt('กรอกลิงก์รูปโปรไฟล์ใหม่:', form.profilePic || '');
-                      if (url !== null) set('profilePic', url);
-                    }}
-                    className="btn-secondary btn-sm"
-                    style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff' }}
-                  >
-                    🔗 แนบลิงก์ URL
-                  </button>
-                </div>
-              )}
             </div>
           </div>
           <button onClick={onClose} style={{ position:'absolute', right:16, top:16, background:'rgba(255,255,255,0.2)', border:'none', borderRadius:8, width:32, height:32, cursor:'pointer', color:'#fff', fontSize:18 }}>×</button>
@@ -223,14 +236,14 @@ export default function GeneralInfoPage() {
 
   const canEditList = user?.role === 'admin';
 
-  const loadUsers = useCallback(async () => {
-    setLoading(true);
+  const loadUsers = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
     const all = await apiGetUsers();
     let filtered = all;
     if (user?.role === 'teacher') filtered = all.filter(u => u.class === user.roomAdvisor || u.id === user.id);
     if (user?.role === 'student') filtered = all.filter(u => u.id === user.id);
     setUsers(filtered);
-    setLoading(false);
+    if (!silent) setLoading(false);
   }, [user]);
 
   useEffect(() => { loadUsers(); }, [loadUsers]);
@@ -293,7 +306,7 @@ export default function GeneralInfoPage() {
           </div>
         </div>
         {selected && (
-          <ProfileDetailModal profile={selected} onClose={() => setSelected(null)} onSave={handleSave} viewerRole={user?.role || 'student'} />
+          <ProfileDetailModal profile={selected} onClose={() => setSelected(null)} onSave={handleSave} viewerRole={user?.role || 'student'} currentUser={user} updateUser={updateUser} loadUsers={loadUsers} />
         )}
       </div>
     );
@@ -386,7 +399,7 @@ export default function GeneralInfoPage() {
       </div>
 
       {selected && (
-        <ProfileDetailModal profile={selected} onClose={() => setSelected(null)} onSave={handleSave} viewerRole={user?.role || 'guest'} />
+        <ProfileDetailModal profile={selected} onClose={() => setSelected(null)} onSave={handleSave} viewerRole={user?.role || 'guest'} currentUser={user} updateUser={updateUser} loadUsers={loadUsers} />
       )}
     </div>
   );

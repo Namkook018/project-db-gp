@@ -150,12 +150,14 @@ async function gasRequest(action: string, data?: Record<string, unknown>) {
     if (json && json.error) {
       console.warn(`GAS API Error [${action}]:`, json.error);
       if (['getUsers', 'getScores', 'getAnnouncements', 'listFiles'].includes(action)) return [];
+      if (action === 'getClassStats') return {};
       return { success: false, message: json.error };
     }
     return json;
   } catch (err) {
     console.warn('Network or API Error:', err instanceof Error ? err.message : err);
     if (['getUsers', 'getScores', 'getAnnouncements', 'listFiles'].includes(action)) return [];
+    if (action === 'getClassStats') return {};
     return { success: false, message: 'การเชื่อมต่อขัดข้อง' };
   }
 }
@@ -178,9 +180,9 @@ export async function apiRegister(data: Record<string, unknown>): Promise<{ succ
   return gasRequest('register', data);
 }
 
-export async function apiUploadProfilePic(fileName: string, mimeType: string, base64Data: string): Promise<{ success: boolean; url?: string; error?: string }> {
+export async function apiUploadProfilePic(fileName: string, mimeType: string, base64Data: string, oldUrl?: string): Promise<{ success: boolean; url?: string; error?: string }> {
   if (USE_MOCK) return { success: true, url: 'https://via.placeholder.com/150' };
-  return gasRequest('uploadProfilePic', { fileName, mimeType, base64Data });
+  return gasRequest('uploadProfilePic', { fileName, mimeType, base64Data, oldUrl });
 }
 
 // ─────────────────────────────────────────────

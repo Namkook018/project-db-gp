@@ -228,7 +228,16 @@ function formatSize(bytes) {
 }
 
 function uploadProfilePic(body) {
-  const { fileName, mimeType, base64Data } = body;
+  const { fileName, mimeType, base64Data, oldUrl } = body;
+
+  // Delete old file if exists to save space
+  if (oldUrl) {
+    try {
+      const oldId = extractFileIdFromUrl(oldUrl);
+      if (oldId) DriveApp.getFileById(oldId).setTrashed(true);
+    } catch(e) {}
+  }
+
   const folderName = 'ProfilePictures';
   let folder;
   const folders = DriveApp.getFoldersByName(folderName);
@@ -247,6 +256,12 @@ function uploadProfilePic(body) {
   const directLink = 'https://drive.google.com/thumbnail?id=' + fileId + '&sz=w1000';
   
   return { success: true, url: directLink, fileId: fileId };
+}
+
+function extractFileIdFromUrl(url) {
+  if (!url) return null;
+  const match = url.match(/id=([^&]+)/);
+  return match ? match[1] : null;
 }
 
 // ── Setup Helper ──────────────────────────────────
