@@ -102,15 +102,7 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Demo credentials */}
-        <div style={{ marginTop: 16, background: 'rgba(255,255,255,0.7)', borderRadius: 12, padding: '12px 16px', fontSize: 12, color: '#6b7280', border: '1px solid #e0e7ff' }}>
-          <p style={{ fontWeight: 700, color: '#5b21b6', marginBottom: 6 }}>🧪 Demo Accounts</p>
-          <div style={{ display: 'grid', gap: 3 }}>
-            <span>👑 admin / admin1234</span>
-            <span>👨‍🏫 teacher1 / teacher1234</span>
-            <span>🎒 stu001 / student1234</span>
-          </div>
-        </div>
+
       </div>
     </div>
   );
