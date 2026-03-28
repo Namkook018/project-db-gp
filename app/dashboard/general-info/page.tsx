@@ -278,9 +278,9 @@ export default function GeneralInfoPage() {
           <div className="section-card animate-fadeInUp">
             <div style={{ background:'linear-gradient(135deg,#4f46e5,#6366f1)', padding:'28px 32px', borderRadius:'16px 16px 0 0' }}>
               <div style={{ display:'flex', alignItems:'center', gap:20 }}>
-                <div className={`avatar ${!me.profilePic ? 'avatar-placeholder' : ''} avatar-lg`} style={{ borderRadius:20, fontSize:32, fontWeight:800, border:'3px solid rgba(255,255,255,0.3)', overflow:'hidden' }}>
-                  {me.profilePic ? (
-                    <img src={me.profilePic} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+                <div className={`avatar ${!getDirectImageUrl(me.profilePic) ? 'avatar-placeholder' : ''} avatar-lg`} style={{ borderRadius:20, fontSize:32, fontWeight:800, border:'3px solid rgba(255,255,255,0.3)', overflow:'hidden' }}>
+                  {getDirectImageUrl(me.profilePic) ? (
+                    <img src={getDirectImageUrl(me.profilePic)} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
                   ) : (
                     me.name?.charAt(0) || '?'
                   )}
@@ -356,9 +356,9 @@ export default function GeneralInfoPage() {
                     <td style={{ color:'#9ca3af', fontSize:12 }}>{i+1}</td>
                     <td>
                       <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-                        <div className={`avatar ${!u.profilePic ? 'avatar-placeholder' : ''}`} style={{ fontSize:14, fontWeight:700, flexShrink:0, overflow:'hidden' }}>
-                          {u.profilePic ? (
-                            <img src={u.profilePic} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+                        <div className={`avatar ${!getDirectImageUrl(u.profilePic) ? 'avatar-placeholder' : ''}`} style={{ fontSize:14, fontWeight:700, flexShrink:0, overflow:'hidden' }}>
+                          {getDirectImageUrl(u.profilePic) ? (
+                            <img src={getDirectImageUrl(u.profilePic)} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
                           ) : (
                             u.name?.charAt(0) || '?'
                           )}
