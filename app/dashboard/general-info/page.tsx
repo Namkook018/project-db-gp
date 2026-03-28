@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../lib/auth';
-import { apiGetUsers, apiGetStudentProfile, apiUpdateProfile, apiDeleteUser, type StudentProfile } from '../../lib/api';
+import { apiGetUsers, apiGetStudentProfile, apiUpdateProfile, apiDeleteUser, apiUploadProfilePic, type StudentProfile } from '../../lib/api';
 import { getDirectImageUrl } from '../../lib/utils';
 
 const SECTION_BG = '#f9fafb';
@@ -29,13 +29,43 @@ const F = ({ label, k, edit, readonly, options, form, profile, set }: {
   </div>
 );
 
+const UploadButton = ({ onUpload, loading, currentUrl }: { onUpload: (file: File) => void; loading: boolean; currentUrl?: string }) => (
+  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+    <label style={{ 
+      display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', 
+      background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 8, 
+      fontSize: 12, fontWeight: 600, color: '#fff', cursor: loading ? 'not-allowed' : 'pointer' 
+    }}>
+      {loading ? '⌛ อัปโหลด...' : '📁 อัปโหลดรูปใหม่'}
+      <input type="file" accept="image/*" style={{ display: 'none' }} disabled={loading} onChange={e => e.target.files?.[0] && onUpload(e.target.files[0])} />
+    </label>
+  </div>
+);
+
 function ProfileDetailModal({ profile, onClose, onSave, viewerRole }: {
   profile: StudentProfile; onClose: () => void;
   onSave: (data: Partial<StudentProfile>) => void; viewerRole: string;
 }) {
   const [edit, setEdit] = useState(false);
   const [form, setForm] = useState({...profile});
+  const [uploading, setUploading] = useState(false);
   const set = (k: string, v: string) => setForm(p => ({...p, [k]: v}));
+
+  const handleFileUpload = async (file: File) => {
+    setUploading(true);
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const base64Data = (reader.result as string).split(',')[1];
+      const res = await apiUploadProfilePic(file.name, file.type, base64Data);
+      if (res.success && res.url) {
+        set('profilePic', res.url);
+      } else {
+        alert('อัปโหลดล้มเหลว');
+      }
+      setUploading(false);
+    };
+    reader.readAsDataURL(file);
+  };
 
   // Everyone can edit the rows they are allowed to see based on our current logic.
   const canEdit = true; 
@@ -57,13 +87,18 @@ function ProfileDetailModal({ profile, onClose, onSave, viewerRole }: {
               )}
               {edit && (
                 <div 
-                  onClick={() => {
-                    const url = prompt('กรอกลิงก์รูปโปรไฟล์ใหม่:', form.profilePic || '');
-                    if (url !== null) set('profilePic', url);
-                  }}
-                  style={{ position:'absolute', inset:0, background:'rgba(0,0,0,0.4)', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', fontSize:12, color:'#fff', fontWeight:600 }}
+                  style={{ position:'absolute', inset:0, background:'rgba(0,0,0,0.4)', display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', gap:8 }}
                 >
-                  📷 แก้ไข
+                  <UploadButton onUpload={handleFileUpload} loading={uploading} currentUrl={form.profilePic} />
+                  <div 
+                    onClick={() => {
+                      const url = prompt('กรอกลิงก์รูปโปรไฟล์ใหม่:', form.profilePic || '');
+                      if (url !== null) set('profilePic', url);
+                    }}
+                    style={{ fontSize:10, color:'rgba(255,255,255,0.8)', cursor:'pointer', textDecoration:'underline' }}
+                  >
+                    หรือแนบลิงก์ URL
+                  </div>
                 </div>
               )}
             </div>
@@ -90,7 +125,14 @@ function ProfileDetailModal({ profile, onClose, onSave, viewerRole }: {
                 <F {...fProps} label="สอนรายวิชา" k="favoriteSubject" />
                 <F {...fProps} label="ที่ปรึกษาชั้น" k="roomAdvisor" />
                 <F {...fProps} label="อีเมล" k="email" />
-                <F {...fProps} label="ลิงก์รูปโปรไฟล์" k="profilePic" />
+                <div>
+                  <label className="form-label" style={{fontSize:11}}>รูปโปรไฟล์</label>
+                  {edit ? (
+                    <UploadButton onUpload={handleFileUpload} loading={uploading} currentUrl={form.profilePic} />
+                  ) : (
+                    <div style={{fontSize:12, color:'#6b7280', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{profile.profilePic || '-'}</div>
+                  )}
+                </div>
               </div>
             </div>
           )}

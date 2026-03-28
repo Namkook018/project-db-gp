@@ -3,8 +3,22 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { apiRegister } from '../lib/api';
+import { apiRegister, apiUploadProfilePic } from '../lib/api';
 import { ALL_CLASSES, RELIGIONS, BLOOD_TYPES, SUBJECTS } from '../lib/config';
+
+const UploadButton = ({ onUpload, loading, currentUrl }: { onUpload: (file: File) => void; loading: boolean; currentUrl?: string }) => (
+  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 4 }}>
+    <label style={{ 
+      display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 16px', 
+      background: '#f3f4f6', border: '1px solid #e5e7eb', borderRadius: 8, 
+      fontSize: 13, fontWeight: 600, color: '#374151', cursor: loading ? 'not-allowed' : 'pointer' 
+    }}>
+      {loading ? '⌛ กำลังอัปโหลด...' : '📁 เลือกไฟล์รูปภาพ'}
+      <input type="file" accept="image/*" style={{ display: 'none' }} disabled={loading} onChange={e => e.target.files?.[0] && onUpload(e.target.files[0])} />
+    </label>
+    {currentUrl && <span style={{ fontSize: 11, color: '#10b981', fontWeight: 600 }}>✅ อัปโหลดแล้ว</span>}
+  </div>
+);
 
 const F = ({ label, val, onChange, type='text', options, required=false }: { label:string; val:string; onChange:(v:string)=>void; type?:string; options?:string[]; required?:boolean }) => (
   <div>
@@ -43,6 +57,23 @@ export default function RegisterPage() {
   });
 
   const set = (k: string, v: string) => setForm(p => ({...p, [k]: v}));
+  const [uploading, setUploading] = useState(false);
+
+  const handleFileUpload = async (file: File) => {
+    setUploading(true);
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const base64Data = (reader.result as string).split(',')[1];
+      const res = await apiUploadProfilePic(file.name, file.type, base64Data);
+      if (res.success && res.url) {
+        set('profilePic', res.url);
+      } else {
+        alert('อัปโหลดล้มเหลว: ' + (res.error || 'Unknown error'));
+      }
+      setUploading(false);
+    };
+    reader.readAsDataURL(file);
+  };
 
   const isTeacher = form.role === 'teacher';
   const STEPS = isTeacher ? ['ข้อมูลบัญชี', 'ข้อมูลครู'] : ['ข้อมูลบัญชี','ข้อมูลส่วนตัว','ที่อยู่','ข้อมูลผู้ปกครอง'];
@@ -127,7 +158,13 @@ export default function RegisterPage() {
                 <F label="ที่ปรึกษาชั้น" val={form.roomAdvisor} onChange={v=>set('roomAdvisor',v)} options={ALL_CLASSES} />
               </div>
               <F label="อีเมล" val={form.email} onChange={v=>set('email',v)} type="email" />
-              <F label="ลิงก์รูปโปรไฟล์ (URL)" val={form.profilePic} onChange={v=>set('profilePic',v)} />
+              <div>
+                <label className="form-label">รูปโปรไฟล์</label>
+                <UploadButton onUpload={handleFileUpload} loading={uploading} currentUrl={form.profilePic} />
+                <div style={{ marginTop: 8 }}>
+                  <F label="หรือแนบลิงก์รูปภาพโดยตรง" val={form.profilePic} onChange={v=>set('profilePic',v)} />
+                </div>
+              </div>
             </div>
           )}
 

@@ -39,6 +39,7 @@ function handleAction(action, params, body) {
       case 'deleteAnnouncement': return deleteAnnouncement(body.id);
       case 'listFiles':       return listFiles(body.folderId);
       case 'deleteFile':      return deleteFile(body.fileId);
+      case 'uploadProfilePic': return uploadProfilePic(body);
       default:                return { error: 'Unknown action' };
     }
   } catch(e) {
@@ -224,6 +225,28 @@ function formatSize(bytes) {
   if (bytes < 1024) return bytes + ' B';
   if (bytes < 1048576) return (bytes/1024).toFixed(1) + ' KB';
   return (bytes/1048576).toFixed(1) + ' MB';
+}
+
+function uploadProfilePic(body) {
+  const { fileName, mimeType, base64Data } = body;
+  const folderName = 'ProfilePictures';
+  let folder;
+  const folders = DriveApp.getFoldersByName(folderName);
+  if (folders.hasNext()) {
+    folder = folders.next();
+  } else {
+    folder = DriveApp.createFolder(folderName);
+  }
+  
+  const decodedData = Utilities.base64Decode(base64Data);
+  const blob = Utilities.newBlob(decodedData, mimeType, fileName);
+  const file = folder.createFile(blob);
+  file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  
+  const fileId = file.getId();
+  const directLink = 'https://drive.google.com/uc?id=' + fileId;
+  
+  return { success: true, url: directLink, fileId: fileId };
 }
 
 // ── Setup Helper ──────────────────────────────────
