@@ -78,7 +78,7 @@ function ProfileDetailModal({ profile, onClose, onSave, viewerRole, currentUser,
         loadUsers(true);
         setUploadFailed(false);
       } else {
-        alert('อัปโหลดล้มเหลว: ' + ((res as any).message || 'ไม่ทราบสาเหตุ'));
+        alert('อัปโหลดล้มเหลว: ' + ((res as { message?: string }).message || 'ไม่ทราบสาเหตุ'));
         setUploadFailed(true);
       }
       setUploading(false);

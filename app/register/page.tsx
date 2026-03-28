@@ -72,7 +72,7 @@ export default function RegisterPage() {
         set('profilePic', res.url);
         setUploadFailed(false);
       } else {
-        alert('อัปโหลดล้มเหลว: ' + ((res as any).message || 'ไม่ทราบสาเหตุ'));
+        alert('อัปโหลดล้มเหลว: ' + ((res as { message?: string }).message || 'ไม่ทราบสาเหตุ'));
         setUploadFailed(true);
       }
       setUploading(false);
