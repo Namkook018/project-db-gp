@@ -234,8 +234,13 @@ function uploadProfilePic(body) {
   if (oldUrl) {
     try {
       const oldId = extractFileIdFromUrl(oldUrl);
-      if (oldId) DriveApp.getFileById(oldId).setTrashed(true);
-    } catch(e) {}
+      if (oldId) {
+        const oldFile = DriveApp.getFileById(oldId);
+        oldFile.setTrashed(true);
+      }
+    } catch(e) {
+      Logger.log('Could not delete old profile pic: ' + e.message + ' | url: ' + oldUrl);
+    }
   }
 
   const folderName = 'ProfilePictures';
@@ -260,7 +265,10 @@ function uploadProfilePic(body) {
 
 function extractFileIdFromUrl(url) {
   if (!url) return null;
-  const match = url.match(/id=([^&]+)/);
+  // Handles both formats:
+  // https://drive.google.com/thumbnail?id=FILE_ID&sz=w1000
+  // https://drive.google.com/file/d/FILE_ID/view
+  const match = url.match(/(?:\/d\/|[?&]id=)([\w-]+)/);
   return match ? match[1] : null;
 }
 
