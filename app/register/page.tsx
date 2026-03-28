@@ -271,8 +271,8 @@ export default function RegisterPage() {
               </button>
             )}
             {step < STEPS.length - 1 ? (
-              <button className="btn-primary" style={{ flex:2, justifyContent:'center' }} onClick={() => setStep(s => s+1)}>
-                ถัดไป →
+              <button className="btn-primary" style={{ flex:2, justifyContent:'center' }} onClick={() => setStep(s => s+1)} disabled={uploading}>
+                {uploading ? '⌛ กำลังอัปโหลด...' : 'ถัดไป →'}
               </button>
             ) : (
               <button className="btn-success" style={{ flex:2, justifyContent:'center' }} onClick={handleSubmit} disabled={loading}>

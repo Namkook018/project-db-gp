@@ -214,7 +214,7 @@ function ProfileDetailModal({ profile, onClose, onSave, viewerRole, currentUser,
             {edit ? (
               <>
                 <button className="btn-secondary" onClick={() => setEdit(false)}>ยกเลิก</button>
-                <button className="btn-primary" onClick={() => { onSave(form); setEdit(false); }}>💾 บันทึก</button>
+                <button className="btn-primary" onClick={() => { onSave(form); setEdit(false); }} disabled={uploading}>{uploading ? '⌛ กำลังอัปโหลด...' : '💾 บันทึก'}</button>
               </>
             ) : (
               <button className="btn-primary" onClick={() => setEdit(true)}>✏️ แก้ไขข้อมูล</button>
