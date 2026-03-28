@@ -66,7 +66,8 @@ export default function RegisterPage() {
     const reader = new FileReader();
     reader.onload = async () => {
       const base64Data = (reader.result as string).split(',')[1];
-      const res = await apiUploadProfilePic(file.name, file.type, base64Data, form.profilePic);
+      // No userId yet (not registered), pass oldUrl so GAS can delete previous upload attempt
+      const res = await apiUploadProfilePic(file.name, file.type, base64Data, undefined, form.profilePic);
       if (res.success && res.url) {
         set('profilePic', res.url);
         setUploadFailed(false);

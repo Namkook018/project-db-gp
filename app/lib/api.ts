@@ -180,9 +180,9 @@ export async function apiRegister(data: Record<string, unknown>): Promise<{ succ
   return gasRequest('register', data);
 }
 
-export async function apiUploadProfilePic(fileName: string, mimeType: string, base64Data: string, oldUrl?: string): Promise<{ success: boolean; url?: string; error?: string }> {
+export async function apiUploadProfilePic(fileName: string, mimeType: string, base64Data: string, userId?: string, oldUrl?: string): Promise<{ success: boolean; url?: string; error?: string }> {
   if (USE_MOCK) return { success: true, url: 'https://via.placeholder.com/150' };
-  return gasRequest('uploadProfilePic', { fileName, mimeType, base64Data, oldUrl });
+  return gasRequest('uploadProfilePic', { fileName, mimeType, base64Data, userId, oldUrl });
 }
 
 // ─────────────────────────────────────────────

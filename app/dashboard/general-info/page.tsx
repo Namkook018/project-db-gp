@@ -70,9 +70,12 @@ function ProfileDetailModal({ profile, onClose, onSave, viewerRole, currentUser,
     const reader = new FileReader();
     reader.onload = async () => {
       const base64Data = (reader.result as string).split(',')[1];
-      const res = await apiUploadProfilePic(file.name, file.type, base64Data, form.profilePic);
+      // Pass userId so GAS reads old URL from Sheet (authoritative), deletes it, and updates Sheet
+      const res = await apiUploadProfilePic(file.name, file.type, base64Data, profile.id);
       if (res.success && res.url) {
-        await handleSetUrl(res.url);
+        set('profilePic', res.url);
+        if (profile.id === currentUser?.id) updateUser({ profilePic: res.url });
+        loadUsers(true);
         setUploadFailed(false);
       } else {
         alert('อัปโหลดล้มเหลว: ' + ((res as any).message || 'ไม่ทราบสาเหตุ'));

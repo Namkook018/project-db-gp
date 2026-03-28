@@ -96,8 +96,21 @@ function updateProfile(data) {
   const headers = sheet.getRange(1,1,1,sheet.getLastColumn()).getValues()[0];
   const allData = sheet.getDataRange().getValues();
   const idCol = headers.indexOf('id');
+  const picCol = headers.indexOf('profilePic');
   for (let i = 1; i < allData.length; i++) {
     if (allData[i][idCol] === data.id) {
+      // Auto-delete old Drive file when profilePic URL changes (URL paste case)
+      if (data.profilePic !== undefined && picCol >= 0) {
+        const oldPic = allData[i][picCol];
+        if (oldPic && oldPic !== data.profilePic) {
+          try {
+            const oldId = extractFileIdFromUrl(String(oldPic));
+            if (oldId) DriveApp.getFileById(oldId).setTrashed(true);
+          } catch(e) {
+            Logger.log('updateProfile: could not delete old pic: ' + e.message);
+          }
+        }
+      }
       headers.forEach((h,j) => { if (data[h] !== undefined) sheet.getRange(i+1,j+1).setValue(data[h]); });
       return { success: true };
     }
@@ -228,39 +241,55 @@ function formatSize(bytes) {
 }
 
 function uploadProfilePic(body) {
-  const { fileName, mimeType, base64Data, oldUrl } = body;
+  const { fileName, mimeType, base64Data, userId, oldUrl } = body;
 
-  // Delete old file if exists to save space
-  if (oldUrl) {
-    try {
-      const oldId = extractFileIdFromUrl(oldUrl);
-      if (oldId) {
-        const oldFile = DriveApp.getFileById(oldId);
-        oldFile.setTrashed(true);
-      }
-    } catch(e) {
-      Logger.log('Could not delete old profile pic: ' + e.message + ' | url: ' + oldUrl);
-    }
-  }
-
+  // Upload new file to Drive
   const folderName = 'ProfilePictures';
   let folder;
   const folders = DriveApp.getFoldersByName(folderName);
-  if (folders.hasNext()) {
-    folder = folders.next();
-  } else {
-    folder = DriveApp.createFolder(folderName);
-  }
-  
+  folder = folders.hasNext() ? folders.next() : DriveApp.createFolder(folderName);
+
   const decodedData = Utilities.base64Decode(base64Data);
   const blob = Utilities.newBlob(decodedData, mimeType, fileName);
   const file = folder.createFile(blob);
   file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-  
+
   const fileId = file.getId();
-  const directLink = 'https://drive.google.com/thumbnail?id=' + fileId + '&sz=w1000';
-  
-  return { success: true, url: directLink, fileId: fileId };
+  const newUrl = 'https://drive.google.com/thumbnail?id=' + fileId + '&sz=w1000';
+
+  if (userId) {
+    // Authoritative path: read old URL from Sheet, delete old file, update Sheet
+    const sheet = ss.getSheetByName('Users');
+    const headers = sheet.getRange(1,1,1,sheet.getLastColumn()).getValues()[0];
+    const allData = sheet.getDataRange().getValues();
+    const idCol = headers.indexOf('id');
+    const picCol = headers.indexOf('profilePic');
+    for (let i = 1; i < allData.length; i++) {
+      if (allData[i][idCol] === userId) {
+        const sheetOldUrl = String(allData[i][picCol] || '');
+        if (sheetOldUrl && sheetOldUrl !== newUrl) {
+          try {
+            const oldId = extractFileIdFromUrl(sheetOldUrl);
+            if (oldId) DriveApp.getFileById(oldId).setTrashed(true);
+          } catch(e) {
+            Logger.log('uploadProfilePic: could not delete old pic: ' + e.message);
+          }
+        }
+        if (picCol >= 0) sheet.getRange(i + 1, picCol + 1).setValue(newUrl);
+        break;
+      }
+    }
+  } else if (oldUrl) {
+    // Register path: no userId yet, trust client-provided oldUrl to delete previous upload
+    try {
+      const oldId = extractFileIdFromUrl(String(oldUrl));
+      if (oldId && oldUrl !== newUrl) DriveApp.getFileById(oldId).setTrashed(true);
+    } catch(e) {
+      Logger.log('uploadProfilePic (register): could not delete old pic: ' + e.message);
+    }
+  }
+
+  return { success: true, url: newUrl, fileId: fileId };
 }
 
 function extractFileIdFromUrl(url) {
