@@ -3,7 +3,7 @@ import "./globals.css";
 import { AuthProvider } from "./lib/auth";
 
 export const metadata: Metadata = {
-  title: "ระบบบริหารจัดการโรงเรียน",
+  title: "Gifted CPR Database",
   description: "ระบบจัดการข้อมูลนักเรียน ผลการเรียน และคลังความรู้",
 };
 
