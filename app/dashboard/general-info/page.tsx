@@ -50,6 +50,7 @@ function ProfileDetailModal({ profile, onClose, onSave, viewerRole, currentUser,
   const [edit, setEdit] = useState(false);
   const [form, setForm] = useState({...profile});
   const [uploading, setUploading] = useState(false);
+  const [uploadFailed, setUploadFailed] = useState(false);
   const set = (k: string, v: string) => setForm(p => ({...p, [k]: v}));
 
   const handleSetUrl = async (url: string) => {
@@ -65,14 +66,17 @@ function ProfileDetailModal({ profile, onClose, onSave, viewerRole, currentUser,
 
   const handleFileUpload = async (file: File) => {
     setUploading(true);
+    setUploadFailed(false);
     const reader = new FileReader();
     reader.onload = async () => {
       const base64Data = (reader.result as string).split(',')[1];
       const res = await apiUploadProfilePic(file.name, file.type, base64Data, form.profilePic);
       if (res.success && res.url) {
         await handleSetUrl(res.url);
+        setUploadFailed(false);
       } else {
         alert('อัปโหลดล้มเหลว: ' + ((res as any).message || 'ไม่ทราบสาเหตุ'));
+        setUploadFailed(true);
       }
       setUploading(false);
     };
@@ -214,7 +218,7 @@ function ProfileDetailModal({ profile, onClose, onSave, viewerRole, currentUser,
             {edit ? (
               <>
                 <button className="btn-secondary" onClick={() => setEdit(false)}>ยกเลิก</button>
-                <button className="btn-primary" onClick={() => { onSave(form); setEdit(false); }} disabled={uploading}>{uploading ? '⌛ กำลังอัปโหลด...' : '💾 บันทึก'}</button>
+                <button className="btn-primary" onClick={() => { onSave(form); setEdit(false); }} disabled={uploading || uploadFailed}>{uploading ? '⌛ กำลังอัปโหลด...' : uploadFailed ? '❌ อัปโหลดล้มเหลว' : '💾 บันทึก'}</button>
               </>
             ) : (
               <button className="btn-primary" onClick={() => setEdit(true)}>✏️ แก้ไขข้อมูล</button>

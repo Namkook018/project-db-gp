@@ -58,17 +58,21 @@ export default function RegisterPage() {
 
   const set = (k: string, v: string) => setForm(p => ({...p, [k]: v}));
   const [uploading, setUploading] = useState(false);
+  const [uploadFailed, setUploadFailed] = useState(false);
 
   const handleFileUpload = async (file: File) => {
     setUploading(true);
+    setUploadFailed(false);
     const reader = new FileReader();
     reader.onload = async () => {
       const base64Data = (reader.result as string).split(',')[1];
       const res = await apiUploadProfilePic(file.name, file.type, base64Data, form.profilePic);
       if (res.success && res.url) {
         set('profilePic', res.url);
+        setUploadFailed(false);
       } else {
         alert('อัปโหลดล้มเหลว: ' + ((res as any).message || 'ไม่ทราบสาเหตุ'));
+        setUploadFailed(true);
       }
       setUploading(false);
     };
@@ -271,8 +275,8 @@ export default function RegisterPage() {
               </button>
             )}
             {step < STEPS.length - 1 ? (
-              <button className="btn-primary" style={{ flex:2, justifyContent:'center' }} onClick={() => setStep(s => s+1)} disabled={uploading}>
-                {uploading ? '⌛ กำลังอัปโหลด...' : 'ถัดไป →'}
+              <button className="btn-primary" style={{ flex:2, justifyContent:'center' }} onClick={() => setStep(s => s+1)} disabled={uploading || uploadFailed}>
+                {uploading ? '⌛ กำลังอัปโหลด...' : uploadFailed ? '❌ อัปโหลดล้มเหลว' : 'ถัดไป →'}
               </button>
             ) : (
               <button className="btn-success" style={{ flex:2, justifyContent:'center' }} onClick={handleSubmit} disabled={loading}>

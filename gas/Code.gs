@@ -264,11 +264,11 @@ function uploadProfilePic(body) {
 }
 
 function extractFileIdFromUrl(url) {
-  if (!url) return null;
+  if (!url || !url.includes('drive.google.com')) return null;
   // Handles both formats:
   // https://drive.google.com/thumbnail?id=FILE_ID&sz=w1000
   // https://drive.google.com/file/d/FILE_ID/view
-  const match = url.match(/(?:\/d\/|[?&]id=)([\w-]+)/);
+  const match = url.match(/(?:\/d\/|[?&]id=)([\w-]{25,})/);
   return match ? match[1] : null;
 }
 
