@@ -244,7 +244,7 @@ function uploadProfilePic(body) {
   file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
   
   const fileId = file.getId();
-  const directLink = 'https://drive.google.com/uc?id=' + fileId;
+  const directLink = 'https://drive.google.com/thumbnail?id=' + fileId + '&sz=w1000';
   
   return { success: true, url: directLink, fileId: fileId };
 }

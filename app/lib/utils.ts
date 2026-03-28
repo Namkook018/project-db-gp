@@ -10,7 +10,7 @@ export function getDirectImageUrl(url: string | undefined): string | undefined {
   // https://drive.google.com/open?id=FILE_ID
   const gdMatch = url.match(/(?:\/d\/|id=)([\w-]+)/);
   if (url.includes('drive.google.com') && gdMatch && gdMatch[1]) {
-    return `https://drive.google.com/uc?id=${gdMatch[1]}`;
+    return `https://drive.google.com/thumbnail?id=${gdMatch[1]}&sz=w1000`;
   }
   
   // You can add logic for other providers (Dropbox, OneDrive, etc.) here if needed.
