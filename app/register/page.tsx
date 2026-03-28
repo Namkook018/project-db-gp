@@ -4,19 +4,19 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { apiRegister, apiUploadProfilePic } from '../lib/api';
+import { getDirectImageUrl } from '../lib/utils';
 import { ALL_CLASSES, RELIGIONS, BLOOD_TYPES, SUBJECTS } from '../lib/config';
 
-const UploadButton = ({ onUpload, loading, currentUrl }: { onUpload: (file: File) => void; loading: boolean; currentUrl?: string }) => (
-  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 4 }}>
+const UploadButton = ({ onUpload, loading }: { onUpload: (file: File) => void; loading: boolean }) => (
+  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
     <label style={{ 
-      display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 16px', 
-      background: '#f3f4f6', border: '1px solid #e5e7eb', borderRadius: 8, 
-      fontSize: 13, fontWeight: 600, color: '#374151', cursor: loading ? 'not-allowed' : 'pointer' 
+      display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', 
+      background: '#4f46e5', border: '1px solid rgba(0,0,0,0.1)', borderRadius: 8, 
+      fontSize: 12, fontWeight: 600, color: '#fff', cursor: loading ? 'not-allowed' : 'pointer' 
     }}>
-      {loading ? '⌛ กำลังอัปโหลด...' : '📁 เลือกไฟล์รูปภาพ'}
+      {loading ? '⌛ อัปโหลด...' : '📁 อัปโหลดรูปใหม่'}
       <input type="file" accept="image/*" style={{ display: 'none' }} disabled={loading} onChange={e => e.target.files?.[0] && onUpload(e.target.files[0])} />
     </label>
-    {currentUrl && <span style={{ fontSize: 11, color: '#10b981', fontWeight: 600 }}>✅ อัปโหลดแล้ว</span>}
   </div>
 );
 
@@ -133,6 +133,33 @@ export default function RegisterPage() {
         </div>
 
         <div className="glass-card" style={{ padding:28 }}>
+          {/* Profile Picture Preview at the top */}
+          <div style={{ display:'flex', alignItems:'center', gap:20, marginBottom:24, paddingBottom:20, borderBottom:'1px solid #f3f4f6' }}>
+            <div className={`avatar ${!getDirectImageUrl(form.profilePic) ? 'avatar-placeholder' : ''} avatar-lg`} style={{ borderRadius:16, fontSize:28, fontWeight:800, border:'3px solid #e5e7eb', overflow:'hidden', flexShrink:0 }}>
+              {getDirectImageUrl(form.profilePic) ? (
+                <img src={getDirectImageUrl(form.profilePic)} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+              ) : (
+                form.name?.charAt(0) || '?'
+              )}
+            </div>
+            <div>
+              <div style={{ fontSize:14, fontWeight:700, color:'#1e1b4b', marginBottom:4 }}>รูปโปรไฟล์</div>
+              <div style={{ display:'flex', gap:8 }}>
+                <UploadButton onUpload={handleFileUpload} loading={uploading} />
+                <button 
+                  onClick={() => {
+                    const url = prompt('กรอกลิงก์รูปโปรไฟล์:', form.profilePic || '');
+                    if (url !== null) set('profilePic', url);
+                  }}
+                  className="btn-secondary btn-sm"
+                >
+                  🔗 แนบลิงก์ URL
+                </button>
+              </div>
+              <div style={{ fontSize:11, color:'#9ca3af', marginTop:6 }}>แนะนำรูปทรงจตุรัส ขนาดไม่เกิน 2MB</div>
+            </div>
+          </div>
+
           {step === 0 && (
             <div style={{ display:'grid', gap:16 }}>
               <h3 style={{ fontWeight:700, color:'#1e1b4b', marginBottom:4 }}>ข้อมูลบัญชีผู้ใช้</h3>
@@ -158,13 +185,6 @@ export default function RegisterPage() {
                 <F label="ที่ปรึกษาชั้น" val={form.roomAdvisor} onChange={v=>set('roomAdvisor',v)} options={ALL_CLASSES} />
               </div>
               <F label="อีเมล" val={form.email} onChange={v=>set('email',v)} type="email" />
-              <div>
-                <label className="form-label">รูปโปรไฟล์</label>
-                <UploadButton onUpload={handleFileUpload} loading={uploading} currentUrl={form.profilePic} />
-                <div style={{ marginTop: 8 }}>
-                  <F label="หรือแนบลิงก์รูปภาพโดยตรง" val={form.profilePic} onChange={v=>set('profilePic',v)} />
-                </div>
-              </div>
             </div>
           )}
 

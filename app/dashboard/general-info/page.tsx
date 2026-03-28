@@ -79,34 +79,33 @@ function ProfileDetailModal({ profile, onClose, onSave, viewerRole }: {
         {/* Header */}
         <div style={{ background:'linear-gradient(135deg,#4f46e5,#6366f1)', padding:'24px 28px', borderRadius:'20px 20px 0 0', position:'relative' }}>
           <div style={{ display:'flex', alignItems:'center', gap:16 }}>
-            <div className={`avatar ${!getDirectImageUrl(edit ? form.profilePic : profile.profilePic) ? 'avatar-placeholder' : ''} avatar-lg`} style={{ borderRadius:16, fontSize:28, fontWeight:800, border:'3px solid rgba(255,255,255,0.3)', overflow:'hidden', position:'relative' }}>
+            <div className={`avatar ${!getDirectImageUrl(edit ? form.profilePic : profile.profilePic) ? 'avatar-placeholder' : ''} avatar-lg`} style={{ borderRadius:16, fontSize:28, fontWeight:800, border:'3px solid rgba(255,255,255,0.3)', overflow:'hidden' }}>
               {getDirectImageUrl(edit ? form.profilePic : profile.profilePic) ? (
                 <img src={getDirectImageUrl(edit ? form.profilePic : profile.profilePic)} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
               ) : (
                 profile.name?.charAt(0) || '?'
               )}
-              {edit && (
-                <div 
-                  style={{ position:'absolute', inset:0, background:'rgba(0,0,0,0.4)', display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', gap:8 }}
-                >
-                  <UploadButton onUpload={handleFileUpload} loading={uploading} currentUrl={form.profilePic} />
-                  <div 
-                    onClick={() => {
-                      const url = prompt('กรอกลิงก์รูปโปรไฟล์ใหม่:', form.profilePic || '');
-                      if (url !== null) set('profilePic', url);
-                    }}
-                    style={{ fontSize:10, color:'rgba(255,255,255,0.8)', cursor:'pointer', textDecoration:'underline' }}
-                  >
-                    หรือแนบลิงก์ URL
-                  </div>
-                </div>
-              )}
             </div>
-            <div>
+            <div style={{ flex: 1 }}>
               <h3 style={{ color:'#fff', fontWeight:800, fontSize:18 }}>{profile.prefix} {profile.name} {profile.surname}</h3>
               <div style={{ color:'rgba(255,255,255,0.8)', fontSize:13, marginTop:2 }}>
                 {isStudent ? `ชั้น ${profile.class || '—'}` : `ตำแหน่ง: ${profile.role === 'admin' ? 'ผู้ดูแลระบบ' : 'ครู'}`} • {profile.englishName || ''}
               </div>
+              {edit && (
+                <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+                  <UploadButton onUpload={handleFileUpload} loading={uploading} />
+                  <button 
+                    onClick={() => {
+                      const url = prompt('กรอกลิงก์รูปโปรไฟล์ใหม่:', form.profilePic || '');
+                      if (url !== null) set('profilePic', url);
+                    }}
+                    className="btn-secondary btn-sm"
+                    style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff' }}
+                  >
+                    🔗 แนบลิงก์ URL
+                  </button>
+                </div>
+              )}
             </div>
           </div>
           <button onClick={onClose} style={{ position:'absolute', right:16, top:16, background:'rgba(255,255,255,0.2)', border:'none', borderRadius:8, width:32, height:32, cursor:'pointer', color:'#fff', fontSize:18 }}>×</button>
@@ -125,14 +124,6 @@ function ProfileDetailModal({ profile, onClose, onSave, viewerRole }: {
                 <F {...fProps} label="สอนรายวิชา" k="favoriteSubject" />
                 <F {...fProps} label="ที่ปรึกษาชั้น" k="roomAdvisor" />
                 <F {...fProps} label="อีเมล" k="email" />
-                <div>
-                  <label className="form-label" style={{fontSize:11}}>รูปโปรไฟล์</label>
-                  {edit ? (
-                    <UploadButton onUpload={handleFileUpload} loading={uploading} currentUrl={form.profilePic} />
-                  ) : (
-                    <div style={{fontSize:12, color:'#6b7280', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{profile.profilePic || '-'}</div>
-                  )}
-                </div>
               </div>
             </div>
           )}
