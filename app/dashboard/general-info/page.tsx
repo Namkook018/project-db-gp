@@ -223,7 +223,7 @@ function ProfileDetailModal({ profile, onClose, onSave, viewerRole }: {
 }
 
 export default function GeneralInfoPage() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const [users, setUsers] = useState<StudentProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<StudentProfile | null>(null);
@@ -252,6 +252,9 @@ export default function GeneralInfoPage() {
   const handleSave = async (data: Partial<StudentProfile>) => {
     if (!selected) return;
     await apiUpdateProfile(selected.id, data);
+    if (selected.id === user?.id) {
+      updateUser(data);
+    }
     setSelected(null); loadUsers();
   };
 
