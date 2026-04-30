@@ -103,7 +103,7 @@ function ProfileDetailModal({ profile, onClose, onSave, viewerRole, currentUser,
                 {getDirectImageUrl(edit ? form.profilePic : profile.profilePic) ? (
                   <img src={getDirectImageUrl(edit ? form.profilePic : profile.profilePic)} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
                 ) : (
-                  profile.name?.charAt(0) || '?'
+                  (profile.name ? String(profile.name).charAt(0) : '?')
                 )}
               </div>
               {edit && (
@@ -296,7 +296,7 @@ export default function GeneralInfoPage() {
                   {getDirectImageUrl(me.profilePic) ? (
                     <img src={getDirectImageUrl(me.profilePic)} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
                   ) : (
-                    me.name?.charAt(0) || '?'
+                    (me.name ? String(me.name).charAt(0) : '?')
                   )}
                 </div>
                 <div>
@@ -374,7 +374,7 @@ export default function GeneralInfoPage() {
                           {getDirectImageUrl(u.profilePic) ? (
                             <img src={getDirectImageUrl(u.profilePic)} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
                           ) : (
-                            u.name?.charAt(0) || '?'
+                            (u.name ? String(u.name).charAt(0) : '?')
                           )}
                         </div>
                         <div>
