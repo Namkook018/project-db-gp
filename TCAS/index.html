@@ -374,7 +374,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
   align-items:center;gap:8px;transition:background .15s}
 .dt-row:last-child{border-bottom:none}
 .dt-row:hover{background:#fafbff}
-.dt-cols{grid-template-columns:36px 1fr 76px 76px 76px 76px 86px 110px}
+.dt-cols{grid-template-columns:36px 1fr 56px 76px 76px 76px 76px 86px 110px}
 .rank-chip{width:26px;height:26px;border-radius:6px;display:grid;place-items:center;
   font-family:'Chakra Petch',sans-serif;font-size:11px;font-weight:700}
 .rc-top{background:#fef3c7;color:#92400e}
@@ -500,6 +500,13 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
       </select>
       <input class="login-input" id="s-newname" placeholder="ชื่อ-นามสกุล (ใหม่)"
         style="display:none;margin-top:8px">
+      <select class="login-input" id="s-newgrade" style="display:none;margin-top:8px">
+        <option value="">— ระดับชั้น —</option>
+        <option value="ม.4">ม.4</option>
+        <option value="ม.5">ม.5</option>
+        <option value="ม.6">ม.6</option>
+        <option value="จบแล้ว">จบแล้ว / Gap Year</option>
+      </select>
       <div class="login-hint">หากชื่อไม่อยู่ในรายการ → เลือก "สร้างโปรไฟล์ใหม่"</div>
       <button class="login-btn" onclick="enterStudentMode()">เข้าสู่ระบบ →</button>
       <button class="login-back" onclick="backToLanding()">← กลับ</button>
@@ -527,7 +534,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
     </div>
     <div class="sb-user">
       <div class="sb-user-name" id="sb-student-name">—</div>
-      <div class="sb-user-role">นักเรียน</div>
+      <div class="sb-user-role" id="sb-student-grade">นักเรียน</div>
     </div>
     <nav class="sb-nav">
       <div class="sb-section">เมนู</div>
@@ -815,6 +822,7 @@ function showStudentLogin(){
 function onStudentSelect(){
   const v=document.getElementById('s-select').value;
   document.getElementById('s-newname').style.display=v==='__new__'?'block':'none';
+  document.getElementById('s-newgrade').style.display=v==='__new__'?'block':'none';
 }
 
 function enterStudentMode(){
@@ -823,7 +831,8 @@ function enterStudentMode(){
   if(v==='__new__'){
     const name=document.getElementById('s-newname').value.trim();
     if(!name){ toast('⚠️ กรุณากรอกชื่อ-นามสกุล'); return; }
-    S.current={id:null,name,scores:{},nscores:{}};
+    const grade=document.getElementById('s-newgrade').value;
+    S.current={id:null,name,grade,scores:{},nscores:{}};
   } else {
     S.current=S.students.find(s=>s.id===v)||null;
     if(!S.current){ toast('❌ ไม่พบข้อมูล','err'); return; }
@@ -872,6 +881,7 @@ function launchStudent(){
   document.getElementById('view-landing').style.display='none';
   document.getElementById('view-student').classList.add('show');
   document.getElementById('sb-student-name').textContent=S.current.name;
+  document.getElementById('sb-student-grade').textContent=S.current.grade||'นักเรียน';
   S.sTab='overview'; S.nRound=0;
   renderAllStudentPanels();
   setSTabById('overview');
@@ -1351,8 +1361,8 @@ function renderStudentsTable(){
     </div>
     <div class="data-table">
       <div class="dt-head dt-cols">
-        <span>#</span><span>ชื่อนักเรียน</span><span>TGAT</span><span>TPAT</span>
-        <span>A-Level</span><span>NETSAT</span><span>รวม (2,300)</span><span>การดำเนินการ</span>
+        <span>#</span><span>ชื่อนักเรียน</span><span>ชั้น</span><span>TGAT</span><span>TPAT</span>
+        <span>A-Level</span><span>NETSAT</span><span>รวม</span><span>การดำเนินการ</span>
       </div>
       ${!list.length?'<div style="padding:24px;text-align:center;color:var(--muted)">ไม่พบนักเรียน</div>':
         list.map(s=>{
@@ -1365,6 +1375,7 @@ function renderStudentsTable(){
               <div style="font-weight:500">${s.name}</div>
               <div class="p-mini"><div class="pm-fill" style="width:${pct(tot,GRAND_MAX)}%"></div></div>
             </div>
+            <div><span style="font-size:12px;background:var(--goldp);color:#92400e;padding:2px 8px;border-radius:20px;font-weight:600">${s.grade||'—'}</span></div>
             <div>${fmt(tg)}<div style="font-size:10px;color:var(--muted)">/300</div></div>
             <div>${fmt(tp)}<div style="font-size:10px;color:var(--muted)">/900</div></div>
             <div>${fmt(al)}<div style="font-size:10px;color:var(--muted)">/1700</div></div>
@@ -1471,7 +1482,15 @@ function buildModalForm(stu){
   const sc2=(id)=>stu&&(stu.scores||{})[id]!==undefined?(stu.scores[id]):'';
   const nsc2=(r,id)=>stu&&((stu.nscores||{})[r]||{})[id]!==undefined?((stu.nscores||{})[r]||{})[id]:'';
   return `<div class="f-name"><label class="f-label">ชื่อ-นามสกุล</label>
-    <input type="text" id="f_name" placeholder="เช่น นายสมชาย ใจดี" value="${stu?stu.name:''}"/></div>
+    <input type="text" id="f_name" placeholder="เช่น นายสมชาย ใจดี" value="${stu?stu.name:''}"/>
+    <label class="f-label" style="margin-top:10px">ระดับชั้น</label>
+    <select id="f_grade" style="width:100%;padding:8px 10px;border-radius:8px;border:1.5px solid var(--border);font-family:inherit;font-size:14px;margin-top:2px">
+      <option value="">— เลือก —</option>
+      <option value="ม.4" ${stu?.grade==='ม.4'?'selected':''}>ม.4</option>
+      <option value="ม.5" ${stu?.grade==='ม.5'?'selected':''}>ม.5</option>
+      <option value="ม.6" ${stu?.grade==='ม.6'?'selected':''}>ม.6</option>
+      <option value="จบแล้ว" ${stu?.grade==='จบแล้ว'?'selected':''}>จบแล้ว / Gap Year</option>
+    </select></div>
     ${[{t:'🧠 TGAT',items:TGAT},{t:'🎯 TPAT',items:TPAT},{t:'📚 A-Level',items:ALEVEL}]
       .map(({t,items})=>`<div class="f-sec">
         <div class="f-sec-title">${t}</div>
@@ -1506,7 +1525,8 @@ function submitModal(){
       if(v!==''&&v!=null) nscores[r][id]=parseFloat(v);
     });
   }
-  const payload={id:S.editId||null,name,scores,nscores};
+  const grade=document.getElementById('f_grade').value;
+  const payload={id:S.editId||null,name,grade,scores,nscores};
   show('กำลังบันทึก...');
   gasCall('saveStudent',payload,res=>{
     hide(); closeModal();
@@ -1545,10 +1565,10 @@ function clearAll(){
 // ── EXPORT ──
 function exportCSV(){
   if(!S.students.length){ toast('⚠️ ไม่มีข้อมูล'); return; }
-  const hdr=['ชื่อ','TGAT','TPAT','A-Level','NETSAT Best','รวม','%'];
+  const hdr=['ชื่อ','ระดับชั้น','TGAT','TPAT','A-Level','NETSAT Best','รวม','%'];
   const rows=S.students.map(s=>{
     const tg=calcTGAT(s),tp=calcTPAT(s),al=calcAL(s),ns=calcNsTotal(s),tot=tg+tp+al;
-    return [s.name,fmt(tg),fmt(tp),fmt(al),fmt(ns),fmt(tot),pct(tot,GRAND_MAX)+'%'];
+    return [s.name,s.grade||'',fmt(tg),fmt(tp),fmt(al),fmt(ns),fmt(tot),pct(tot,GRAND_MAX)+'%'];
   });
   const csv=[hdr,...rows].map(r=>r.join(',')).join('\n');
   const a=document.createElement('a');

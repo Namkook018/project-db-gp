@@ -41,15 +41,15 @@ function _setupSheet(ss) {
   if (!sh) sh = ss.getActiveSheet().setName('Students');
 
   sh.clearContents();
-  const headers = ['id', 'name', 'scores', 'nscores', 'created_at', 'updated_at'];
+  const headers = ['id', 'name', 'grade', 'scores', 'nscores', 'created_at', 'updated_at'];
   sh.appendRow(headers);
   sh.setFrozenRows(1);
 
   const hRange = sh.getRange(1, 1, 1, headers.length);
   hRange.setBackground('#0f172a').setFontColor('#ffffff').setFontWeight('bold');
-  sh.setColumnWidth(1, 160).setColumnWidth(2, 200)
-    .setColumnWidth(3, 500).setColumnWidth(4, 500)
-    .setColumnWidth(5, 180).setColumnWidth(6, 180);
+  sh.setColumnWidth(1, 160).setColumnWidth(2, 200).setColumnWidth(3, 80)
+    .setColumnWidth(4, 500).setColumnWidth(5, 500)
+    .setColumnWidth(6, 180).setColumnWidth(7, 180);
 
   return sh;
 }
@@ -66,8 +66,9 @@ function getAllStudents() {
       .map(r => ({
         id:      String(r[0]),
         name:    String(r[1]),
-        scores:  _parse(r[2]),
-        nscores: _parse(r[3]),
+        grade:   String(r[2] || ''),
+        scores:  _parse(r[3]),
+        nscores: _parse(r[4]),
       }));
 
     return { ok: true, data };
@@ -79,18 +80,19 @@ function getAllStudents() {
 // ── SAVE STUDENT (INSERT OR UPDATE) ─────────────────────────
 function saveStudent(d) {
   try {
-    const sh   = _sheet();
-    const vals = sh.getDataRange().getValues();
-    const now  = new Date().toISOString();
-    const sj   = JSON.stringify(d.scores  || {});
-    const nj   = JSON.stringify(d.nscores || {});
+    const sh    = _sheet();
+    const vals  = sh.getDataRange().getValues();
+    const now   = new Date().toISOString();
+    const grade = d.grade || '';
+    const sj    = JSON.stringify(d.scores  || {});
+    const nj    = JSON.stringify(d.nscores || {});
 
     // UPDATE existing
     if (d.id) {
       for (let i = 1; i < vals.length; i++) {
         if (String(vals[i][0]) === String(d.id)) {
-          sh.getRange(i + 1, 1, 1, 6)
-            .setValues([[d.id, d.name, sj, nj, vals[i][4], now]]);
+          sh.getRange(i + 1, 1, 1, 7)
+            .setValues([[d.id, d.name, grade, sj, nj, vals[i][5], now]]);
           return { ok: true, id: d.id };
         }
       }
@@ -98,7 +100,7 @@ function saveStudent(d) {
 
     // INSERT new
     const id = String(Date.now());
-    sh.appendRow([id, d.name, sj, nj, now, now]);
+    sh.appendRow([id, d.name, grade, sj, nj, now, now]);
     return { ok: true, id };
   } catch (e) {
     return { ok: false, error: e.message };
