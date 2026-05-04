@@ -54,7 +54,7 @@ function login({ username, password }) {
   const headers = data[0];
   for (let i = 1; i < data.length; i++) {
     const row = Object.fromEntries(headers.map((h,j) => [h, data[i][j]]));
-    if (row.username === username && row.password === password) {
+    if (String(row.username) === String(username) && String(row.password) === String(password)) {
       return { success: true, user: {
         id: row.id, username: row.username, role: row.role,
         name: row.name, surname: row.surname,
@@ -73,15 +73,29 @@ function register(data) {
   const headers = sheet.getRange(1,1,1,sheet.getLastColumn()).getValues()[0];
   const row = headers.map(h => data[h] || (h === 'id' ? id : ''));
   sheet.appendRow(row);
+
+  // Force text format on username & password cells so Google Sheets won't treat them as numbers
+  const newRow = sheet.getLastRow();
+  const usernameCol = headers.indexOf('username') + 1;
+  const passwordCol = headers.indexOf('password') + 1;
+  if (usernameCol > 0) sheet.getRange(newRow, usernameCol).setNumberFormat('@STRING@');
+  if (passwordCol > 0) sheet.getRange(newRow, passwordCol).setNumberFormat('@STRING@');
+
   return { success: true };
 }
 
 // ── Users / Profiles ──────────────────────────────
+// Fields that must always be returned as plain text strings
+const TEXT_FIELDS = new Set(['username','password','idCard','homePhone','mobilePhone',
+  'phone','fatherPhone','motherPhone','guardianPhone','postalCode','birthPlace']);
+
 function getSheetData(sheetName) {
   const sheet = ss.getSheetByName(sheetName);
   const data = sheet.getDataRange().getValues();
   const headers = data[0];
-  return data.slice(1).map(row => Object.fromEntries(headers.map((h,j) => [h, row[j]])));
+  return data.slice(1).map(row =>
+    Object.fromEntries(headers.map((h,j) => [h, TEXT_FIELDS.has(h) ? String(row[j]) : row[j]]))
+  );
 }
 
 function getUsers() { return getSheetData('Users'); }
