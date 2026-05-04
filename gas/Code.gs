@@ -86,8 +86,12 @@ function register(data) {
 
 // ── Users / Profiles ──────────────────────────────
 // Fields that must always be returned as plain text strings
-const TEXT_FIELDS = new Set(['username','password','idCard','homePhone','mobilePhone',
-  'phone','fatherPhone','motherPhone','guardianPhone','postalCode','birthPlace']);
+const TEXT_FIELDS = new Set([
+  'username','password','idCard',
+  'homePhone','mobilePhone','fatherPhone','motherPhone','guardianPhone',
+  'fatherIdCard','motherIdCard',
+  'postalCode','birthPlace','siblings','siblingsInSchool',
+]);
 
 function getSheetData(sheetName) {
   const sheet = ss.getSheetByName(sheetName);
