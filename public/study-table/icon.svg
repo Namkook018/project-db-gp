@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#0b6e6e"/>
+  <g fill="#fff" font-family="'Noto Sans Thai',sans-serif" font-weight="800">
+    <text x="256" y="220" font-size="120" text-anchor="middle">ตาราง</text>
+    <text x="256" y="360" font-size="120" text-anchor="middle">เสาร์</text>
+  </g>
+  <rect x="64" y="400" width="384" height="6" fill="#fff" opacity=".5"/>
+</svg>

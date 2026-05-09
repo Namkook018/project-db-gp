@@ -1,11 +1,49 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import Link from 'next/link';
 import { useAuth } from '../lib/auth';
 import {
   apiGetAnnouncements, apiAddAnnouncement, apiUpdateAnnouncement, apiDeleteAnnouncement,
   apiGetClassStats, type Announcement,
 } from '../lib/api';
 import { ALL_CLASSES } from '../lib/config';
+
+const TERM_START = new Date(2026, 4, 23); // May 23, 2026
+const TERM_END   = new Date(2026, 8, 27); // Sep 27, 2026
+
+function getSaturdays(): Date[] {
+  const out: Date[] = [];
+  const d = new Date(TERM_START);
+  while (d <= TERM_END) {
+    if (d.getDay() === 6) out.push(new Date(d));
+    d.setDate(d.getDate() + 1);
+  }
+  return out;
+}
+
+function thaiDate(d: Date): string {
+  const months = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear() + 543}`;
+}
+
+function buildWeeklyScheduleAnnouncement(): Announcement | null {
+  const sats = getSaturdays();
+  if (sats.length === 0) return null;
+  const today = new Date();
+  let idx = sats.findIndex(s => s >= new Date(today.getFullYear(), today.getMonth(), today.getDate()));
+  if (idx === -1) idx = sats.length - 1;
+  const sat = sats[idx];
+  const weekNo = idx + 1;
+
+  return {
+    id: '__weekly_schedule__',
+    title: `📅 ตารางเรียนสัปดาห์ที่ ${weekNo}/${sats.length} — เสาร์ที่ ${thaiDate(sat)}`,
+    content: `ภาคเรียน 1/2569 · ${sats.length} สัปดาห์ (${thaiDate(sats[0])} – ${thaiDate(sats[sats.length-1])}) · กดเปิดเพื่อดูตารางเรียนเต็มรายห้อง/รายครู`,
+    pinned: true,
+    date: new Date().toLocaleDateString('th-TH'),
+    authorId: 'system',
+  } as Announcement;
+}
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -23,6 +61,12 @@ export default function DashboardPage() {
     setClassStats(stats);
     setLoading(false);
   }, []);
+
+  const weeklySchedule = useMemo(() => buildWeeklyScheduleAnnouncement(), []);
+  const displayAnnouncements = useMemo(
+    () => (weeklySchedule ? [weeklySchedule, ...announcements] : announcements),
+    [announcements, weeklySchedule]
+  );
 
   useEffect(() => { loadData(); }, [loadData]);
 
@@ -110,27 +154,47 @@ export default function DashboardPage() {
           <div style={{ padding:16, maxHeight:320, overflowY:'auto' }}>
             {loading ? (
               <div style={{ textAlign:'center', padding:20 }}><span className="spinner" /></div>
-            ) : announcements.length === 0 ? (
+            ) : displayAnnouncements.length === 0 ? (
               <div style={{ textAlign:'center', color:'#9ca3af', fontSize:14, padding:20 }}>ยังไม่มีประกาศ</div>
             ) : (
-              announcements.map(a => (
-                <div key={a.id} className={`announcement-card ${a.pinned ? 'pinned' : ''}`}>
-                  <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:8 }}>
-                    <div style={{ flex:1 }}>
-                      {a.pinned && <span className="badge badge-warning" style={{ marginBottom:4 }}>📌 ปักหมุด</span>}
-                      <div style={{ fontWeight:700, fontSize:14, color:'#1e1b4b', marginBottom:4 }}>{a.title}</div>
-                      <div style={{ fontSize:13, color:'#6b7280', marginBottom:6, lineHeight:1.5 }}>{a.content}</div>
-                      <div style={{ fontSize:11, color:'#9ca3af' }}>📅 {a.date}</div>
-                    </div>
-                    {user?.role === 'admin' && (
-                      <div style={{ display:'flex', gap:6, flexShrink:0 }}>
-                        <button onClick={() => openEdit(a)} style={{ background:'#ede9fe', border:'none', borderRadius:6, width:28, height:28, cursor:'pointer', fontSize:14 }}>✏️</button>
-                        <button onClick={() => handleDelete(a.id)} style={{ background:'#fee2e2', border:'none', borderRadius:6, width:28, height:28, cursor:'pointer', fontSize:14 }}>🗑️</button>
+              displayAnnouncements.map(a => {
+                const isSchedule = a.id === '__weekly_schedule__';
+                return (
+                  <div key={a.id} className={`announcement-card ${a.pinned ? 'pinned' : ''}`}>
+                    <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:8 }}>
+                      <div style={{ flex:1 }}>
+                        {a.pinned && (
+                          <span className="badge badge-warning" style={{ marginBottom:4 }}>
+                            {isSchedule ? '🗓️ ตารางเรียนสัปดาห์นี้' : '📌 ปักหมุด'}
+                          </span>
+                        )}
+                        <div style={{ fontWeight:700, fontSize:14, color:'#1e1b4b', marginBottom:4 }}>{a.title}</div>
+                        <div style={{ fontSize:13, color:'#6b7280', marginBottom:6, lineHeight:1.5 }}>{a.content}</div>
+                        <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                          <div style={{ fontSize:11, color:'#9ca3af' }}>📅 {a.date}</div>
+                          {isSchedule && user?.role === 'admin' && (
+                            <Link href="/dashboard/study-table" style={{ fontSize:11, fontWeight:700, color:'#4f46e5', textDecoration:'none' }}>
+                              เปิดตารางเรียน →
+                            </Link>
+                          )}
+                          {isSchedule && user?.role !== 'admin' && (
+                            <a href="/study-table/index.html?readonly=1" target="_blank" rel="noopener noreferrer"
+                              style={{ fontSize:11, fontWeight:700, color:'#4f46e5', textDecoration:'none' }}>
+                              👁 ดูตารางเรียน →
+                            </a>
+                          )}
+                        </div>
                       </div>
-                    )}
+                      {user?.role === 'admin' && !isSchedule && (
+                        <div style={{ display:'flex', gap:6, flexShrink:0 }}>
+                          <button onClick={() => openEdit(a)} style={{ background:'#ede9fe', border:'none', borderRadius:6, width:28, height:28, cursor:'pointer', fontSize:14 }}>✏️</button>
+                          <button onClick={() => handleDelete(a.id)} style={{ background:'#fee2e2', border:'none', borderRadius:6, width:28, height:28, cursor:'pointer', fontSize:14 }}>🗑️</button>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </div>
