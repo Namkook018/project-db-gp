@@ -616,7 +616,8 @@ function shortDate(d){ return d.getDate()+'/'+(d.getMonth()+1); }
 // ══════════════════════════════════════
 //  DB
 // ══════════════════════════════════════
-function getSheetsUrl(){ return localStorage.getItem(SHEETS_URL_KEY) || ''; }
+const DEFAULT_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbztUBE8b3K3ile9R65FOIdKG1ggmHrTzG-m091psE4uj9yARl9L71OqdbNLVIq7mE9YIA/exec';
+function getSheetsUrl(){ return localStorage.getItem(SHEETS_URL_KEY) || DEFAULT_SHEETS_URL; }
 function setSheetsUrl(u){
   if(u) localStorage.setItem(SHEETS_URL_KEY, u);
   else localStorage.removeItem(SHEETS_URL_KEY);
