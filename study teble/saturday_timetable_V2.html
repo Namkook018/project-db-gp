@@ -488,7 +488,11 @@ body{font-family:var(--font);background:var(--paper);color:var(--ink);font-size:
       <button class="btn btn-red" onclick="clearDate()">🗑 ล้างวันนี้</button>
       <button class="btn" style="color:var(--red);border-color:#e8a8a8" onclick="clearAll()">🗑 ล้างทั้งหมด</button>
       <button class="btn" onclick="exportJSON()">⬇ JSON</button>
-      <button class="btn btn-amber" onclick="doPrint()">🖨 PDF</button>
+      <button class="btn btn-amber" onclick="doPrint()">🖨 PDF ทั้งหมด</button>
+      <select id="teacher-pdf-sel" style="font-family:var(--font);font-size:11px;padding:4px 6px;border:1.5px solid var(--rule2);border-radius:var(--r-sm);background:var(--card);color:var(--ink);cursor:pointer">
+        <option value="">— เลือกครู —</option>
+      </select>
+      <button class="btn btn-amber" onclick="printSelectedTeacher()">🖨 PDF ครู</button>
     </div>
   </div>
 
@@ -733,7 +737,21 @@ function delE(classId, dateS, pIdx){ delete db.schedule[skey(classId,dateS,pIdx)
 // ══════════════════════════════════════
 //  SIDEBAR RENDER
 // ══════════════════════════════════════
+function printSelectedTeacher(){
+  const sel = document.getElementById('teacher-pdf-sel');
+  const tid = sel.value;
+  if(!tid){ toast('เลือกครูก่อน','warn'); return; }
+  doPrintTeacher(tid);
+}
+
 function renderSidebar(){
+  // populate teacher PDF dropdown
+  const sel = document.getElementById('teacher-pdf-sel');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">— เลือกครู —</option>' +
+    db.teachers.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');
+  if(cur) sel.value = cur;
+
   document.getElementById('course-list').innerHTML = db.courses.map(c=>`
     <div class="course-chip" id="chip-${c.id}">
       <div class="cswatch" style="background:${c.color};cursor:grab" 
