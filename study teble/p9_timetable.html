@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ตารางสอนคาบ 9</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1a1814;--ink2:#4a4740;--ink3:#8a8780;
+  --paper:#faf9f5;--card:#ffffff;--card2:#f5f4f0;
+  --rule:#e8e5de;--rule2:#d4d0c8;
+  --teal:#0b6e6e;--teal-l:#e4f4f4;
+  --red:#b02020;
+  --r:10px;--r-sm:6px;
+  --font:'Noto Sans Thai',sans-serif;
+  --mono:'IBM Plex Mono',monospace;
+}
+body{font-family:var(--font);background:var(--paper);color:var(--ink);font-size:13px;min-height:100vh}
+.app{display:flex;height:100vh;overflow:hidden}
+
+/* sidebar */
+.sidebar{width:220px;min-width:220px;background:var(--card);border-right:2px solid var(--rule);display:flex;flex-direction:column;overflow:hidden}
+.sb-header{background:var(--ink);padding:14px 12px;flex-shrink:0}
+.sb-header-title{font-size:13px;font-weight:700;color:#fff}
+.sb-header-sub{font-size:10px;color:rgba(255,255,255,.4);margin-top:2px;font-family:var(--mono)}
+.sb-section{padding:10px 12px 4px;font-size:10px;font-weight:700;color:var(--ink3);letter-spacing:.07em;text-transform:uppercase;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.add-btn{width:22px;height:22px;border-radius:50%;background:var(--teal);color:#fff;border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.add-btn:hover{background:#095a5a;transform:scale(1.08)}
+.teacher-list{padding:4px 8px 8px;flex:1;overflow-y:auto}
+.teacher-item{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:var(--r-sm);margin-bottom:2px;border:1px solid transparent;transition:all .15s}
+.teacher-item:hover{background:var(--card2);border-color:var(--rule)}
+.t-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.t-name{font-size:12px;font-weight:500;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.del-btn{width:18px;height:18px;border-radius:50%;background:none;border:none;cursor:pointer;color:var(--ink3);font-size:11px;opacity:0;transition:opacity .15s;display:flex;align-items:center;justify-content:center}
+.teacher-item:hover .del-btn{opacity:1}
+.del-btn:hover{color:var(--red)}
+.sb-footer{padding:10px 12px;border-top:1px solid var(--rule);flex-shrink:0}
+.btn{padding:5px 12px;border-radius:var(--r-sm);border:1.5px solid var(--rule2);background:var(--card);color:var(--ink2);font-family:var(--font);font-size:12px;cursor:pointer;transition:all .15s;font-weight:600}
+.btn:hover{border-color:var(--teal);color:var(--teal)}
+.btn-amber{background:#b5651d;color:#fff;border-color:#b5651d}
+.btn-amber:hover{background:#8a4c14;border-color:#8a4c14;color:#fff}
+.btn-sm{font-size:11px;padding:4px 10px}
+
+/* main */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{background:var(--ink);color:#fff;height:54px;display:flex;align-items:center;gap:12px;padding:0 20px;flex-shrink:0}
+.topbar-title{font-size:15px;font-weight:700}
+.topbar-badge{background:rgba(255,255,255,.12);border-radius:999px;padding:2px 10px;font-size:10px;font-family:var(--mono);color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.15)}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+#save-status{font-size:10px;color:rgba(255,255,255,.35);font-family:var(--mono)}
+
+/* room tabs */
+.room-tabs{display:flex;gap:4px;padding:10px 16px;border-bottom:2px solid var(--rule);flex-shrink:0;overflow-x:auto;background:var(--card)}
+.room-tab{padding:5px 16px;border-radius:999px;border:1.5px solid var(--rule2);background:none;font-family:var(--font);font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;color:var(--ink3);white-space:nowrap}
+.room-tab.active{background:var(--teal);color:#fff;border-color:var(--teal)}
+.room-tab:hover:not(.active){border-color:var(--teal);color:var(--teal)}
+
+/* grid */
+.grid-wrap{flex:1;overflow:auto;padding:16px}
+table.grid{border-collapse:collapse;width:100%}
+table.grid thead th{background:var(--ink);color:#fff;padding:8px 12px;font-size:12px;font-weight:700;text-align:center;border:1px solid #444;white-space:nowrap;position:sticky;top:0;z-index:2}
+table.grid thead th.wk-th{text-align:left;width:90px;background:var(--ink)}
+table.grid td{border:1px solid var(--rule2);padding:4px;vertical-align:top;min-width:130px}
+td.wk-td{background:var(--card2);padding:8px 10px;vertical-align:middle;white-space:nowrap}
+td.wk-td .wnum{font-weight:700;font-size:11px;color:var(--teal);font-family:var(--mono)}
+td.wk-td .wdate{font-size:10px;color:var(--ink3);margin-top:1px}
+.cell{min-height:52px;border-radius:var(--r-sm);padding:5px 7px;cursor:pointer;transition:background .15s;position:relative}
+.cell.empty{border:1.5px dashed var(--rule2)}
+.cell.empty:hover{background:var(--teal-l);border-color:var(--teal)}
+.cell.filled{border:1px solid #9dd4d4;background:var(--teal-l)}
+.cell-name{font-size:12px;font-weight:700;line-height:1.4}
+.cell-date{font-size:10px;color:var(--ink3);margin-top:2px}
+.cell-x{position:absolute;top:3px;right:3px;width:16px;height:16px;border-radius:50%;background:rgba(176,32,32,.1);border:none;cursor:pointer;color:var(--red);font-size:9px;display:none;align-items:center;justify-content:center;font-family:var(--mono)}
+.cell.filled:hover .cell-x{display:flex}
+.empty-hint{font-size:11px;color:var(--ink3);text-align:center;padding:8px 4px;line-height:1.4}
+
+/* picker */
+.picker{position:fixed;z-index:200;background:var(--card);border:1.5px solid var(--rule2);border-radius:var(--r);box-shadow:0 8px 32px rgba(0,0,0,.14);padding:6px;min-width:190px;max-height:260px;overflow-y:auto}
+.picker-item{padding:7px 10px;border-radius:var(--r-sm);cursor:pointer;font-size:12px;font-weight:600;transition:background .12s}
+.picker-item:hover{background:var(--teal-l)}
+.picker-sep{height:1px;background:var(--rule);margin:4px 0}
+.picker-clear{padding:7px 10px;border-radius:var(--r-sm);cursor:pointer;font-size:12px;color:var(--red);font-weight:500}
+.picker-clear:hover{background:#fdf0f0}
+
+/* toast */
+.toasts{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:6px;z-index:999;pointer-events:none}
+.toast{background:var(--ink);color:#fff;padding:8px 14px;border-radius:var(--r-sm);font-size:12px;animation:toastIn .2s}
+@keyframes toastIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sb-header">
+      <div class="sb-header-title">ตารางสอนคาบ 9</div>
+      <div class="sb-header-sub">จ–ศ · 16.45–17.45 น.</div>
+    </div>
+    <div class="sb-section">
+      <span>ครูผู้สอน</span>
+      <button class="add-btn" onclick="addTeacher()" title="เพิ่มครู">+</button>
+    </div>
+    <div class="teacher-list" id="teacher-list"></div>
+    <div class="sb-footer">
+      <button class="btn btn-amber btn-sm" style="width:100%" onclick="doPrint()">🖨 PDF ทุกห้อง (6 หน้า)</button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div style="font-size:18px">📋</div>
+      <div class="topbar-title">ตารางสอนคาบ 9</div>
+      <span class="topbar-badge">จันทร์–ศุกร์ · 16.45–17.45 น.</span>
+      <div class="topbar-right">
+        <span id="save-status"></span>
+      </div>
+    </div>
+    <div class="room-tabs" id="room-tabs"></div>
+    <div class="grid-wrap">
+      <table class="grid" id="grid"></table>
+    </div>
+  </div>
+</div>
+
+<div class="toasts" id="toasts"></div>
+
+<script>
+const DB_KEY = 'p9_timetable_v1';
+const TERM_START = new Date(2026, 4, 23); // 23 พ.ค. 2569
+const TERM_END   = new Date(2026, 8, 27); // 27 ก.ย. 2569
+
+const DAYS_FULL  = ['วันจันทร์','วันอังคาร','วันพุธ','วันพฤหัสบดี','วันศุกร์'];
+const DAYS_SHORT = ['จ','อ','พ','พฤ','ศ'];
+const MONTHS_TH  = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+const COLORS = ['#0b6e6e','#b5651d','#1a4a7a','#7b3fa0','#b02020','#1a6e3c','#6e5a1a','#2a5a7a','#8a2060','#3a6e1a'];
+
+const CLASSES = [
+  {id:'m1',label:'ม.1/9'},{id:'m2',label:'ม.2/9'},{id:'m3',label:'ม.3/9'},
+  {id:'m4',label:'ม.4/9'},{id:'m5',label:'ม.5/9'},{id:'m6',label:'ม.6/9'},
+];
+
+let db = { teachers:[], schedule:{} };
+let curClass = 'm1';
+let WEEKS = []; // [{mon:Date, dates:[Mon,Tue,Wed,Thu,Fri]}]
+
+// ── DATES ──────────────────────────────────────────
+function dateStr(d){ return d.toISOString().slice(0,10); }
+function shortDate(d){ return d.getDate()+'/'+(d.getMonth()+1); }
+function thDate(d){ return d.getDate()+' '+MONTHS_TH[d.getMonth()]; }
+
+function genWeeks(){
+  const map = {};
+  const d = new Date(TERM_START);
+  while(d <= TERM_END){
+    const day = d.getDay(); // 1=จ … 5=ศ
+    if(day >= 1 && day <= 5){
+      const mon = new Date(d);
+      mon.setDate(d.getDate() - (day-1));
+      const key = dateStr(mon);
+      if(!map[key]) map[key] = {mon, dates:[null,null,null,null,null]};
+      map[key].dates[day-1] = new Date(d);
+    }
+    d.setDate(d.getDate()+1);
+  }
+  WEEKS = Object.values(map).sort((a,b)=>a.mon-b.mon);
+}
+
+// ── DB ──────────────────────────────────────────────
+function dbLoad(){
+  try{
+    const raw = localStorage.getItem(DB_KEY);
+    if(raw) db = JSON.parse(raw);
+    else seedDefaults();
+  }catch(e){ seedDefaults(); }
+}
+function dbSave(){
+  try{
+    localStorage.setItem(DB_KEY, JSON.stringify(db));
+    const t = new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+    document.getElementById('save-status').textContent = 'บันทึก '+t;
+  }catch(e){ toast('Storage เต็ม!'); }
+}
+function seedDefaults(){
+  db.teachers = [];
+  db.schedule = {};
+}
+
+// schedule key: classId_YYYY-MM-DD
+function getS(classId, ds){ return db.schedule[classId+'_'+ds] || null; }
+function setS(classId, ds, teacherId){
+  if(teacherId) db.schedule[classId+'_'+ds] = {teacherId};
+  else delete db.schedule[classId+'_'+ds];
+  dbSave();
+}
+
+// ── RENDER ──────────────────────────────────────────
+function renderTabs(){
+  document.getElementById('room-tabs').innerHTML = CLASSES.map(cl=>`
+    <button class="room-tab ${cl.id===curClass?'active':''}" onclick="selectClass('${cl.id}')">${cl.label}</button>
+  `).join('');
+}
+
+function selectClass(id){ curClass=id; renderTabs(); renderGrid(); }
+
+function renderTeachers(){
+  const el = document.getElementById('teacher-list');
+  if(!db.teachers.length){
+    el.innerHTML='<div style="font-size:11px;color:var(--ink3);padding:8px 8px;line-height:1.6">กด + เพื่อเพิ่มครู<br>แล้วคลิกช่องในตาราง<br>เพื่อมอบหมายครู</div>';
+    return;
+  }
+  el.innerHTML = db.teachers.map(t=>`
+    <div class="teacher-item">
+      <div class="t-dot" style="background:${t.color}"></div>
+      <div class="t-name">${t.name}</div>
+      <button class="del-btn" onclick="delTeacher('${t.id}')" title="ลบ">✕</button>
+    </div>`).join('');
+}
+
+function renderGrid(){
+  const grid = document.getElementById('grid');
+  const ths = DAYS_FULL.map((d,i)=>`
+    <th>${d}<br><span style="font-size:9px;font-weight:400;opacity:.6">${DAYS_SHORT[i]}</span></th>
+  `).join('');
+
+  let rows = '';
+  WEEKS.forEach((wk,wi)=>{
+    const cells = wk.dates.map((date,di)=>{
+      if(!date) return `<td style="background:var(--card2)"></td>`;
+      const ds = dateStr(date);
+      const s  = getS(curClass, ds);
+      const t  = s ? db.teachers.find(x=>x.id===s.teacherId) : null;
+      if(t){
+        return `<td>
+          <div class="cell filled" onclick="openPicker('${curClass}','${ds}',this)">
+            <div class="cell-name" style="color:${t.color}">${t.name}</div>
+            <div class="cell-date">${shortDate(date)}</div>
+            <button class="cell-x" onclick="event.stopPropagation();setS('${curClass}','${ds}',null);renderGrid()">✕</button>
+          </div>
+        </td>`;
+      }
+      return `<td>
+        <div class="cell empty" onclick="openPicker('${curClass}','${ds}',this)">
+          <div class="empty-hint">+</div>
+        </div>
+      </td>`;
+    }).join('');
+
+    const firstDate = wk.dates.find(d=>d);
+    const lastDate  = [...wk.dates].reverse().find(d=>d);
+    rows += `<tr>
+      <td class="wk-td">
+        <div class="wnum">สัปดาห์ ${wi+1}</div>
+        <div class="wdate">${thDate(firstDate)}<br>${thDate(lastDate)}</div>
+      </td>
+      ${cells}
+    </tr>`;
+  });
+
+  grid.innerHTML = `
+    <thead><tr>
+      <th class="wk-th">สัปดาห์</th>${ths}
+    </tr></thead>
+    <tbody>${rows}</tbody>`;
+}
+
+// ── TEACHER PICKER ──────────────────────────────────
+let _pClass='', _pDate='';
+
+function openPicker(classId, ds, el){
+  closePicker();
+  _pClass=classId; _pDate=ds;
+  const rect = el.getBoundingClientRect();
+  const p = document.createElement('div');
+  p.className='picker'; p.id='picker';
+  if(!db.teachers.length){
+    p.innerHTML='<div style="font-size:12px;color:var(--ink3);padding:8px 10px">กด + ในแถบซ้ายเพื่อเพิ่มครูก่อน</div>';
+  } else {
+    p.innerHTML = db.teachers.map(t=>`
+      <div class="picker-item" style="color:${t.color}" onclick="assignTeacher('${t.id}')">${t.name}</div>
+    `).join('') +
+    '<div class="picker-sep"></div>' +
+    '<div class="picker-clear" onclick="assignTeacher(null)">✕ ล้างช่องนี้</div>';
+  }
+  // position
+  let top = rect.bottom+4, left = rect.left;
+  if(top+260 > window.innerHeight) top = rect.top-264;
+  if(left+200 > window.innerWidth) left = window.innerWidth-204;
+  p.style.cssText += `;top:${top}px;left:${left}px`;
+  document.body.appendChild(p);
+  setTimeout(()=>document.addEventListener('click', closePicker, {once:true}), 0);
+}
+
+function assignTeacher(tid){
+  setS(_pClass, _pDate, tid);
+  closePicker();
+  renderGrid();
+}
+
+function closePicker(){
+  const p = document.getElementById('picker');
+  if(p) p.remove();
+}
+
+// ── CRUD TEACHERS ───────────────────────────────────
+function addTeacher(){
+  const name = prompt('ชื่อครู (เช่น อ.สมชาย ใจดี):','');
+  if(!name || !name.trim()) return;
+  const id = 't'+Date.now();
+  const color = COLORS[db.teachers.length % COLORS.length];
+  db.teachers.push({id, name:name.trim(), color});
+  dbSave(); renderTeachers();
+  toast('เพิ่ม '+name.trim()+' แล้ว');
+}
+
+function delTeacher(id){
+  const t = db.teachers.find(x=>x.id===id);
+  if(!t || !confirm('ลบ "'+t.name+'" และล้างตารางทั้งหมดของครูคนนี้?')) return;
+  db.teachers = db.teachers.filter(x=>x.id!==id);
+  Object.keys(db.schedule).forEach(k=>{ if(db.schedule[k].teacherId===id) delete db.schedule[k]; });
+  dbSave(); renderTeachers(); renderGrid();
+}
+
+// ── PDF ─────────────────────────────────────────────
+function doPrint(){
+  const thDays = DAYS_FULL.map(d=>`
+    <th style="border:1px solid #ddd;padding:7px 10px;background:#1a1814;color:#fff;font-weight:700;text-align:center;min-width:110px">${d}</th>
+  `).join('');
+
+  const sections = CLASSES.map((cl,ci)=>{
+    let rows='';
+    WEEKS.forEach((wk,wi)=>{
+      const cells = wk.dates.map(date=>{
+        if(!date) return `<td style="border:1px solid #ddd;background:#f5f4f0"></td>`;
+        const s = getS(cl.id, dateStr(date));
+        const t = s ? db.teachers.find(x=>x.id===s.teacherId) : null;
+        if(t) return `<td style="border:1px solid #ddd;padding:6px 8px">
+          <div style="font-weight:700;font-size:12px;color:${t.color}">${t.name}</div>
+          <div style="font-size:10px;color:#888;margin-top:2px">${shortDate(date)}</div>
+        </td>`;
+        return `<td style="border:1px solid #ddd;padding:6px 8px">
+          <div style="color:#ccc;font-size:12px;text-align:center">—</div>
+        </td>`;
+      }).join('');
+      const d1=wk.dates.find(d=>d), d2=[...wk.dates].reverse().find(d=>d);
+      rows+=`<tr>
+        <td style="border:1px solid #ddd;padding:6px 10px;background:#f7f7f5;white-space:nowrap;width:88px">
+          <div style="font-weight:700;font-size:11px;color:#0b6e6e">สัปดาห์ ${wi+1}</div>
+          <div style="font-size:10px;color:#888">${shortDate(d1)}–${shortDate(d2)}</div>
+        </td>${cells}
+      </tr>`;
+    });
+    const pb = ci < CLASSES.length-1 ? 'page-break-after:always;' : '';
+    return `<div style="${pb}padding:14px 18px">
+      <div style="margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid #1a1814;display:flex;align-items:baseline;gap:12px">
+        <h2 style="font-size:20px;font-weight:800;color:#1a1814">${cl.label}</h2>
+        <span style="font-size:11px;color:#888;font-family:monospace">คาบ 9 · จ–ศ · 16.45–17.45 น. · ${WEEKS.length} สัปดาห์</span>
+      </div>
+      <table style="width:100%;border-collapse:collapse">
+        <thead><tr>
+          <th style="border:1px solid #ddd;padding:7px 10px;background:#1a1814;color:#fff;font-weight:700;text-align:left;width:88px">สัปดาห์</th>
+          ${thDays}
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+  }).join('');
+
+  const html=`<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8">
+  <title>ตารางสอนคาบ 9</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Noto Sans Thai',sans-serif;font-size:12px;background:#fff;color:#1a1a1a}
+  @media print{@page{size:A4 landscape;margin:8mm}}</style></head>
+  <body>${sections}
+  <script>if(document.fonts){document.fonts.ready.then(()=>setTimeout(()=>window.print(),400));}else{setTimeout(()=>window.print(),1200);}<\/script>
+  </body></html>`;
+
+  try{
+    const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.target='_blank';a.rel='noopener';
+    document.body.appendChild(a);a.click();
+    setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},2000);
+    toast('PDF 6 ห้อง');
+  }catch(e){ toast('กด Ctrl+P เพื่อพิมพ์'); }
+}
+
+// ── TOAST ───────────────────────────────────────────
+function toast(msg){
+  const el=document.createElement('div');el.className='toast';el.textContent=msg;
+  document.getElementById('toasts').appendChild(el);
+  setTimeout(()=>el.remove(),2500);
+}
+
+// ── INIT ────────────────────────────────────────────
+genWeeks(); dbLoad(); renderTabs(); renderTeachers(); renderGrid();
+</script>
+</body>
+</html>

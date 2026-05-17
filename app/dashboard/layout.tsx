@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { href: '/dashboard/knowledge', icon: '📚', label: 'คลังความรู้', roles: ['admin', 'teacher', 'student'] },
   { href: '/dashboard/tcas', icon: '🎓', label: 'TCAS Scores', roles: ['admin', 'teacher', 'student'] },
   { href: '/dashboard/study-table', icon: '📅', label: 'ตารางเรียนวันเสาร์', roles: ['admin'] },
+  { href: '/dashboard/p9-table', icon: '🕔', label: 'ตารางสอนคาบ 9', roles: ['admin'] },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
