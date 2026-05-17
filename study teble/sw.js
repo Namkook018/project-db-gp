@@ -1,5 +1,5 @@
 // Service Worker — cache-first สำหรับ static, network-first สำหรับ Apps Script (sync)
-const CACHE = 'sat-tt-v1';
+const CACHE = 'sat-tt-v2';
 const ASSETS = [
   './',
   './saturday_timetable_V2.html',
