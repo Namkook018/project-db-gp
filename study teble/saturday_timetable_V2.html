@@ -780,6 +780,10 @@ function renderSidebar(){
         style="width:20px;height:20px;border-radius:50%;background:none;border:none;cursor:pointer;
                color:var(--teal);font-size:12px;display:flex;align-items:center;justify-content:center;
                flex-shrink:0;opacity:0;transition:opacity .15s" class="iedit">✏</button>
+      <button onclick="doPrintTeacher('${t.id}')" title="PDF ตารางสอน"
+        style="width:20px;height:20px;border-radius:50%;background:none;border:none;cursor:pointer;
+               color:var(--amber);font-size:11px;display:flex;align-items:center;justify-content:center;
+               flex-shrink:0;opacity:0;transition:opacity .15s" class="iprint">🖨</button>
       <button onclick="delTeacher('${t.id}')" title="ลบ"
         style="width:20px;height:20px;border-radius:50%;background:none;border:none;cursor:pointer;
                color:var(--ink3);font-size:12px;display:flex;align-items:center;justify-content:center;
@@ -789,10 +793,12 @@ function renderSidebar(){
   document.querySelectorAll('#teacher-list .irow').forEach(row=>{
     row.addEventListener('mouseenter',()=>{
       row.querySelector('.iedit').style.opacity='1';
+      row.querySelector('.iprint').style.opacity='1';
       row.querySelector('.idel2').style.opacity='1';
     });
     row.addEventListener('mouseleave',()=>{
       row.querySelector('.iedit').style.opacity='0';
+      row.querySelector('.iprint').style.opacity='0';
       row.querySelector('.idel2').style.opacity='0';
     });
   });
@@ -1965,6 +1971,91 @@ function doPrint(){
     toast('กรุณากด Ctrl+P เพื่อพิมพ์', 'warn');
   }
 }
+function doPrintTeacher(tid){
+  const teacher = db.teachers.find(t=>t.id===tid);
+  if(!teacher){ toast('ไม่พบข้อมูลครู','err'); return; }
+
+  const nonBreakPeriods = PERIODS.filter(p=>!p.isBreak);
+
+  function buildCell(dateS, pi){
+    let clsLabel='', cv=null, rm=null;
+    for(const cls of CLASSES){
+      const e = getE(cls.id, dateS, pi);
+      if(e && e.teacherId===tid){
+        clsLabel = cls.label;
+        cv = db.courses.find(x=>x.id===e.courseId);
+        rm = db.rooms.find(x=>x.id===e.roomId);
+        break;
+      }
+    }
+    if(!clsLabel) return `<td style="border:1px solid #ddd;padding:6px 8px;color:#ccc;text-align:center;vertical-align:middle">—</td>`;
+    const bg = cv ? hexToRgbaCss(cv.color,0.12) : '#fff';
+    const border = cv ? cv.color : '#ccc';
+    return `<td style="border:1px solid #ddd;padding:5px;vertical-align:top">
+      <div style="background:${bg};border-left:3px solid ${border};border-radius:4px;padding:6px 8px">
+        <div style="font-weight:700;font-size:13px;color:${border}">${clsLabel}</div>
+        ${cv?`<div style="font-size:11px;color:#555;margin-top:2px">${cv.name}</div>`:''}
+        ${rm?`<div style="font-size:10px;color:#888;margin-top:2px">📍 ${rm.name}</div>`:''}
+      </div>
+    </td>`;
+  }
+
+  let rows = '';
+  SAT_DATES.forEach((sat,wi)=>{
+    const dateS = dateStr(sat);
+    rows += `<tr>
+      <td style="border:1px solid #ddd;padding:8px 10px;background:#f7f7f5;white-space:nowrap;vertical-align:middle">
+        <div style="font-size:10px;color:#888;margin-bottom:2px;font-family:'IBM Plex Mono',monospace">ครั้งที่ ${wi+1}</div>
+        <div style="font-weight:700;font-size:12px">${thaiDate(sat)}</div>
+      </td>
+      ${TEACH_PERIODS.map(pi=>buildCell(dateS,pi)).join('')}
+    </tr>`;
+  });
+
+  const subjects = (teacher.subjects||[teacher.subject||'']).filter(Boolean).join(', ');
+  const classes  = (teacher.classes||[]).map(id=>{
+    const cl=CLASSES.find(x=>x.id===id); return cl?cl.label:id;
+  }).join(', ');
+
+  const html = `<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8">
+  <title>ตารางสอน ${teacher.name}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Noto Sans Thai',sans-serif;font-size:13px;background:#fff;color:#1a1a1a;padding:16px 20px}
+    @media print{body{padding:8mm 10mm}@page{size:A4 portrait;margin:8mm}}
+  </style></head><body>
+  <div style="margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid #1a1814">
+    <div style="font-size:10px;color:#888;margin-bottom:4px;font-family:'IBM Plex Mono',monospace">ตารางสอนภาคเรียน · ม.1/9–ม.6/9</div>
+    <h2 style="margin:0 0 4px;font-size:20px;font-weight:800;color:#1a1814">${teacher.name}</h2>
+    <p style="margin:0;font-size:12px;color:#555">วิชา: ${subjects||'—'}&nbsp;&nbsp;|&nbsp;&nbsp;ห้องที่สอน: ${classes||'—'}</p>
+  </div>
+  <table style="width:100%;border-collapse:collapse">
+    <thead><tr>
+      <th style="border:1px solid #ddd;padding:8px 10px;background:#1a1814;color:#fff;font-weight:700;width:130px;text-align:left">วันเสาร์</th>
+      ${nonBreakPeriods.map(p=>`<th style="border:1px solid #ddd;padding:8px 10px;background:#1a1814;color:#fff;font-weight:700;text-align:center">
+        ${p.label}<br><span style="font-size:10px;font-weight:400;opacity:.7">${p.time}</span>
+      </th>`).join('')}
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>
+  <div style="margin-top:10px;font-size:10px;color:#aaa;text-align:right">พิมพ์ ${new Date().toLocaleDateString('th-TH')} · ระบบจัดตารางเรียนวันเสาร์</div>
+  <script>
+    if(document.fonts){document.fonts.ready.then(()=>setTimeout(()=>window.print(),400));}
+    else{setTimeout(()=>window.print(),1200);}
+  <\/script></body></html>`;
+
+  try{
+    const blob = new Blob([html],{type:'text/html;charset=utf-8'});
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href=url; a.target='_blank'; a.rel='noopener';
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); },2000);
+    toast(`เปิด PDF ตารางสอน ${teacher.name}`,'ok');
+  }catch(e){ toast('กรุณากด Ctrl+P เพื่อพิมพ์','warn'); }
+}
+
 function tdStyle(extra){
   let base = 'border:1px solid #ddd;padding:6px 8px;vertical-align:top;';
   if(!extra) return base;
