@@ -397,46 +397,9 @@ body{font-family:var(--font);background:var(--paper);color:var(--ink);font-size:
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--rule2);border-radius:3px}
-
-/* ── READ-ONLY MODE ── */
-body.readonly .add-btn,
-body.readonly .tbr,
-body.readonly .conflict-badge,
-body.readonly .empty-drop,
-body.readonly [onclick*="openModal"],
-body.readonly [onclick*="openAutoModal"],
-body.readonly [onclick*="clearDate"],
-body.readonly [onclick*="clearAll"],
-body.readonly button[title="แก้ไข"],
-body.readonly button[title="ลบ"]{display:none !important}
-body.readonly .cell{pointer-events:none}
-body.readonly .cinfo,
-body.readonly .iinfo{cursor:default !important}
-body.readonly .modal-overlay{display:none !important}
-body.readonly::before{
-  content:"👁 โหมดดูอย่างเดียว (Read-only)";
-  position:fixed;top:0;left:0;right:0;z-index:9999;
-  background:#1a4a7a;color:#fff;text-align:center;
-  padding:6px;font-size:12px;font-weight:600;letter-spacing:.5px;
-}
-body.readonly .app{padding-top:30px}
 </style>
 </head>
 <body>
-<script>
-  // Read-only mode for non-admin viewers (?readonly=1)
-  (function(){
-    var qs = new URLSearchParams(location.search);
-    if(qs.get('readonly') === '1'){
-      document.body.classList.add('readonly');
-      // Block all edit entry points
-      window.addEventListener('DOMContentLoaded', function(){
-        ['openModal','openAutoModal','clearDate','clearAll','exportJSON','importJSON']
-          .forEach(function(fn){ if(typeof window[fn]==='function') window[fn]=function(){}; });
-      });
-    }
-  })();
-</script>
 <div class="app">
 
 <!-- ══ SIDEBAR ══ -->
@@ -491,6 +454,7 @@ body.readonly .app{padding-top:30px}
         <div class="topbar-title">ตารางเรียนวันเสาร์</div>
       </div>
       <div class="topbar-pill">ม.1/9 – ม.6/9</div>
+      <div class="topbar-pill" style="background:#b5651d;color:#fff;border-color:#b5651d">V2</div>
     </div>
     <div class="topbar-right">
       <button onclick="configureSheets()" title="ตั้งค่า Google Sheets sync"
@@ -507,21 +471,24 @@ body.readonly .app{padding-top:30px}
 
     <select id="view-sel" onchange="onViewChange()">
       <option value="class">มุมมองรายชั้น</option>
-      <option value="single-class">มุมมองรายห้อง</option>
       <option value="teacher">มุมมองรายครู</option>
+      <option value="room">มุมมองรายห้อง</option>
+      <option value="summary">📊 สรุปคาบ</option>
     </select>
     <select id="teacher-filter-sel" onchange="render()" style="display:none">
       <option value="all">ครูทั้งหมด</option>
     </select>
-    <select id="class-filter-sel" onchange="render()" style="display:none"></select>
+    <select id="class-filter-sel" onchange="render()" style="display:none">
+      <option value="all">ทุกห้อง</option>
+    </select>
     <div class="conflict-badge" id="conflict-badge">⚠ <span id="c-count">0</span> ความขัดแย้ง</div>
     <div class="tbr">
+      <button class="btn" style="background:var(--teal);color:#fff;border-color:var(--teal)" onclick="openSheetImport()">📥 โหลดจาก Sheet</button>
       <button class="btn btn-blue" onclick="openAutoModal()">⚙ จัดตารางอัตโนมัติ</button>
       <button class="btn btn-red" onclick="clearDate()">🗑 ล้างวันนี้</button>
       <button class="btn" style="color:var(--red);border-color:#e8a8a8" onclick="clearAll()">🗑 ล้างทั้งหมด</button>
       <button class="btn" onclick="exportJSON()">⬇ JSON</button>
-      <button class="btn btn-amber" onclick="doPrint()">🖨 PDF</button>
-      <button class="btn btn-amber" id="btn-print-class" onclick="doPrintClass()" style="display:none">🖨 PDF ห้องนี้</button>
+      <button class="btn btn-amber" onclick="openPrintModal()">🖨 PDF</button>
     </div>
   </div>
 
@@ -720,7 +687,8 @@ async function cloudPush(url){
   try{
     await fetch(url, {
       method:'POST',
-      headers:{'Content-Type':'text/plain;charset=utf-8'}, // avoid CORS preflight
+      mode:'no-cors',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
       body: JSON.stringify(db),
     });
     if(badge){ badge.textContent='☁ synced'; setTimeout(updateSyncBadge,1500); }
@@ -766,6 +734,158 @@ function delE(classId, dateS, pIdx){ delete db.schedule[skey(classId,dateS,pIdx)
 // ══════════════════════════════════════
 //  SIDEBAR RENDER
 // ══════════════════════════════════════
+function openPrintModal(){
+  const teacherOpts = db.teachers.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');
+  document.getElementById('modal-title').textContent = '🖨 เลือกรูปแบบ PDF';
+  document.getElementById('modal-body').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:10px;padding-bottom:8px">
+
+      <label style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1.5px solid var(--rule2);border-radius:var(--r);cursor:pointer;transition:border-color .15s"
+        onmouseover="this.style.borderColor='var(--teal)'" onmouseout="syncPrintBorder()">
+        <input type="radio" name="pmode" value="class" checked style="margin-top:3px;accent-color:var(--teal)">
+        <div>
+          <div style="font-weight:700;font-size:13px">ตารางรายชั้น</div>
+          <div style="font-size:11px;color:var(--ink3);margin-top:2px">แต่ละวันเสาร์เป็นหน้าแยก · ทุกห้องเป็นคอลัมน์</div>
+        </div>
+      </label>
+
+      <label style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1.5px solid var(--rule2);border-radius:var(--r);cursor:pointer;transition:border-color .15s"
+        onmouseover="this.style.borderColor='var(--teal)'" onmouseout="syncPrintBorder()">
+        <input type="radio" name="pmode" value="room" style="margin-top:3px;accent-color:var(--teal)">
+        <div>
+          <div style="font-weight:700;font-size:13px">ตารางรายห้อง</div>
+          <div style="font-size:11px;color:var(--ink3);margin-top:2px">ทุกสัปดาห์เป็นแถว · คาบ × ห้องเป็นคอลัมน์ · A4 landscape</div>
+        </div>
+      </label>
+
+      <label style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1.5px solid var(--rule2);border-radius:var(--r);cursor:pointer;transition:border-color .15s"
+        onmouseover="this.style.borderColor='var(--teal)'" onmouseout="syncPrintBorder()">
+        <input type="radio" name="pmode" value="teacher" style="margin-top:3px;accent-color:var(--teal)" onchange="document.getElementById('teacher-pick-wrap').style.display='block'">
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:13px">ตารางสอนครูรายคน</div>
+          <div style="font-size:11px;color:var(--ink3);margin-top:2px">ทุกสัปดาห์เป็นแถว · คาบ 1–3 เป็นคอลัมน์ · A4 landscape</div>
+          <div id="teacher-pick-wrap" style="display:none;margin-top:8px">
+            <select id="teacher-pdf-pick" style="width:100%;font-family:var(--font);font-size:12px;padding:5px 8px;border:1.5px solid var(--rule2);border-radius:var(--r-sm);background:var(--card);color:var(--ink)">
+              <option value="">— เลือกครู —</option>
+              ${teacherOpts}
+            </select>
+          </div>
+        </div>
+      </label>
+
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:8px;padding-top:4px;border-top:1px solid var(--rule)">
+      <button class="btn" onclick="closeModal()">ยกเลิก</button>
+      <button class="btn btn-amber" onclick="executePrint()">🖨 สร้าง PDF</button>
+    </div>`;
+
+  // sync border highlight ตาม radio ที่เลือก
+  document.querySelectorAll('input[name=pmode]').forEach(r=>{
+    r.addEventListener('change', ()=>{
+      syncPrintBorder();
+      document.getElementById('teacher-pick-wrap').style.display =
+        r.value==='teacher' && r.checked ? 'block' : document.getElementById('teacher-pick-wrap').style.display;
+    });
+  });
+  showModal();
+}
+function syncPrintBorder(){
+  document.querySelectorAll('input[name=pmode]').forEach(r=>{
+    r.closest('label').style.borderColor = r.checked ? 'var(--teal)' : 'var(--rule2)';
+  });
+}
+function executePrint(){
+  const mode = document.querySelector('input[name=pmode]:checked')?.value;
+  if(mode==='class'){ closeModal(); doPrint(); }
+  else if(mode==='room'){ closeModal(); doPrintRoomView(); }
+  else if(mode==='teacher'){
+    const tid = document.getElementById('teacher-pdf-pick')?.value;
+    if(!tid){ toast('เลือกครูก่อน','warn'); return; }
+    closeModal(); doPrintTeacher(tid);
+  }
+}
+
+function doPrintRoomView(){
+  const nonBreak = PERIODS.filter(p=>!p.isBreak);
+
+  const thPeriods = nonBreak.map(p=>`
+    <th style="border:1px solid #ddd;padding:7px 10px;background:#1a1814;color:#fff;font-weight:700;text-align:center;min-width:120px">
+      ${p.label}<br><span style="font-size:9px;font-weight:400;opacity:.7">${p.time}</span>
+    </th>`).join('');
+
+  const classSections = CLASSES.map((cl, ci)=>{
+    let rows = '';
+    SAT_DATES.forEach((sat,wi)=>{
+      const dateS = dateStr(sat);
+      const cells = nonBreak.map(p=>{
+        const pi = PERIODS.indexOf(p);
+        const entry = getE(cl.id, dateS, pi);
+        if(!entry) return `<td style="border:1px solid #ddd;padding:4px;min-width:120px">
+          <div style="height:48px;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:12px">—</div>
+        </td>`;
+        const cv = db.courses.find(x=>x.id===entry.courseId);
+        const t  = db.teachers.find(x=>x.id===entry.teacherId);
+        const bg = cv ? hexToRgbaCss(cv.color,0.08) : '#fff';
+        const bc = cv ? cv.color : '#ccc';
+        return `<td style="border:1px solid #ddd;padding:4px;min-width:120px">
+          <div style="background:${bg};border-left:3px solid ${bc};border-radius:4px;padding:5px 8px;min-height:48px">
+            <div style="font-weight:700;font-size:12px;color:${bc};line-height:1.4">${cv?cv.name:'?'}</div>
+            ${t?`<div style="font-size:11px;color:#555;margin-top:2px">${t.name}</div>`:''}
+          </div>
+        </td>`;
+      }).join('');
+      rows += `<tr>
+        <td style="border:1px solid #ddd;padding:6px 10px;background:#f7f7f5;white-space:nowrap;vertical-align:middle;width:80px">
+          <div style="font-weight:700;font-size:12px;color:#0b6e6e">สัปดาห์ ${wi+1}</div>
+          <div style="font-size:11px;color:#555">${sat.getDate()}/${sat.getMonth()+1}/${(sat.getFullYear()+543).toString().slice(-2)}</div>
+        </td>
+        ${cells}
+      </tr>`;
+    });
+
+    const pageBreak = ci < CLASSES.length-1 ? 'page-break-after:always;' : '';
+    return `<div style="${pageBreak}padding:14px 18px">
+      <div style="margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid #1a1814;display:flex;align-items:baseline;gap:12px">
+        <h2 style="margin:0;font-size:20px;font-weight:800;color:#1a1814">${cl.label}</h2>
+        <span style="font-size:11px;color:#888;font-family:'IBM Plex Mono',monospace">ตารางเรียนวันเสาร์ · ${SAT_DATES.length} สัปดาห์</span>
+      </div>
+      <table style="width:100%;border-collapse:collapse">
+        <thead>
+          <tr>
+            <th style="border:1px solid #ddd;padding:7px 10px;background:#1a1814;color:#fff;font-weight:700;text-align:left;width:80px">สัปดาห์</th>
+            ${thPeriods}
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+  }).join('');
+
+  const html = `<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8">
+  <title>ตารางเรียนวันเสาร์ รายห้อง</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Noto Sans Thai',sans-serif;font-size:12px;background:#fff;color:#1a1a1a}
+    @media print{body{padding:0}@page{size:A4 portrait;margin:8mm}}
+  </style></head><body>
+  ${classSections}
+  <script>
+    if(document.fonts){document.fonts.ready.then(()=>setTimeout(()=>window.print(),400));}
+    else{setTimeout(()=>window.print(),1200);}
+  <\/script></body></html>`;
+
+  try{
+    const blob = new Blob([html],{type:'text/html;charset=utf-8'});
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href=url; a.target='_blank'; a.rel='noopener';
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); },2000);
+    toast('PDF ตารางรายห้อง','ok');
+  }catch(e){ toast('กรุณากด Ctrl+P เพื่อพิมพ์','warn'); }
+}
+
 function renderSidebar(){
   document.getElementById('course-list').innerHTML = db.courses.map(c=>`
     <div class="course-chip" id="chip-${c.id}">
@@ -814,6 +934,10 @@ function renderSidebar(){
         style="width:20px;height:20px;border-radius:50%;background:none;border:none;cursor:pointer;
                color:var(--teal);font-size:12px;display:flex;align-items:center;justify-content:center;
                flex-shrink:0;opacity:0;transition:opacity .15s" class="iedit">✏</button>
+      <button onclick="doPrintTeacher('${t.id}')" title="PDF ตารางสอน"
+        style="width:20px;height:20px;border-radius:50%;background:none;border:none;cursor:pointer;
+               color:var(--amber);font-size:11px;display:flex;align-items:center;justify-content:center;
+               flex-shrink:0;opacity:0;transition:opacity .15s" class="iprint">🖨</button>
       <button onclick="delTeacher('${t.id}')" title="ลบ"
         style="width:20px;height:20px;border-radius:50%;background:none;border:none;cursor:pointer;
                color:var(--ink3);font-size:12px;display:flex;align-items:center;justify-content:center;
@@ -823,10 +947,12 @@ function renderSidebar(){
   document.querySelectorAll('#teacher-list .irow').forEach(row=>{
     row.addEventListener('mouseenter',()=>{
       row.querySelector('.iedit').style.opacity='1';
+      row.querySelector('.iprint').style.opacity='1';
       row.querySelector('.idel2').style.opacity='1';
     });
     row.addEventListener('mouseleave',()=>{
       row.querySelector('.iedit').style.opacity='0';
+      row.querySelector('.iprint').style.opacity='0';
       row.querySelector('.idel2').style.opacity='0';
     });
   });
@@ -881,57 +1007,13 @@ function render(){
 
   if(viewMode==='teacher'){
     renderTeacherAllWeeks();
-  } else if(viewMode==='single-class'){
-    renderSingleClassAllWeeks();
+  } else if(viewMode==='room'){
+    renderRoomAllWeeks();
+  } else if(viewMode==='summary'){
+    renderSummary();
   } else {
     renderClassDay();
   }
-}
-
-// ── มุมมองรายห้อง: ห้องเดียว ทุกสัปดาห์ ──
-function renderSingleClassAllWeeks(){
-  const sel = document.getElementById('class-filter-sel');
-  const classId = sel?.value || CLASSES[0].id;
-  const cls = CLASSES.find(c=>c.id===classId) || CLASSES[0];
-
-  document.getElementById('print-header').innerHTML =
-    `<h2>ตารางเรียน ${cls.label} (ทุกสัปดาห์)</h2>
-     <p>ภาคเรียน: ${SAT_DATES.length} สัปดาห์ · พิมพ์ ${new Date().toLocaleDateString('th-TH')}</p>`;
-
-  document.getElementById('grid-head').innerHTML = `<tr>
-    <th style="text-align:left;padding-left:10px;width:130px">สัปดาห์ / วันที่</th>
-    ${PERIODS.map(p=>`<th>${p.isBreak?'🍽 '+p.label:p.label}<div style="font-size:10px;font-weight:400;opacity:.7">${p.time}</div></th>`).join('')}
-  </tr>`;
-
-  let rows = '';
-  SAT_DATES.forEach((sat,wi)=>{
-    const dateS = dateStr(sat);
-    rows += `<tr>
-      <td class="period-col" style="white-space:nowrap;font-size:11px">
-        <div style="font-weight:700;color:var(--teal)">สัปดาห์ ${wi+1}</div>
-        <div>${thaiDate(sat)}</div>
-      </td>
-      ${PERIODS.map((p,pi)=>{
-        if(p.isBreak){
-          return `<td class="lunch-cell" style="text-align:center;color:var(--ink3);font-style:italic">— พัก —</td>`;
-        }
-        const entry = getE(classId, dateS, pi);
-        const conflicts = entry ? getConflicts(classId, dateS, pi, entry) : [];
-        return `<td class="grid-cell"
-          data-pi="${pi}" data-col="${classId}"
-          ondragover="cOver(event)" ondragleave="cLeave(event)" ondrop="cDrop(event,'${classId}',${pi},'${dateS}')">
-          <div class="cell-inner">
-            ${entry
-              ? renderBlock(entry, classId, dateS, pi, conflicts, true)
-              : `<div class="empty-drop">—</div>`}
-          </div>
-        </td>`;
-      }).join('')}
-    </tr>`;
-  });
-
-  document.getElementById('grid-body').innerHTML = rows;
-  checkConflicts();
 }
 
 // ── มุมมองรายชั้น: ตารางวันที่เลือก ──
@@ -1158,11 +1240,11 @@ function bStart(e,eid,pi){ dragData={type:'move',entryId:eid,fromPi:pi}; e.curre
 function bEnd(e){ document.querySelectorAll('.cblock').forEach(b=>b.classList.remove('dragging')); dragData=null; }
 function cOver(e){ e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
 function cLeave(e){ e.currentTarget.classList.remove('drag-over'); }
-function cDrop(e,colId,pi,dateOverride){
+function cDrop(e,colId,pi){
   e.preventDefault();
   e.currentTarget.classList.remove('drag-over');
   if(!dragData) return;
-  const dateS = dateOverride || curDateKey();
+  const dateS = curDateKey();
   if(dragData.type==='new'){
     openAssignModal(dragData.courseId, colId, dateS, pi);
   } else {
@@ -1568,27 +1650,6 @@ function execAutoSchedule(hoursMap){
   // 2. ล้างตาราง
   db.schedule = {};
 
-  // ─── PRE-PASS: บังคับ "ว่ายน้ำ" คาบบ่าย (pi=3) ทุกวันเสาร์ ───
-  //     กระจายห้องแบบ round-robin ทุกห้องได้ว่ายน้ำเฉลี่ยกัน
-  const swimCourse = db.courses.find(c=>/ว่ายน้ำ/.test(c.name));
-  if(swimCourse){
-    const SWIM_PI = 3; // คาบ 3 (บ่าย)
-    const swimSlot = courseSlots.find(d=>d.course.id===swimCourse.id);
-    SAT_DATES.forEach((sat, wi)=>{
-      const dateS = dateStr(sat);
-      const cls = CLASSES[wi % CLASSES.length];
-      const matched = getMatchedTeachers(swimCourse.name, cls.id);
-      const teacher = matched[0];
-      setE(cls.id, dateS, SWIM_PI, {
-        id:uid(),
-        courseId: swimCourse.id,
-        teacherId: teacher ? teacher.id : '',
-        roomId: ''
-      });
-      if(swimSlot) swimSlot.placed++;
-    });
-  }
-
   // 3. ครูแต่ละคนต้องสอนอย่างน้อย MIN_PERIODS_PER_WEEK คาบ/สัปดาห์
   const MIN_PERIODS_PER_WEEK = 2; // = 4 ชม./สัปดาห์
 
@@ -1773,86 +1834,13 @@ function execAutoSchedule(hoursMap){
       teacherWeekStats[e.teacherId].periods++;
   });
 
-  // ─── Validation: ทุกห้องได้เรียนทุกวิชาทุกเดือน ───
-  const months = {};
-  SAT_DATES.forEach(sat=>{
-    const k = sat.getFullYear()+'-'+String(sat.getMonth()+1).padStart(2,'0');
-    if(!months[k]) months[k] = [];
-    months[k].push(dateStr(sat));
-  });
-  const missingCoverage = []; // {clsLabel, courseName, monthLabel}
-  CLASSES.forEach(cls=>{
-    courseSlots.forEach(cs=>{
-      const cv = cs.course;
-      Object.entries(months).forEach(([mKey, dates])=>{
-        let has = false;
-        for(const dateS of dates){
-          for(const pi of TEACH_PERIODS){
-            const e = getE(cls.id, dateS, pi);
-            if(e && e.courseId===cv.id){ has = true; break; }
-          }
-          if(has) break;
-        }
-        if(!has){
-          const [yy,mm] = mKey.split('-');
-          missingCoverage.push({
-            clsLabel: cls.label, courseName: cv.name,
-            monthLabel: `${parseInt(mm)}/${parseInt(yy)+543}`
-          });
-        }
-      });
-    });
-  });
-
-  // ─── Validation: ทุกวันเสาร์ตอนบ่ายมีว่ายน้ำหรือไม่ ───
-  const swimGap = [];
-  if(swimCourse){
-    SAT_DATES.forEach(sat=>{
-      const dateS = dateStr(sat);
-      const found = CLASSES.some(cl=>{
-        const e = getE(cl.id, dateS, 3);
-        return e && e.courseId===swimCourse.id;
-      });
-      if(!found) swimGap.push(thaiDate(sat));
-    });
-  }
-
-  // ─── Print summary ของวิชาที่ไม่มีครู ───
-  const noTeacher = courseSlots.filter(cs=>{
-    return !db.teachers.some(t=>{
-      const subs = t.subjects&&t.subjects.length>0 ? t.subjects : (t.subject?[t.subject]:[]);
-      return subs.includes(cs.course.name);
-    });
-  });
-
   dbSave(); closeModal(); render();
 
-  // Build summary
-  const lines = [];
   if(unplaced.length>0){
-    lines.push('⚠ ยังขาด: ' + unplaced.map(d=>`${d.course.name} (${d.placed}/${d.totalPeriods*CLASSES.length})`).join(', '));
-  }
-  if(noTeacher.length>0){
-    lines.push('⚠ ไม่มีครู: ' + noTeacher.map(d=>d.course.name).join(', '));
-  }
-  if(swimGap.length>0){
-    lines.push('⚠ ว่ายน้ำขาดในวัน: ' + swimGap.slice(0,3).join(', ') + (swimGap.length>3?' ...':''));
-  }
-  if(missingCoverage.length>0){
-    const sample = missingCoverage.slice(0,5)
-      .map(m=>`${m.clsLabel}/${m.courseName}/${m.monthLabel}`).join(' · ');
-    lines.push(`⚠ ${missingCoverage.length} ช่อง (ห้อง×วิชา×เดือน) ยังว่าง — ${sample}${missingCoverage.length>5?' ...':''}`);
-  }
-
-  if(lines.length===0){
-    toast(`จัดตารางสำเร็จ ✓ ${totalPlaced} คาบ · ${totalWeeks} สัปดาห์`, 'ok');
+    const names = unplaced.map(d=>`${d.course.name} (จัด ${d.placed}/${d.totalPeriods*CLASSES.length})`).join(', ');
+    toast(`จัดตารางเสร็จ · ยังขาด: ${names}`, 'warn');
   } else {
-    toast(`จัดตารางเสร็จ (${totalPlaced} คาบ) — ดูรายละเอียดใน console`, 'warn');
-    console.warn('═══ Auto-schedule warnings ═══');
-    lines.forEach(l=>console.warn(l));
-    if(missingCoverage.length>0){
-      console.table(missingCoverage);
-    }
+    toast(`จัดตารางสำเร็จ ✓ ${totalPlaced} คาบ · ${totalWeeks} สัปดาห์`, 'ok');
   }
 }
 function shuffleArr(arr){
@@ -2137,6 +2125,94 @@ function doPrint(){
     toast('กรุณากด Ctrl+P เพื่อพิมพ์', 'warn');
   }
 }
+function doPrintTeacher(tid){
+  const teacher = db.teachers.find(t=>t.id===tid);
+  if(!teacher){ toast('ไม่พบข้อมูลครู','err'); return; }
+
+  const subjects = (teacher.subjects||[teacher.subject||'']).filter(Boolean).join(', ');
+  const nonBreak = PERIODS.filter(p=>!p.isBreak);
+
+  // สร้างแถวทุกสัปดาห์
+  let rows = '';
+  SAT_DATES.forEach((sat,wi)=>{
+    const dateS = dateStr(sat);
+    const periodCells = nonBreak.map(p=>{
+      const pi = PERIODS.indexOf(p);
+      let clsLabel='', cv=null, rm=null;
+      for(const cls of CLASSES){
+        const e = getE(cls.id, dateS, pi);
+        if(e && e.teacherId===tid){
+          clsLabel = cls.label;
+          cv = db.courses.find(x=>x.id===e.courseId);
+          rm = db.rooms.find(x=>x.id===e.roomId);
+          break;
+        }
+      }
+      if(!clsLabel) return `<td style="border:1px solid #ddd;padding:4px;min-width:110px">
+        <div style="height:52px;display:flex;align-items:center;justify-content:center;color:#ddd;font-size:13px">—</div>
+      </td>`;
+      const bg = cv ? hexToRgbaCss(cv.color,0.1) : '#fff';
+      const bc = cv ? cv.color : '#ccc';
+      return `<td style="border:1px solid #ddd;padding:4px;min-width:110px">
+        <div style="background:${bg};border-left:3px solid ${bc};border-radius:4px;
+                    padding:5px 8px;min-height:52px;display:flex;flex-direction:column;justify-content:center">
+          <div style="font-weight:800;font-size:14px;color:${bc}">${clsLabel}</div>
+          ${cv?`<div style="font-size:11px;color:#555;margin-top:2px">${cv.name}</div>`:''}
+          ${rm?`<div style="font-size:10px;color:#888;margin-top:2px">📍 ${rm.name}</div>`:''}
+        </div>
+      </td>`;
+    }).join('');
+
+    rows += `<tr>
+      <td style="border:1px solid #ddd;padding:6px 10px;background:#f7f7f5;white-space:nowrap;vertical-align:middle">
+        <div style="font-weight:700;font-size:11px;color:#0b6e6e">${wi+1}</div>
+        <div style="font-size:12px;font-weight:600">${sat.getDate()}/${sat.getMonth()+1}/${(sat.getFullYear()+543).toString().slice(-2)}</div>
+      </td>
+      ${periodCells}
+    </tr>`;
+  });
+
+  const html = `<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8">
+  <title>ตารางสอน ${teacher.name}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Noto Sans Thai',sans-serif;font-size:13px;background:#fff;color:#1a1a1a;padding:16px 20px}
+    @media print{body{padding:8mm 10mm}@page{size:A4 landscape;margin:8mm}}
+  </style></head><body>
+  <div style="margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid #1a1814">
+    <div style="font-size:10px;color:#888;margin-bottom:3px;font-family:'IBM Plex Mono',monospace">ตารางสอนภาคเรียน · ม.1/9–ม.6/9 · ${SAT_DATES.length} สัปดาห์</div>
+    <h2 style="margin:0 0 3px;font-size:20px;font-weight:800;color:#1a1814">${teacher.name}</h2>
+    <p style="margin:0;font-size:12px;color:#555">วิชา: ${subjects||'—'}</p>
+  </div>
+  <table style="width:100%;border-collapse:collapse">
+    <thead>
+      <tr>
+        <th style="border:1px solid #ddd;padding:8px 10px;background:#1a1814;color:#fff;font-weight:700;width:80px;text-align:left">สัปดาห์</th>
+        ${nonBreak.map(p=>`<th style="border:1px solid #ddd;padding:8px 10px;background:#1a1814;color:#fff;font-weight:700;text-align:center">
+          ${p.label}<br><span style="font-size:10px;font-weight:400;opacity:.7">${p.time}</span>
+        </th>`).join('')}
+      </tr>
+    </thead>
+    <tbody>${rows}</tbody>
+  </table>
+  <div style="margin-top:10px;font-size:10px;color:#aaa;text-align:right">พิมพ์ ${new Date().toLocaleDateString('th-TH')} · ระบบจัดตารางเรียนวันเสาร์</div>
+  <script>
+    if(document.fonts){document.fonts.ready.then(()=>setTimeout(()=>window.print(),400));}
+    else{setTimeout(()=>window.print(),1200);}
+  <\/script></body></html>`;
+
+  try{
+    const blob = new Blob([html],{type:'text/html;charset=utf-8'});
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href=url; a.target='_blank'; a.rel='noopener';
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); },2000);
+    toast(`PDF ตารางสอน ${teacher.name}`,'ok');
+  }catch(e){ toast('กรุณากด Ctrl+P เพื่อพิมพ์','warn'); }
+}
+
 function tdStyle(extra){
   let base = 'border:1px solid #ddd;padding:6px 8px;vertical-align:top;';
   if(!extra) return base;
@@ -2206,120 +2282,395 @@ function confirmAction(msg, onConfirm){
   });
 }
 
+function renderRoomAllWeeks(){
+  // ── มุมมองรายห้อง: แถว=สัปดาห์, คอลัมน์=คาบ แสดงทีละห้อง ──
+  document.getElementById('conflict-panel').classList.remove('show');
+  document.getElementById('conflict-badge').classList.remove('show');
+
+  const classFilter = document.getElementById('class-filter-sel')?.value || 'all';
+  const targetClasses = classFilter==='all' ? CLASSES : CLASSES.filter(cl=>cl.id===classFilter);
+
+  const teachPeriodLabels = PERIODS.filter(p=>!p.isBreak);
+
+  // Header: ห้อง columns ซ้อนกับคาบ
+  // แต่ละ cell แสดง: คาบ × ห้อง
+  // โครงสร้าง: แถว = สัปดาห์, คอลัมน์ = (คาบ1 ห้องA, คาบ1 ห้องB, ..., คาบ2 ห้องA, ...)
+  // → ถ้าห้องเยอะเกิน แสดงแค่ห้องที่เลือก
+
+  document.getElementById('grid-head').innerHTML = `<tr>
+    <th style="text-align:left;padding-left:10px;min-width:80px">สัปดาห์</th>
+    ${teachPeriodLabels.map(p=>`
+      <th colspan="${targetClasses.length}" style="text-align:center;border-left:2px solid var(--rule2)">
+        ${p.label}
+        <div style="font-size:9px;font-weight:400;opacity:.6">${p.time}</div>
+      </th>`).join('')}
+  </tr>
+  <tr>
+    <th style="background:var(--surface2)"></th>
+    ${teachPeriodLabels.map(()=>
+      targetClasses.map(cl=>`
+        <th style="font-size:10px;font-weight:600;color:var(--teal);padding:4px 4px;
+                   border-left:1px solid var(--rule);border-top:1px solid var(--rule2);
+                   background:var(--teal-l)">${cl.label}</th>`
+      ).join('')
+    ).join('')}
+  </tr>`;
+
+  let rows = '';
+  SAT_DATES.forEach((sat,wi)=>{
+    const dateS = dateStr(sat);
+    rows += `<tr>
+      <td class="period-col" style="font-size:11px;white-space:nowrap">
+        <div style="font-weight:700;color:var(--teal)">${wi+1}</div>
+        <div style="font-size:10px">${sat.getDate()}/${sat.getMonth()+1}/${(sat.getFullYear()+543).toString().slice(-2)}</div>
+      </td>
+      ${teachPeriodLabels.map(p=>{
+        const pi = PERIODS.indexOf(p);
+        return targetClasses.map(cl=>{
+          const entry = getE(cl.id, dateS, pi);
+          if(!entry){
+            return `<td style="border:1px solid var(--rule);padding:3px;min-width:90px">
+              <div style="height:44px;display:flex;align-items:center;justify-content:center;
+                          color:var(--rule2);font-size:11px">—</div>
+            </td>`;
+          }
+          const cv = db.courses.find(x=>x.id===entry.courseId);
+          const t  = db.teachers.find(x=>x.id===entry.teacherId);
+          const bg = cv ? hex2rgba(cv.color,.1) : 'var(--card2)';
+          const border = cv ? cv.color : 'var(--rule2)';
+          return `<td style="border:1px solid var(--rule);padding:3px;min-width:90px">
+            <div style="background:${bg};border-left:3px solid ${border};
+                        border-radius:4px;padding:4px 6px;height:100%;min-height:44px">
+              <div style="font-weight:700;font-size:11px;color:${border};line-height:1.3">${cv?cv.name:'?'}</div>
+              ${t?`<div style="font-size:10px;color:var(--ink3);margin-top:2px">👤 ${t.name.replace('อ.','')}</div>`:''}
+            </div>
+          </td>`;
+        }).join('');
+      }).join('')}
+    </tr>`;
+  });
+
+  document.getElementById('grid-body').innerHTML = rows;
+}
+
+function renderSummary(){
+  // ── สรุปจำนวนคาบต่อภาคเรียน: แถว=ระดับชั้น, คอลัมน์=วิชา ──
+  document.getElementById('conflict-panel').classList.remove('show');
+  document.getElementById('conflict-badge').classList.remove('show');
+
+  // นับคาบจาก schedule ทั้งหมด
+  // key: classId_courseId → count
+  const counts = {};
+  CLASSES.forEach(cl=>{
+    db.courses.forEach(cv=>{
+      counts[cl.id+'_'+cv.id] = 0;
+    });
+  });
+  Object.entries(db.schedule).forEach(([k,entry])=>{
+    const parts = k.split('_');
+    const clsId = parts[0];
+    if(!CLASSES.find(cl=>cl.id===clsId)) return;
+    counts[clsId+'_'+entry.courseId] = (counts[clsId+'_'+entry.courseId]||0) + 1;
+  });
+
+  // หา max คาบต่อห้อง (ทุกวิชา) สำหรับ progress bar
+  const totalSlotsPerClass = SAT_DATES.length * TEACH_PERIODS.length;
+
+  // Header
+  document.getElementById('grid-head').innerHTML = `<tr>
+    <th style="text-align:left;padding-left:12px;width:90px">ระดับชั้น</th>
+    ${db.courses.map(cv=>`
+      <th style="padding:8px 6px">
+        <div style="width:10px;height:10px;border-radius:50%;background:${cv.color};
+                    display:inline-block;margin-right:4px;vertical-align:middle"></div>
+        ${cv.name}
+        <div style="font-size:9px;font-weight:400;opacity:.6;font-family:var(--mono)">${cv.code}</div>
+      </th>`).join('')}
+    <th style="padding:8px 6px;border-left:2px solid var(--rule2)">รวม</th>
+    <th style="padding:8px 6px">เป้าหมาย</th>
+    <th style="padding:8px 6px">%</th>
+  </tr>`;
+
+  // Body
+  let rows = '';
+  CLASSES.forEach(cl=>{
+    const rowTotal = db.courses.reduce((s,cv)=> s+(counts[cl.id+'_'+cv.id]||0), 0);
+    const pct = totalSlotsPerClass>0 ? Math.round(rowTotal/totalSlotsPerClass*100) : 0;
+    const barColor = pct>=90?'var(--teal)':pct>=60?'var(--amber)':'var(--red)';
+
+    const cells = db.courses.map(cv=>{
+      const n = counts[cl.id+'_'+cv.id]||0;
+      const h = n*2; // ชั่วโมง (1 คาบ = 2 ชม.)
+      const targetPeriods = cv.semesterHours>0 ? Math.round(cv.semesterHours/2) : 0;
+      const cvPct = targetPeriods>0 ? Math.min(100,Math.round(n/targetPeriods*100)) : 0;
+      const cvColor = n===0?'var(--ink3)':cvPct>=90?'var(--teal)':cvPct>=60?'var(--amber)':'var(--red)';
+      return `<td style="text-align:center;padding:8px 6px;border-bottom:1px solid var(--rule)">
+        <div style="font-size:16px;font-weight:800;color:${cvColor};font-family:var(--mono)">${n}</div>
+        <div style="font-size:10px;color:var(--ink3)">${h} ชม.</div>
+        ${targetPeriods>0?`<div style="font-size:9px;color:var(--ink3);opacity:.7">/${targetPeriods}</div>`:''}
+      </td>`;
+    }).join('');
+
+    rows += `<tr>
+      <td style="padding:8px 12px;font-weight:700;font-size:13px;border-bottom:1px solid var(--rule);
+                 background:var(--surface2);border-right:2px solid var(--rule2)">
+        <div style="color:var(--teal);font-size:15px;font-weight:800">${cl.label}</div>
+      </td>
+      ${cells}
+      <td style="text-align:center;padding:8px 6px;border-bottom:1px solid var(--rule);
+                 border-left:2px solid var(--rule2);font-weight:800;font-family:var(--mono);font-size:15px">
+        ${rowTotal}
+      </td>
+      <td style="text-align:center;padding:8px 6px;border-bottom:1px solid var(--rule);
+                 font-size:12px;color:var(--ink3)">${totalSlotsPerClass}</td>
+      <td style="padding:8px 10px;border-bottom:1px solid var(--rule);min-width:90px">
+        <div style="display:flex;align-items:center;gap:6px">
+          <div style="flex:1;height:7px;background:var(--rule);border-radius:4px;overflow:hidden">
+            <div style="height:100%;width:${pct}%;background:${barColor};border-radius:4px;transition:width .4s"></div>
+          </div>
+          <span style="font-size:11px;font-weight:700;color:${barColor};font-family:var(--mono);min-width:32px">${pct}%</span>
+        </div>
+      </td>
+    </tr>`;
+  });
+
+  // Footer: คอลัมน์รวม (ทุกชั้น)
+  const footCells = db.courses.map(cv=>{
+    const total = CLASSES.reduce((s,cl)=> s+(counts[cl.id+'_'+cv.id]||0), 0);
+    const totalHrs = total*2;
+    const target = cv.semesterHours>0 ? Math.round(cv.semesterHours/2)*CLASSES.length : 0;
+    return `<td style="text-align:center;padding:8px 6px;background:var(--surface2);font-weight:700;
+                        border-top:2px solid var(--rule2)">
+      <div style="font-size:14px;font-family:var(--mono)">${total}</div>
+      <div style="font-size:10px;color:var(--ink3)">${totalHrs} ชม.</div>
+      ${target>0?`<div style="font-size:9px;color:var(--ink3)">/${target}</div>`:''}
+    </td>`;
+  }).join('');
+
+  const grandTotal = CLASSES.reduce((s,cl)=>
+    s+db.courses.reduce((ss,cv)=> ss+(counts[cl.id+'_'+cv.id]||0), 0), 0);
+  const grandTarget = totalSlotsPerClass * CLASSES.length;
+  const grandPct = grandTarget>0 ? Math.round(grandTotal/grandTarget*100) : 0;
+
+  rows += `<tr>
+    <td style="padding:8px 12px;font-weight:800;background:var(--surface2);
+               border-top:2px solid var(--rule2);border-right:2px solid var(--rule2);font-size:12px">รวมทุกชั้น</td>
+    ${footCells}
+    <td style="text-align:center;padding:8px 6px;background:var(--surface2);
+               border-top:2px solid var(--rule2);border-left:2px solid var(--rule2);
+               font-weight:800;font-family:var(--mono);font-size:16px">${grandTotal}</td>
+    <td style="text-align:center;padding:8px 6px;background:var(--surface2);
+               border-top:2px solid var(--rule2);font-size:12px">${grandTarget}</td>
+    <td style="padding:8px 10px;background:var(--surface2);border-top:2px solid var(--rule2)">
+      <div style="display:flex;align-items:center;gap:6px">
+        <div style="flex:1;height:7px;background:var(--rule);border-radius:4px;overflow:hidden">
+          <div style="height:100%;width:${grandPct}%;background:var(--teal);border-radius:4px"></div>
+        </div>
+        <span style="font-size:11px;font-weight:800;color:var(--teal);font-family:var(--mono)">${grandPct}%</span>
+      </div>
+    </td>
+  </tr>`;
+
+  document.getElementById('grid-head').querySelector('tr') && null; // already set above
+  document.getElementById('grid-body').innerHTML = rows;
+}
+
 function onViewChange(){
   const v = document.getElementById('view-sel').value;
+
+  // teacher filter
   const tsel = document.getElementById('teacher-filter-sel');
   if(tsel){
     tsel.style.display = v==='teacher' ? 'inline-block' : 'none';
     tsel.innerHTML = '<option value="all">ครูทั้งหมด</option>' +
       db.teachers.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');
   }
+
+  // class filter (for room view)
   const csel = document.getElementById('class-filter-sel');
   if(csel){
-    csel.style.display = v==='single-class' ? 'inline-block' : 'none';
-    const prev = csel.value;
-    csel.innerHTML = CLASSES.map(cl=>`<option value="${cl.id}">${cl.label}</option>`).join('');
-    if(prev && CLASSES.some(c=>c.id===prev)) csel.value = prev;
+    csel.style.display = v==='room' ? 'inline-block' : 'none';
+    csel.innerHTML = '<option value="all">ทุกห้อง</option>' +
+      CLASSES.map(cl=>`<option value="${cl.id}">${cl.label}</option>`).join('');
   }
-  // ซ่อน date-nav เมื่อดูรายครู / รายห้อง (แสดงทุกสัปดาห์อยู่แล้ว)
+
+  // ซ่อน date-nav เมื่อดูรายครู / รายห้อง / สรุป
   const nav = document.getElementById('date-nav-wrap');
-  if(nav) nav.style.display = (v==='teacher'||v==='single-class') ? 'none' : '';
-  // ปุ่ม "PDF ห้องนี้" โผล่เฉพาะ mode รายห้อง
-  const pcBtn = document.getElementById('btn-print-class');
-  if(pcBtn) pcBtn.style.display = v==='single-class' ? 'inline-block' : 'none';
+  if(nav) nav.style.display = (v==='teacher'||v==='room'||v==='summary') ? 'none' : '';
+
   render();
 }
 
 // ══════════════════════════════════════
-//  PRINT — ห้องเดียว ทั้งภาคเรียน
+//  IMPORT FROM GOOGLE SHEETS (Apps Script API)
 // ══════════════════════════════════════
-function doPrintClass(){
-  const sel = document.getElementById('class-filter-sel');
-  const classId = sel?.value || CLASSES[0].id;
-  const cls = CLASSES.find(c=>c.id===classId) || CLASSES[0];
+const SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbztUBE8b3K3ile9R65FOIdKG1ggmHrTzG-m091psE4uj9yARl9L71OqdbNLVIq7mE9YIA/exec';
 
-  let thCells = `<th style="${tdStyle('bg:#1a1814;color:#fff;font-weight:700;width:130px')}">สัปดาห์ / วันที่</th>`;
-  PERIODS.forEach(p=>{
-    thCells += `<th style="${tdStyle('bg:#1a1814;color:#fff;font-weight:700;text-align:center')}">${p.isBreak?'🍽 '+p.label:p.label}<div style="font-size:10px;font-weight:400;opacity:.85;margin-top:2px">${p.time}</div></th>`;
-  });
-
-  let bodyRows = '';
-  SAT_DATES.forEach((sat,wi)=>{
-    const dateS = dateStr(sat);
-    let cells = `<td style="${tdStyle('bg:#f7f7f5;white-space:nowrap;font-size:11px;padding:8px 10px')}">
-      <div style="font-weight:700;font-size:12px;color:#0b6e6e">สัปดาห์ ${wi+1}</div>
-      <div style="color:#555;font-size:11px;margin-top:2px">${thaiDate(sat)}</div>
-    </td>`;
-    PERIODS.forEach((p,pi)=>{
-      if(p.isBreak){
-        cells += `<td style="${tdStyle('bg:#f9f5e8;text-align:center;color:#888;font-style:italic')}">— พัก —</td>`;
-        return;
-      }
-      const entry = getE(classId, dateS, pi);
-      if(entry){
-        const cv = db.courses.find(x=>x.id===entry.courseId);
-        const t  = db.teachers.find(x=>x.id===entry.teacherId);
-        const bg = cv ? hexToRgbaCss(cv.color,0.1) : '#fff';
-        const border = cv ? cv.color : '#ccc';
-        cells += `<td style="${tdStyle('padding:5px')}">
-          <div style="background:${bg};border-left:3px solid ${border};border-radius:4px;padding:6px 8px">
-            <div style="font-weight:700;font-size:12px;color:${border}">${cv?cv.name:''}</div>
-            ${t?`<div style="font-size:10px;color:#555;margin-top:3px">👤 ${t.name}</div>`:''}
-          </div>
-        </td>`;
-      } else {
-        cells += `<td style="${tdStyle('color:#ccc;text-align:center;font-size:11px')}">—</td>`;
-      }
-    });
-    bodyRows += `<tr>${cells}</tr>`;
-  });
-
-  const tableHtml = `<table style="width:100%;border-collapse:collapse"><thead><tr>${thCells}</tr></thead><tbody>${bodyRows}</tbody></table>`;
-
-  const html = `<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8">
-  <title>ตารางเรียน ${cls.label} — ทั้งภาค</title>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
-  <style>
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Noto Sans Thai',sans-serif;font-size:13px;background:#fff;color:#1a1a1a}
-    .page{padding:16px 20px;min-height:100vh}
-    @media print{
-      .page{padding:10mm 12mm;min-height:auto}
-      @page{size:A4 landscape;margin:8mm}
-    }
-  </style>
-  </head><body>
-  <div class="page">
-    <div style="margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid #1a1814">
-      <div style="font-size:11px;color:#888;margin-bottom:4px;font-family:'IBM Plex Mono',monospace">
-        ${SAT_DATES.length} สัปดาห์ · ${thaiDate(SAT_DATES[0])} → ${thaiDate(SAT_DATES[SAT_DATES.length-1])}
-      </div>
-      <h2 style="margin:0 0 6px;font-size:22px;font-weight:800;color:#1a1814">ตารางเรียนวันเสาร์ — ${cls.label}</h2>
-      <p style="margin:0;font-size:14px;color:#333">ทั้งภาคเรียน</p>
+function openSheetImport(){
+  document.getElementById('modal-title').textContent = '📥 โหลดข้อมูลจาก Google Sheet';
+  document.getElementById('modal-body').innerHTML = `
+    <div style="font-size:12px;color:var(--ink3);margin-bottom:12px;line-height:1.7;
+                background:var(--teal-l);border:1.5px solid #9dd4d4;border-radius:var(--r-sm);padding:10px 12px;color:var(--teal)">
+      📡 เชื่อมต่อกับ Google Apps Script API<br>
+      จะดึงข้อมูล <strong>ครู</strong> และ <strong>วิชา</strong> จาก Spreadsheet มาใส่ระบบอัตโนมัติ
     </div>
-    ${tableHtml}
-    <div style="margin-top:10px;font-size:10px;color:#aaa;text-align:right">สร้างโดยระบบจัดตารางเรียนวันเสาร์ · ${cls.label}</div>
-  </div>
-  <script>
-    if(document.fonts){
-      document.fonts.ready.then(()=>setTimeout(()=>window.print(),400));
-    } else {
-      setTimeout(()=>window.print(),1200);
-    }
-  <\/script>
-  </body></html>`;
+    <div id="sheet-status" style="font-size:12px;color:var(--ink2);margin-bottom:10px">
+      กด "โหลดข้อมูล" เพื่อเริ่มต้น
+    </div>
+    <div id="sheet-preview" style="max-height:240px;overflow-y:auto"></div>
+    <div class="mactions" style="margin-top:12px">
+      <button class="btn" onclick="closeModal()">ปิด</button>
+      <button class="btn btn-teal" id="sheet-load-btn" onclick="fetchSheetData()">🔄 โหลดข้อมูล</button>
+      <button class="btn btn-blue" id="sheet-apply-btn" onclick="applySheetData()" style="display:none">✓ นำเข้าระบบ</button>
+    </div>`;
+  showModal();
+}
+
+let _sheetRawData = null;
+
+async function fetchSheetData(){
+  const statusEl = document.getElementById('sheet-status');
+  const previewEl = document.getElementById('sheet-preview');
+  const loadBtn = document.getElementById('sheet-load-btn');
+  const applyBtn = document.getElementById('sheet-apply-btn');
+
+  statusEl.innerHTML = '<span style="color:var(--teal)">⏳ กำลังโหลด...</span>';
+  loadBtn.disabled = true;
 
   try {
-    const blob = new Blob([html], {type:'text/html;charset=utf-8'});
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href=url; a.target='_blank'; a.rel='noopener';
-    document.body.appendChild(a); a.click();
-    setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); }, 2000);
-    toast(`เปิด tab ใหม่ · ${cls.label} · พิมพ์อัตโนมัติ`, 'ok');
-  } catch(e){
-    toast('กรุณากด Ctrl+P เพื่อพิมพ์', 'warn');
+    const res = await fetch(SHEET_API_URL, { method:'GET' });
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const data = await res.json();
+    _sheetRawData = data;
+
+    // แสดง preview
+    const teachers = data.teachers || data.Teachers || data.ครู || [];
+    const courses  = data.courses  || data.Courses  || data.วิชา || [];
+
+    let html = '';
+
+    if(teachers.length>0){
+      html += `<div style="font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;
+                            letter-spacing:.06em;margin-bottom:6px">ครูผู้สอน (${teachers.length} คน)</div>`;
+      html += '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px">';
+      teachers.forEach(t=>{
+        const name = t.name||t.ชื่อ||t.Name||JSON.stringify(t);
+        html += `<span style="background:var(--teal-l);color:var(--teal);border:1px solid #9dd4d4;
+                              border-radius:999px;padding:3px 10px;font-size:11px">${name}</span>`;
+      });
+      html += '</div>';
+    }
+
+    if(courses.length>0){
+      html += `<div style="font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;
+                            letter-spacing:.06em;margin-bottom:6px">วิชา (${courses.length} วิชา)</div>`;
+      html += '<div style="display:flex;flex-wrap:wrap;gap:4px">';
+      courses.forEach(cv=>{
+        const name = cv.name||cv.ชื่อ||cv.Name||JSON.stringify(cv);
+        html += `<span style="background:var(--amber-l);color:var(--amber);border:1px solid #e8c88a;
+                              border-radius:999px;padding:3px 10px;font-size:11px">${name}</span>`;
+      });
+      html += '</div>';
+    }
+
+    if(!teachers.length && !courses.length){
+      html = `<div style="font-size:12px;color:var(--ink3)">
+        ⚠ ไม่พบ key "teachers" หรือ "courses" ใน response<br>
+        <small>Raw data: <code>${JSON.stringify(data).slice(0,300)}</code></small>
+      </div>`;
+    }
+
+    previewEl.innerHTML = html;
+    statusEl.innerHTML = `<span style="color:var(--teal)">✓ โหลดสำเร็จ — พบครู ${teachers.length} คน, วิชา ${courses.length} วิชา</span>`;
+    if(applyBtn) applyBtn.style.display = (teachers.length||courses.length) ? '' : 'none';
+
+  } catch(err){
+    statusEl.innerHTML = `<span style="color:var(--red)">❌ โหลดไม่สำเร็จ: ${err.message}</span>`;
+    previewEl.innerHTML = `<div style="font-size:11px;color:var(--ink3);margin-top:8px;line-height:1.7">
+      <strong>วิธีแก้ไข:</strong><br>
+      1. ตรวจสอบว่า Apps Script deploy เป็น <strong>"Anyone"</strong> แล้ว<br>
+      2. ลองเปิดลิ้งค์ใน browser ดูว่าได้ JSON มั้ย<br>
+      3. ถ้าได้ JSON แล้ว copy มาวางด้านล่างนี้:<br>
+      <textarea id="sheet-manual-input" style="width:100%;height:80px;margin-top:6px;font-size:11px;
+                border:1px solid var(--rule2);border-radius:var(--r-sm);padding:6px;font-family:var(--mono)"
+        placeholder='{"teachers":[...],"courses":[...]}'></textarea>
+      <button onclick="parseManualInput()" class="btn btn-teal" style="margin-top:6px;font-size:11px">
+        วิเคราะห์ข้อมูล JSON
+      </button>
+    </div>`;
+  } finally {
+    if(loadBtn) loadBtn.disabled = false;
   }
+}
+
+function parseManualInput(){
+  const raw = document.getElementById('sheet-manual-input')?.value.trim();
+  if(!raw){ toast('กรุณาวาง JSON ก่อน','err'); return; }
+  try {
+    _sheetRawData = JSON.parse(raw);
+    fetchSheetData._parsed = true;
+    // re-trigger preview by simulating loaded data
+    const data = _sheetRawData;
+    const teachers = data.teachers||data.Teachers||data.ครู||[];
+    const courses  = data.courses||data.Courses||data.วิชา||[];
+    const statusEl = document.getElementById('sheet-status');
+    const applyBtn = document.getElementById('sheet-apply-btn');
+    if(statusEl) statusEl.innerHTML = `<span style="color:var(--teal)">✓ วิเคราะห์สำเร็จ — ครู ${teachers.length} คน, วิชา ${courses.length} วิชา</span>`;
+    if(applyBtn) applyBtn.style.display = '';
+  } catch(e){
+    toast('JSON ไม่ถูกต้อง: '+e.message,'err');
+  }
+}
+
+function applySheetData(){
+  if(!_sheetRawData){ toast('ไม่มีข้อมูล','err'); return; }
+  const data = _sheetRawData;
+  const teachers = data.teachers||data.Teachers||data.ครู||[];
+  const courses  = data.courses||data.Courses||data.วิชา||[];
+
+  let addedT=0, addedC=0;
+
+  // นำเข้าครู
+  teachers.forEach(t=>{
+    const name     = (t.name||t.ชื่อ||t.Name||'').trim();
+    const subject  = (t.subject||t.วิชา||t.Subject||'').trim();
+    const subjects = t.subjects||t.วิชาที่สอน||
+                     (subject ? subject.split(/[,，\/]/).map(s=>s.trim()).filter(Boolean) : []);
+    const classes  = t.classes||t.ชั้น||[];
+    const color    = t.color||COLORS[db.teachers.length % COLORS.length];
+    if(!name) return;
+    // อัปเดตถ้ามีอยู่แล้ว
+    const existing = db.teachers.find(x=>x.name===name);
+    if(existing){
+      if(subjects.length) existing.subjects=subjects;
+      if(subject) existing.subject=subject;
+      if(classes.length) existing.classes=classes;
+    } else {
+      db.teachers.push({ id:uid(), name, subject:subjects[0]||subject, subjects, classes, color });
+      addedT++;
+    }
+  });
+
+  // นำเข้าวิชา
+  courses.forEach(cv=>{
+    const name  = (cv.name||cv.ชื่อ||cv.Name||'').trim();
+    const code  = (cv.code||cv.รหัส||cv.Code||'').trim();
+    const hours = parseInt(cv.hours||cv.ชั่วโมง||cv.semesterHours||0)||0;
+    const color = cv.color||COLORS[(db.courses.length) % COLORS.length];
+    if(!name) return;
+    const existing = db.courses.find(x=>x.name===name);
+    if(existing){
+      if(code)  existing.code=code;
+      if(hours) existing.semesterHours=hours;
+    } else {
+      db.courses.push({ id:uid(), name, code, semesterHours:hours, color });
+      addedC++;
+    }
+  });
+
+  dbSave(); closeModal(); render();
+  toast(`นำเข้าสำเร็จ · ครูใหม่ ${addedT} คน · วิชาใหม่ ${addedC} วิชา`, 'ok');
+  _sheetRawData = null;
 }
 
 // ══════════════════════════════════════
@@ -2329,6 +2680,13 @@ genSatDates();
 updateSyncBadge();
 (async()=>{ await dbLoad(); onViewChange(); })();
 
+window.addEventListener('beforeunload', e=>{
+  if(_syncing || _saveTimer){
+    e.preventDefault();
+    e.returnValue = 'กำลัง sync — รอสักครู่';
+  }
+});
+
 // PWA — register service worker
 if('serviceWorker' in navigator){
   window.addEventListener('load', ()=>{
@@ -2337,14 +2695,6 @@ if('serviceWorker' in navigator){
     });
   });
 }
-
-// Warn before closing if there are unsaved changes pending sync
-window.addEventListener('beforeunload', e=>{
-  if(_syncing || _saveTimer){
-    e.preventDefault();
-    e.returnValue = 'กำลัง sync — รอสักครู่';
-  }
-});
 </script>
 </body>
 </html>

@@ -2,7 +2,7 @@
   "name": "ตารางเรียนวันเสาร์",
   "short_name": "ตารางเสาร์",
   "description": "ระบบจัดตารางเรียนวันเสาร์ ม.1/9–ม.6/9",
-  "start_url": "./saturday_timetable.html",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
