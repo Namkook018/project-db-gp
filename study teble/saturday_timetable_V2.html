@@ -456,6 +456,11 @@ body{font-family:var(--font);background:var(--paper);color:var(--ink);font-size:
       <div class="topbar-pill">ม.1/9 – ม.6/9</div>
     </div>
     <div class="topbar-right">
+      <button onclick="configureSheets()" title="ตั้งค่า Google Sheets sync"
+        style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#fff;
+               border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;font-family:var(--mono)">
+        <span id="sync-badge">☁ off</span>
+      </button>
       <div class="topbar-save" id="save-status">auto-save</div>
     </div>
   </div>
@@ -556,6 +561,7 @@ const COLORS = [
 ];
 
 const DB_KEY = 'sat_timetable_v3';
+const SHEETS_URL_KEY = 'sat_timetable_sheets_url';
 
 // ══════════════════════════════════════
 //  STATE
@@ -597,19 +603,97 @@ function shortDate(d){ return d.getDate()+'/'+(d.getMonth()+1); }
 // ══════════════════════════════════════
 //  DB
 // ══════════════════════════════════════
-function dbLoad(){
+function getSheetsUrl(){ return localStorage.getItem(SHEETS_URL_KEY) || ''; }
+function setSheetsUrl(u){
+  if(u) localStorage.setItem(SHEETS_URL_KEY, u);
+  else localStorage.removeItem(SHEETS_URL_KEY);
+  updateSyncBadge();
+}
+function updateSyncBadge(){
+  const el = document.getElementById('sync-badge');
+  if(!el) return;
+  el.textContent = getSheetsUrl() ? '☁ sheet' : '☁ off';
+  el.style.color = getSheetsUrl() ? 'rgba(155,220,180,.95)' : 'rgba(255,255,255,.4)';
+}
+function configureSheets(){
+  const cur = getSheetsUrl();
+  const u = prompt('วาง Apps Script Web App URL\n(เว้นว่าง = ปิด sync):', cur);
+  if(u===null) return;
+  const trimmed = u.trim();
+  if(trimmed && !/^https:\/\/script\.google\.com\//.test(trimmed)){
+    toast('URL ต้องเริ่มด้วย https://script.google.com/','err');
+    return;
+  }
+  setSheetsUrl(trimmed);
+  toast(trimmed?'เปิด sync แล้ว — กำลังโหลด...':'ปิด sync','ok');
+  if(trimmed) bootReload();
+}
+async function bootReload(){
+  try{
+    await dbLoad();
+    onViewChange();
+  }catch(e){ toast('โหลดล้มเหลว: '+e.message,'err'); }
+}
+
+async function dbLoad(){
+  const url = getSheetsUrl();
+  if(url){
+    try{
+      const res = await fetch(url, {method:'GET'});
+      const txt = await res.text();
+      if(txt && txt.trim().startsWith('{')){
+        const remote = JSON.parse(txt);
+        if(remote && remote.courses){
+          db = remote;
+          // mirror to local for offline
+          try{ localStorage.setItem(DB_KEY, JSON.stringify(db)); }catch(_){}
+          return;
+        }
+      }
+      // empty sheet → seed
+      seedDefaults();
+      return;
+    }catch(e){
+      toast('โหลด sheet ล้มเหลว ใช้ local แทน','warn');
+    }
+  }
   try{
     const raw = localStorage.getItem(DB_KEY);
     if(raw){ db = JSON.parse(raw); }
     else { seedDefaults(); }
   }catch(e){ seedDefaults(); }
 }
+
+let _saveTimer = null;
+let _syncing = false;
 function dbSave(){
   try{
     localStorage.setItem(DB_KEY, JSON.stringify(db));
     const t = new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
     document.getElementById('save-status').textContent = 'บันทึก '+t;
   }catch(e){ toast('Storage เต็ม!','err'); }
+  // debounced cloud sync
+  const url = getSheetsUrl();
+  if(!url) return;
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(()=>cloudPush(url), 800);
+}
+async function cloudPush(url){
+  if(_syncing) return;
+  _syncing = true;
+  const badge = document.getElementById('sync-badge');
+  if(badge) badge.textContent = '☁ saving...';
+  try{
+    await fetch(url, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify(db),
+    });
+    if(badge){ badge.textContent='☁ synced'; setTimeout(updateSyncBadge,1500); }
+  }catch(e){
+    toast('Sync ล้มเหลว: '+e.message,'err');
+    if(badge) badge.textContent='☁ error';
+  }finally{ _syncing = false; }
 }
 function seedDefaults(){
   db.courses = [
@@ -2345,8 +2429,15 @@ function applySheetData(){
 //  BOOT
 // ══════════════════════════════════════
 genSatDates();
-dbLoad();
-onViewChange();
+updateSyncBadge();
+(async()=>{ await dbLoad(); onViewChange(); })();
+
+window.addEventListener('beforeunload', e=>{
+  if(_syncing || _saveTimer){
+    e.preventDefault();
+    e.returnValue = 'กำลัง sync — รอสักครู่';
+  }
+});
 
 // PWA — register service worker
 if('serviceWorker' in navigator){
