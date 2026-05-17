@@ -397,10 +397,20 @@ body{font-family:var(--font);background:var(--paper);color:var(--ink);font-size:
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--rule2);border-radius:3px}
+
+/* ── READONLY MODE ── */
+body.readonly .admin-only{display:none!important}
+body.readonly .sidebar{display:none!important}
+body.readonly .empty-drop{display:none!important}
+body.readonly .grid-cell{cursor:default!important}
+#readonly-banner{display:none;background:#fef3c7;border-bottom:1px solid #f59e0b;
+  padding:6px 16px;font-size:12px;color:#92400e;text-align:center;font-weight:600}
+body.readonly #readonly-banner{display:block}
 </style>
 </head>
 <body>
 <div class="app">
+<div id="readonly-banner">👁 โหมดดูอย่างเดียว — สามารถส่งออก PDF ได้ แต่ไม่สามารถแก้ไขตาราง</div>
 
 <!-- ══ SIDEBAR ══ -->
 <div class="sidebar">
@@ -457,12 +467,12 @@ body{font-family:var(--font);background:var(--paper);color:var(--ink);font-size:
       <div class="topbar-pill" style="background:#b5651d;color:#fff;border-color:#b5651d">V2</div>
     </div>
     <div class="topbar-right">
-      <button onclick="configureSheets()" title="ตั้งค่า Google Sheets sync"
+      <button class="admin-only" onclick="configureSheets()" title="ตั้งค่า Google Sheets sync"
         style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#fff;
                border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;font-family:var(--mono)">
         <span id="sync-badge">☁ off</span>
       </button>
-      <div class="topbar-save" id="save-status">auto-save</div>
+      <div class="topbar-save admin-only" id="save-status">auto-save</div>
     </div>
   </div>
 
@@ -483,11 +493,11 @@ body{font-family:var(--font);background:var(--paper);color:var(--ink);font-size:
     </select>
     <div class="conflict-badge" id="conflict-badge">⚠ <span id="c-count">0</span> ความขัดแย้ง</div>
     <div class="tbr">
-      <button class="btn" style="background:var(--teal);color:#fff;border-color:var(--teal)" onclick="openSheetImport()">📥 โหลดจาก Sheet</button>
-      <button class="btn btn-blue" onclick="openAutoModal()">⚙ จัดตารางอัตโนมัติ</button>
-      <button class="btn btn-red" onclick="clearDate()">🗑 ล้างวันนี้</button>
-      <button class="btn" style="color:var(--red);border-color:#e8a8a8" onclick="clearAll()">🗑 ล้างทั้งหมด</button>
-      <button class="btn" onclick="exportJSON()">⬇ JSON</button>
+      <button class="btn admin-only" style="background:var(--teal);color:#fff;border-color:var(--teal)" onclick="openSheetImport()">📥 โหลดจาก Sheet</button>
+      <button class="btn btn-blue admin-only" onclick="openAutoModal()">⚙ จัดตารางอัตโนมัติ</button>
+      <button class="btn btn-red admin-only" onclick="clearDate()">🗑 ล้างวันนี้</button>
+      <button class="btn admin-only" style="color:var(--red);border-color:#e8a8a8" onclick="clearAll()">🗑 ล้างทั้งหมด</button>
+      <button class="btn admin-only" onclick="exportJSON()">⬇ JSON</button>
       <button class="btn btn-amber" onclick="openPrintModal()">🖨 PDF</button>
     </div>
   </div>
@@ -554,6 +564,8 @@ const CLASSES = [
 // Term: Saturdays from 23 May 2569 (BE) = 23 May 2026 (CE) to 27 Sep 2569 = 27 Sep 2026
 const TERM_START = new Date(2026, 4, 23); // May 23, 2026
 const TERM_END   = new Date(2026, 8, 27); // Sep 27, 2026
+const READONLY   = new URLSearchParams(location.search).has('readonly');
+if(READONLY) document.body.classList.add('readonly');
 
 const COLORS = [
   '#0b6e6e','#b5651d','#1a4a7a','#7b3fa0','#b02020',
@@ -1052,7 +1064,7 @@ function renderClassDay(){
           ondragover="cOver(event)" ondragleave="cLeave(event)" ondrop="cDrop(event,'${col.id}',${pi})">
           <div class="cell-inner">
             ${entry
-              ? renderBlock(entry, col.id, dateS, pi, conflicts, true)
+              ? renderBlock(entry, col.id, dateS, pi, conflicts, !READONLY)
               : `<div class="empty-drop">ลากวิชามาวาง</div>`}
           </div>
         </td>`;
@@ -1238,9 +1250,10 @@ function chipEnd(e){
 }
 function bStart(e,eid,pi){ dragData={type:'move',entryId:eid,fromPi:pi}; e.currentTarget.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; }
 function bEnd(e){ document.querySelectorAll('.cblock').forEach(b=>b.classList.remove('dragging')); dragData=null; }
-function cOver(e){ e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
+function cOver(e){ if(READONLY) return; e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
 function cLeave(e){ e.currentTarget.classList.remove('drag-over'); }
 function cDrop(e,colId,pi){
+  if(READONLY) return;
   e.preventDefault();
   e.currentTarget.classList.remove('drag-over');
   if(!dragData) return;

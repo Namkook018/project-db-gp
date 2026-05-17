@@ -81,10 +81,21 @@ td.room-td{background:var(--card2);padding:10px 14px;vertical-align:middle;white
 .toasts{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:6px;z-index:999;pointer-events:none}
 .toast{background:var(--ink);color:#fff;padding:8px 14px;border-radius:var(--r-sm);font-size:12px;animation:toastIn .2s}
 @keyframes toastIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ── READONLY MODE ── */
+body.readonly .admin-only{display:none!important}
+body.readonly .cell.empty{border-color:var(--rule);cursor:default!important}
+body.readonly .cell.empty:hover{background:transparent!important;border-color:var(--rule)!important}
+body.readonly .cell.empty:hover .empty-hint{color:var(--rule)!important}
+body.readonly .cell.filled{cursor:default!important}
+#readonly-banner{display:none;background:#fef3c7;border-bottom:1px solid #f59e0b;
+  padding:6px 16px;font-size:12px;color:#92400e;text-align:center;font-weight:600}
+body.readonly #readonly-banner{display:block}
 </style>
 </head>
 <body>
 <div class="app">
+<div id="readonly-banner">👁 โหมดดูอย่างเดียว — สามารถส่งออก PDF ได้ แต่ไม่สามารถแก้ไขตาราง</div>
 
   <!-- SIDEBAR -->
   <div class="sidebar">
@@ -94,12 +105,12 @@ td.room-td{background:var(--card2);padding:10px 14px;vertical-align:middle;white
     </div>
     <div class="sb-section">
       <span>ครูผู้สอน</span>
-      <button class="add-btn" onclick="addTeacher()" title="เพิ่มครู">+</button>
+      <button class="add-btn admin-only" onclick="addTeacher()" title="เพิ่มครู">+</button>
     </div>
     <div class="teacher-list" id="teacher-list"></div>
     <div class="sb-footer">
       <button class="btn btn-amber btn-sm" onclick="doPrint()">🖨 พิมพ์ / PDF</button>
-      <button class="btn btn-sm" onclick="clearAll()">🗑 ล้างตารางทั้งหมด</button>
+      <button class="btn btn-sm admin-only" onclick="clearAll()">🗑 ล้างตารางทั้งหมด</button>
     </div>
   </div>
 
@@ -110,8 +121,8 @@ td.room-td{background:var(--card2);padding:10px 14px;vertical-align:middle;white
       <div class="topbar-title">ตารางสอนคาบ 9</div>
       <span class="topbar-badge">จันทร์–ศุกร์ · 16.45–17.45 น.</span>
       <div class="topbar-right">
-        <span id="save-status"></span>
-        <button onclick="configureSheets()" title="ตั้งค่า sync"
+        <span id="save-status" class="admin-only"></span>
+        <button class="admin-only" onclick="configureSheets()" title="ตั้งค่า sync"
           style="background:none;border:none;cursor:pointer;color:rgba(255,255,255,.5);font-size:12px;font-family:var(--mono);padding:4px 8px;border-radius:var(--r-sm);transition:all .15s"
           onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.5)'">
           <span id="sync-badge">☁ off</span>
@@ -127,6 +138,8 @@ td.room-td{background:var(--card2);padding:10px 14px;vertical-align:middle;white
 <div class="toasts" id="toasts"></div>
 
 <script>
+const READONLY = new URLSearchParams(location.search).has('readonly');
+if(READONLY) document.body.classList.add('readonly');
 const DB_KEY = 'p9_timetable_v2';
 const SHEETS_URL_KEY = 'p9_timetable_sheets_url';
 const DAYS_FULL  = ['วันจันทร์','วันอังคาร','วันพุธ','วันพฤหัสบดี','วันศุกร์'];
@@ -215,7 +228,7 @@ function renderTeachers(){
     <div class="teacher-item">
       <div class="t-dot" style="background:${t.color}"></div>
       <div class="t-name">${t.name}</div>
-      <button class="del-btn" onclick="delTeacher('${t.id}')">✕</button>
+      ${READONLY?'':'<button class="del-btn" onclick="delTeacher(\''+t.id+'\')">✕</button>'}
     </div>`).join('');
 }
 
@@ -226,14 +239,14 @@ function renderGrid(){
       const s=getS(cl.id,di);
       const t=s?db.teachers.find(x=>x.id===s.teacherId):null;
       if(t) return `<td>
-        <div class="cell filled" onclick="openPicker('${cl.id}',${di},this)">
+        <div class="cell filled"${READONLY?'':` onclick="openPicker('${cl.id}',${di},this)"`}>
           <div class="cell-name" style="color:${t.color}">${t.name}</div>
-          <button class="cell-x" onclick="event.stopPropagation();setS('${cl.id}',${di},null);renderGrid()">✕</button>
+          ${READONLY?'':'<button class="cell-x" onclick="event.stopPropagation();setS(\''+cl.id+'\','+di+',null);renderGrid()">✕</button>'}
         </div>
       </td>`;
       return `<td>
-        <div class="cell empty" onclick="openPicker('${cl.id}',${di},this)">
-          <span class="empty-hint">+</span>
+        <div class="cell empty"${READONLY?'':` onclick="openPicker('${cl.id}',${di},this)"`}>
+          ${READONLY?'':'<span class="empty-hint">+</span>'}
         </div>
       </td>`;
     }).join('');

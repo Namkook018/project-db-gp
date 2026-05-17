@@ -26,6 +26,17 @@ function thaiDate(d: Date): string {
   return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear() + 543}`;
 }
 
+function buildP9Announcement(): Announcement {
+  return {
+    id: '__p9_schedule__',
+    title: '🕔 ตารางสอนคาบ 9 — จันทร์–ศุกร์ 16.45–17.45 น.',
+    content: 'ภาคเรียน 1/2569 · ตารางการมอบหมายครูประจำคาบ 9 รายห้อง ม.1/9–ม.6/9',
+    pinned: true,
+    date: new Date().toLocaleDateString('th-TH'),
+    authorId: 'system',
+  } as Announcement;
+}
+
 function buildWeeklyScheduleAnnouncement(): Announcement | null {
   const sats = getSaturdays();
   if (sats.length === 0) return null;
@@ -63,10 +74,11 @@ export default function DashboardPage() {
   }, []);
 
   const weeklySchedule = useMemo(() => buildWeeklyScheduleAnnouncement(), []);
-  const displayAnnouncements = useMemo(
-    () => (weeklySchedule ? [weeklySchedule, ...announcements] : announcements),
-    [announcements, weeklySchedule]
-  );
+  const p9Announcement = useMemo(() => buildP9Announcement(), []);
+  const displayAnnouncements = useMemo(() => {
+    const sys = [weeklySchedule, p9Announcement].filter(Boolean) as Announcement[];
+    return [...sys, ...announcements];
+  }, [announcements, weeklySchedule, p9Announcement]);
 
   useEffect(() => { loadData(); }, [loadData]);
 
@@ -159,13 +171,15 @@ export default function DashboardPage() {
             ) : (
               displayAnnouncements.map(a => {
                 const isSchedule = a.id === '__weekly_schedule__';
+                const isP9 = a.id === '__p9_schedule__';
+                const isSystem = isSchedule || isP9;
                 return (
                   <div key={a.id} className={`announcement-card ${a.pinned ? 'pinned' : ''}`}>
                     <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:8 }}>
                       <div style={{ flex:1 }}>
                         {a.pinned && (
                           <span className="badge badge-warning" style={{ marginBottom:4 }}>
-                            {isSchedule ? '🗓️ ตารางเรียนสัปดาห์นี้' : '📌 ปักหมุด'}
+                            {isSchedule ? '🗓️ ตารางเรียนสัปดาห์นี้' : isP9 ? '🕔 ตารางคาบ 9' : '📌 ปักหมุด'}
                           </span>
                         )}
                         <div style={{ fontWeight:700, fontSize:14, color:'#1e1b4b', marginBottom:4 }}>{a.title}</div>
@@ -183,9 +197,20 @@ export default function DashboardPage() {
                               👁 ดูตารางเรียน →
                             </a>
                           )}
+                          {isP9 && user?.role === 'admin' && (
+                            <Link href="/dashboard/p9-table" style={{ fontSize:11, fontWeight:700, color:'#b5651d', textDecoration:'none' }}>
+                              เปิดตารางคาบ 9 →
+                            </Link>
+                          )}
+                          {isP9 && user?.role !== 'admin' && (
+                            <a href="/p9-table/index.html?readonly=1" target="_blank" rel="noopener noreferrer"
+                              style={{ fontSize:11, fontWeight:700, color:'#b5651d', textDecoration:'none' }}>
+                              👁 ดูตารางคาบ 9 →
+                            </a>
+                          )}
                         </div>
                       </div>
-                      {user?.role === 'admin' && !isSchedule && (
+                      {user?.role === 'admin' && !isSystem && (
                         <div style={{ display:'flex', gap:6, flexShrink:0 }}>
                           <button onClick={() => openEdit(a)} style={{ background:'#ede9fe', border:'none', borderRadius:6, width:28, height:28, cursor:'pointer', fontSize:14 }}>✏️</button>
                           <button onClick={() => handleDelete(a.id)} style={{ background:'#fee2e2', border:'none', borderRadius:6, width:28, height:28, cursor:'pointer', fontSize:14 }}>🗑️</button>
