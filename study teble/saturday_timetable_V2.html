@@ -454,6 +454,7 @@ body{font-family:var(--font);background:var(--paper);color:var(--ink);font-size:
         <div class="topbar-title">ตารางเรียนวันเสาร์</div>
       </div>
       <div class="topbar-pill">ม.1/9 – ม.6/9</div>
+      <div class="topbar-pill" style="background:#b5651d;color:#fff;border-color:#b5651d">V2</div>
     </div>
     <div class="topbar-right">
       <button onclick="configureSheets()" title="ตั้งค่า Google Sheets sync"
@@ -1975,71 +1976,84 @@ function doPrintTeacher(tid){
   const teacher = db.teachers.find(t=>t.id===tid);
   if(!teacher){ toast('ไม่พบข้อมูลครู','err'); return; }
 
-  const nonBreakPeriods = PERIODS.filter(p=>!p.isBreak);
+  const subjects = (teacher.subjects||[teacher.subject||'']).filter(Boolean).join(', ');
 
-  function buildCell(dateS, pi){
-    let clsLabel='', cv=null, rm=null;
-    for(const cls of CLASSES){
-      const e = getE(cls.id, dateS, pi);
-      if(e && e.teacherId===tid){
-        clsLabel = cls.label;
-        cv = db.courses.find(x=>x.id===e.courseId);
-        rm = db.rooms.find(x=>x.id===e.roomId);
-        break;
+  function buildDayTable(dateS){
+    let bodyRows = '';
+    PERIODS.forEach((p,pi)=>{
+      if(p.isBreak){
+        bodyRows += `<tr><td colspan="4" style="border:1px solid #ddd;padding:10px;text-align:center;color:#aaa;font-style:italic;background:#faf8f0">— พักกลางวัน &nbsp; 12.30–13.30 —</td></tr>`;
+        return;
       }
-    }
-    if(!clsLabel) return `<td style="border:1px solid #ddd;padding:6px 8px;color:#ccc;text-align:center;vertical-align:middle">—</td>`;
-    const bg = cv ? hexToRgbaCss(cv.color,0.12) : '#fff';
-    const border = cv ? cv.color : '#ccc';
-    return `<td style="border:1px solid #ddd;padding:5px;vertical-align:top">
-      <div style="background:${bg};border-left:3px solid ${border};border-radius:4px;padding:6px 8px">
-        <div style="font-weight:700;font-size:13px;color:${border}">${clsLabel}</div>
-        ${cv?`<div style="font-size:11px;color:#555;margin-top:2px">${cv.name}</div>`:''}
-        ${rm?`<div style="font-size:10px;color:#888;margin-top:2px">📍 ${rm.name}</div>`:''}
-      </div>
-    </td>`;
+      // หาว่าครูสอนห้องไหนในคาบนี้
+      let clsLabel='', cv=null, rm=null;
+      for(const cls of CLASSES){
+        const e = getE(cls.id, dateS, pi);
+        if(e && e.teacherId===tid){
+          clsLabel = cls.label;
+          cv = db.courses.find(x=>x.id===e.courseId);
+          rm = db.rooms.find(x=>x.id===e.roomId);
+          break;
+        }
+      }
+      const bg     = cv ? hexToRgbaCss(cv.color,0.1) : '#fff';
+      const border = cv ? cv.color : '#ccc';
+      bodyRows += `<tr>
+        <td style="border:1px solid #ddd;padding:8px 10px;background:#f7f7f5;white-space:nowrap;font-weight:700;font-size:12px;width:80px">${p.label}</td>
+        <td style="border:1px solid #ddd;padding:8px 10px;color:#888;font-size:11px;white-space:nowrap;width:110px">${p.time}</td>
+        <td style="border:1px solid #ddd;padding:5px">
+          ${clsLabel ? `<div style="background:${bg};border-left:3px solid ${border};border-radius:4px;padding:6px 10px">
+            <div style="font-weight:700;font-size:14px;color:${border}">${clsLabel}</div>
+            ${cv?`<div style="font-size:11px;color:#555;margin-top:2px">${cv.name}</div>`:''}
+          </div>` : `<span style="color:#ccc">—</span>`}
+        </td>
+        <td style="border:1px solid #ddd;padding:8px 10px;font-size:11px;color:#666">
+          ${rm ? rm.name : '<span style="color:#ccc">—</span>'}
+        </td>
+      </tr>`;
+    });
+    return `<table style="width:100%;border-collapse:collapse">
+      <thead><tr>
+        <th style="border:1px solid #ddd;padding:8px 10px;background:#1a1814;color:#fff;font-weight:700;text-align:left">คาบ</th>
+        <th style="border:1px solid #ddd;padding:8px 10px;background:#1a1814;color:#fff;font-weight:700;text-align:left">เวลา</th>
+        <th style="border:1px solid #ddd;padding:8px 10px;background:#1a1814;color:#fff;font-weight:700;text-align:left">ห้องเรียน / วิชา</th>
+        <th style="border:1px solid #ddd;padding:8px 10px;background:#1a1814;color:#fff;font-weight:700;text-align:left">ห้อง</th>
+      </tr></thead>
+      <tbody>${bodyRows}</tbody>
+    </table>`;
   }
 
-  let rows = '';
+  let allPages = '';
   SAT_DATES.forEach((sat,wi)=>{
     const dateS = dateStr(sat);
-    rows += `<tr>
-      <td style="border:1px solid #ddd;padding:8px 10px;background:#f7f7f5;white-space:nowrap;vertical-align:middle">
-        <div style="font-size:10px;color:#888;margin-bottom:2px;font-family:'IBM Plex Mono',monospace">ครั้งที่ ${wi+1}</div>
-        <div style="font-weight:700;font-size:12px">${thaiDate(sat)}</div>
-      </td>
-      ${TEACH_PERIODS.map(pi=>buildCell(dateS,pi)).join('')}
-    </tr>`;
+    allPages += `<div class="page">
+      <div style="margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid #1a1814">
+        <div style="font-size:10px;color:#888;margin-bottom:3px;font-family:'IBM Plex Mono',monospace">
+          ครั้งที่ ${wi+1} / ${SAT_DATES.length} &nbsp;·&nbsp; ตารางสอน
+        </div>
+        <h2 style="margin:0 0 2px;font-size:18px;font-weight:800;color:#1a1814">${teacher.name}</h2>
+        <p style="margin:0;font-size:13px;font-weight:600;color:#333">วันเสาร์ที่ ${thaiDate(sat)}</p>
+        <p style="margin:2px 0 0;font-size:11px;color:#888">วิชา: ${subjects||'—'}</p>
+      </div>
+      ${buildDayTable(dateS)}
+      <div style="margin-top:8px;font-size:10px;color:#aaa;text-align:right">พิมพ์ ${new Date().toLocaleDateString('th-TH')} · ระบบจัดตารางเรียนวันเสาร์</div>
+    </div>`;
   });
-
-  const subjects = (teacher.subjects||[teacher.subject||'']).filter(Boolean).join(', ');
-  const classes  = (teacher.classes||[]).map(id=>{
-    const cl=CLASSES.find(x=>x.id===id); return cl?cl.label:id;
-  }).join(', ');
 
   const html = `<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8">
   <title>ตารางสอน ${teacher.name}</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Noto Sans Thai',sans-serif;font-size:13px;background:#fff;color:#1a1a1a;padding:16px 20px}
-    @media print{body{padding:8mm 10mm}@page{size:A4 portrait;margin:8mm}}
+    body{font-family:'Noto Sans Thai',sans-serif;font-size:13px;background:#fff;color:#1a1a1a}
+    .page{padding:16px 20px;min-height:100vh}
+    @media print{
+      .page{page-break-after:always;padding:10mm 12mm;min-height:auto}
+      .page:last-child{page-break-after:avoid}
+      @page{size:A4 portrait;margin:8mm}
+    }
   </style></head><body>
-  <div style="margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid #1a1814">
-    <div style="font-size:10px;color:#888;margin-bottom:4px;font-family:'IBM Plex Mono',monospace">ตารางสอนภาคเรียน · ม.1/9–ม.6/9</div>
-    <h2 style="margin:0 0 4px;font-size:20px;font-weight:800;color:#1a1814">${teacher.name}</h2>
-    <p style="margin:0;font-size:12px;color:#555">วิชา: ${subjects||'—'}&nbsp;&nbsp;|&nbsp;&nbsp;ห้องที่สอน: ${classes||'—'}</p>
-  </div>
-  <table style="width:100%;border-collapse:collapse">
-    <thead><tr>
-      <th style="border:1px solid #ddd;padding:8px 10px;background:#1a1814;color:#fff;font-weight:700;width:130px;text-align:left">วันเสาร์</th>
-      ${nonBreakPeriods.map(p=>`<th style="border:1px solid #ddd;padding:8px 10px;background:#1a1814;color:#fff;font-weight:700;text-align:center">
-        ${p.label}<br><span style="font-size:10px;font-weight:400;opacity:.7">${p.time}</span>
-      </th>`).join('')}
-    </tr></thead>
-    <tbody>${rows}</tbody>
-  </table>
-  <div style="margin-top:10px;font-size:10px;color:#aaa;text-align:right">พิมพ์ ${new Date().toLocaleDateString('th-TH')} · ระบบจัดตารางเรียนวันเสาร์</div>
+  ${allPages}
   <script>
     if(document.fonts){document.fonts.ready.then(()=>setTimeout(()=>window.print(),400));}
     else{setTimeout(()=>window.print(),1200);}
@@ -2052,7 +2066,7 @@ function doPrintTeacher(tid){
     a.href=url; a.target='_blank'; a.rel='noopener';
     document.body.appendChild(a); a.click();
     setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); },2000);
-    toast(`เปิด PDF ตารางสอน ${teacher.name}`,'ok');
+    toast(`PDF ตารางสอน ${teacher.name} · ${SAT_DATES.length} หน้า`,'ok');
   }catch(e){ toast('กรุณากด Ctrl+P เพื่อพิมพ์','warn'); }
 }
 
