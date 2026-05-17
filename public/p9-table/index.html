@@ -111,6 +111,11 @@ td.room-td{background:var(--card2);padding:10px 14px;vertical-align:middle;white
       <span class="topbar-badge">จันทร์–ศุกร์ · 16.45–17.45 น.</span>
       <div class="topbar-right">
         <span id="save-status"></span>
+        <button onclick="configureSheets()" title="ตั้งค่า sync"
+          style="background:none;border:none;cursor:pointer;color:rgba(255,255,255,.5);font-size:12px;font-family:var(--mono);padding:4px 8px;border-radius:var(--r-sm);transition:all .15s"
+          onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.5)'">
+          <span id="sync-badge">☁ off</span>
+        </button>
       </div>
     </div>
     <div class="grid-wrap">
@@ -123,6 +128,7 @@ td.room-td{background:var(--card2);padding:10px 14px;vertical-align:middle;white
 
 <script>
 const DB_KEY = 'p9_timetable_v2';
+const SHEETS_URL_KEY = 'p9_timetable_sheets_url';
 const DAYS_FULL  = ['วันจันทร์','วันอังคาร','วันพุธ','วันพฤหัสบดี','วันศุกร์'];
 const DAYS_SHORT = ['จ','อ','พ','พฤ','ศ'];
 const COLORS = ['#0b6e6e','#b5651d','#1a4a7a','#7b3fa0','#b02020','#1a6e3c','#6e5a1a','#2a5a7a','#8a2060','#3a6e1a'];
@@ -134,17 +140,65 @@ const CLASSES = [
 let db = { teachers:[], schedule:{} };
 // schedule key: classId_dayIndex (0=จ … 4=ศ)
 
+// ── SYNC ────────────────────────────────────────────
+function getSheetsUrl(){ return localStorage.getItem(SHEETS_URL_KEY)||''; }
+function setSheetsUrl(u){ if(u) localStorage.setItem(SHEETS_URL_KEY,u); else localStorage.removeItem(SHEETS_URL_KEY); updateSyncBadge(); }
+function updateSyncBadge(){
+  const el=document.getElementById('sync-badge'); if(!el) return;
+  el.textContent=getSheetsUrl()?'☁ sheet':'☁ off';
+  el.style.color=getSheetsUrl()?'rgba(155,220,180,.95)':'rgba(255,255,255,.5)';
+}
+function configureSheets(){
+  const cur=getSheetsUrl();
+  const u=prompt('วาง Apps Script Web App URL\n(เว้นว่าง = ปิด sync):',cur);
+  if(u===null) return;
+  const trimmed=u.trim();
+  if(trimmed&&!/^https:\/\/script\.google\.com\//.test(trimmed)){ toast('URL ต้องเริ่มด้วย https://script.google.com/'); return; }
+  setSheetsUrl(trimmed);
+  toast(trimmed?'เปิด sync แล้ว — กำลังโหลด...':'ปิด sync');
+  if(trimmed) dbLoad().then(renderGrid);
+}
+
 // ── DB ──────────────────────────────────────────────
-function dbLoad(){
+async function dbLoad(){
+  const url=getSheetsUrl();
+  if(url){
+    try{
+      const res=await fetch(url,{method:'GET'});
+      const txt=await res.text();
+      if(txt&&txt.trim().startsWith('{')){
+        const remote=JSON.parse(txt);
+        if(remote&&remote.teachers!==undefined){ db=remote; try{ localStorage.setItem(DB_KEY,JSON.stringify(db)); }catch(_){} return; }
+      }
+    }catch(_){ toast('โหลด sheet ล้มเหลว ใช้ local แทน'); }
+  }
   try{ const r=localStorage.getItem(DB_KEY); if(r) db=JSON.parse(r); }catch(_){}
 }
+
+let _saveTimer=null, _syncing=false;
 function dbSave(){
   try{
-    localStorage.setItem(DB_KEY, JSON.stringify(db));
+    localStorage.setItem(DB_KEY,JSON.stringify(db));
     const t=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
     document.getElementById('save-status').textContent='บันทึก '+t;
   }catch(_){ toast('Storage เต็ม!'); }
+  const url=getSheetsUrl(); if(!url) return;
+  clearTimeout(_saveTimer);
+  _saveTimer=setTimeout(()=>cloudPush(url),800);
 }
+async function cloudPush(url){
+  if(_syncing) return; _syncing=true;
+  const badge=document.getElementById('sync-badge');
+  if(badge) badge.textContent='☁ saving...';
+  try{
+    await fetch(url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(db)});
+    if(badge){ badge.textContent='☁ synced'; setTimeout(updateSyncBadge,1500); }
+  }catch(e){
+    toast('Sync ล้มเหลว: '+e.message);
+    if(badge) badge.textContent='☁ error';
+  }finally{ _syncing=false; }
+}
+
 function getS(clsId,di){ return db.schedule[clsId+'_'+di]||null; }
 function setS(clsId,di,tid){ if(tid) db.schedule[clsId+'_'+di]={teacherId:tid}; else delete db.schedule[clsId+'_'+di]; dbSave(); }
 
@@ -286,7 +340,7 @@ function doPrint(){
 function toast(msg){ const el=document.createElement('div'); el.className='toast'; el.textContent=msg; document.getElementById('toasts').appendChild(el); setTimeout(()=>el.remove(),2500); }
 
 // ── INIT ────────────────────────────────────────────
-dbLoad(); renderTeachers(); renderGrid();
+(async()=>{ await dbLoad(); updateSyncBadge(); renderTeachers(); renderGrid(); })();
 </script>
 </body>
 </html>
