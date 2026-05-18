@@ -23,13 +23,13 @@ export default function StudyTablePage() {
     <div style={{ width: '100%', height: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column' }}>
       <div style={{ background: '#eef2ff', borderBottom: '1px solid #c7d2fe', padding: '8px 16px', display: 'flex', alignItems: 'center', gap: 12, fontSize: 13 }}>
         <span style={{ color: '#3730a3' }}>📅 ตารางเรียนวันเสาร์ — ภาคเรียน 1/2569</span>
-        <a href="/study-table/index.html" target="_blank" rel="noopener noreferrer"
+        <a href="/study-table/index.html?edit=1" target="_blank" rel="noopener noreferrer"
           style={{ marginLeft: 'auto', color: '#1d4ed8', fontWeight: 600, textDecoration: 'underline' }}>
           เปิดในแท็บใหม่ ↗
         </a>
       </div>
       <iframe
-        src="/study-table/index.html"
+        src="/study-table/index.html?edit=1"
         style={{ flex: 1, border: 'none', display: 'block' }}
         title="ตารางเรียนวันเสาร์"
       />

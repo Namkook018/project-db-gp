@@ -192,7 +192,7 @@ export default function DashboardPage() {
                             </Link>
                           )}
                           {isSchedule && user?.role !== 'admin' && (
-                            <a href="/study-table/index.html?readonly=1" target="_blank" rel="noopener noreferrer"
+                            <a href="/study-table/index.html" target="_blank" rel="noopener noreferrer"
                               style={{ fontSize:11, fontWeight:700, color:'#4f46e5', textDecoration:'none' }}>
                               👁 ดูตารางเรียน →
                             </a>

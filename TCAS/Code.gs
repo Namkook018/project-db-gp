@@ -11,8 +11,30 @@
 
 const ADMIN_PW = 'tcas2025'; // ← เปลี่ยนรหัสผ่าน Admin ที่นี่
 
-// ── SERVE HTML ───────────────────────────────────────────────
-function doGet() {
+// ── SERVE HTML or JSON API ────────────────────────────────────
+function doGet(e) {
+  const action = e && e.parameter && e.parameter.action;
+
+  // JSON API mode — called via fetch() from external apps
+  if (action) {
+    let result;
+    try {
+      const d = e.parameter.d ? JSON.parse(e.parameter.d) : undefined;
+      if      (action === 'getAllStudents') result = getAllStudents();
+      else if (action === 'saveStudent')   result = saveStudent(d);
+      else if (action === 'deleteStudent') result = deleteStudent(e.parameter.d);
+      else if (action === 'verifyAdmin')   result = verifyAdmin(e.parameter.d);
+      else if (action === 'getSheetUrl')   result = getSheetUrl();
+      else result = { ok: false, error: 'Unknown action' };
+    } catch(err) {
+      result = { ok: false, error: err.message };
+    }
+    return ContentService
+      .createTextOutput(JSON.stringify(result))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // HTML mode — serve the TCAS web app directly
   return HtmlService.createHtmlOutputFromFile('index')
     .setTitle('TCAS Score Manager')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);

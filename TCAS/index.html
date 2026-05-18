@@ -724,7 +724,11 @@ const S={
 // ════════════════════════════════════════════════════════════
 //  GAS API + LOCAL FALLBACK
 // ════════════════════════════════════════════════════════════
-const IS_GAS = (()=>{ try{ return !!google.script.run; }catch(_){ return false; }})();
+// GAS_API_URL: set this to your deployed GAS URL for fetch mode (cross-origin)
+// Leave empty '' to auto-detect (google.script.run if in GAS, localStorage otherwise)
+const GAS_API_URL = '';
+
+const IS_GAS = !GAS_API_URL && (()=>{ try{ return !!google.script.run; }catch(_){ return false; }})();
 
 // Local fallback storage
 const LS_KEY='tcas_gas_data_v1';
@@ -732,10 +736,28 @@ function _localData(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)||'{"s
 function _saveLocal(d){ localStorage.setItem(LS_KEY,JSON.stringify(d)); }
 
 function gasCall(fn, arg, onOk, onErr){
-  const fail = onErr || (e=>{ hide(); toast('❌ '+( e.message||e),'err'); });
-  if(!IS_GAS){ _localFallback(fn,arg,onOk); return; }
-  const r=google.script.run.withSuccessHandler(onOk).withFailureHandler(fail);
-  if(arg!==undefined) r[fn](arg); else r[fn]();
+  const fail = onErr || (e=>{ hide(); toast('❌ '+(e.message||e),'err'); });
+
+  // ── Mode 1: google.script.run (running inside GAS) ──
+  if(IS_GAS){
+    const r=google.script.run.withSuccessHandler(onOk).withFailureHandler(fail);
+    if(arg!==undefined) r[fn](arg); else r[fn]();
+    return;
+  }
+
+  // ── Mode 2: fetch via JSON API (embedded in Next.js) ──
+  if(GAS_API_URL){
+    const params = new URLSearchParams({ action: fn });
+    if(arg !== undefined) params.set('d', JSON.stringify(arg));
+    fetch(`${GAS_API_URL}?${params}`)
+      .then(r => r.json())
+      .then(onOk)
+      .catch(e => fail(e));
+    return;
+  }
+
+  // ── Mode 3: localStorage fallback (local dev / no GAS) ──
+  _localFallback(fn, arg, onOk);
 }
 
 function _localFallback(fn,arg,cb){

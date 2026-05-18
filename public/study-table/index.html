@@ -564,7 +564,7 @@ const CLASSES = [
 // Term: Saturdays from 23 May 2569 (BE) = 23 May 2026 (CE) to 27 Sep 2569 = 27 Sep 2026
 const TERM_START = new Date(2026, 4, 23); // May 23, 2026
 const TERM_END   = new Date(2026, 8, 27); // Sep 27, 2026
-const READONLY   = new URLSearchParams(location.search).has('readonly');
+const READONLY   = !new URLSearchParams(location.search).has('edit');
 if(READONLY) document.body.classList.add('readonly');
 
 const COLORS = [
