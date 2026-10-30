@@ -6,7 +6,6 @@
 <title>TCAS Score Manager</title>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Chakra+Petch:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* ── VARIABLES ── */
 :root{
   --navy:#0f1b4c; --navy2:#1a2d6b;
   --gold:#f5a623; --goldf:#fbbf47; --goldp:#fef3d0;
@@ -22,7 +21,6 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 
-/* ── LOADING OVERLAY ── */
 #loading{position:fixed;inset:0;background:rgba(15,23,42,.7);z-index:9000;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
   opacity:0;pointer-events:none;transition:opacity .25s}
@@ -32,142 +30,88 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-msg{color:#fff;font-size:14px}
 
-/* ── LANDING ── */
-#view-landing{
-  min-height:100vh;
-  background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 50%,#0f172a 100%);
-  display:flex;align-items:center;justify-content:center;padding:24px;
-}
-.land-card{
-  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);
-  border-radius:24px;padding:48px 40px;width:100%;max-width:440px;
-  text-align:center;backdrop-filter:blur(12px);
-}
+/* LANDING */
+#view-landing{min-height:100vh;background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 50%,#0f172a 100%);
+  display:flex;align-items:center;justify-content:center;padding:24px}
+.land-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);
+  border-radius:24px;padding:48px 40px;width:100%;max-width:440px;text-align:center;backdrop-filter:blur(12px)}
 .land-icon{font-size:56px;margin-bottom:16px;display:block}
-.land-title{font-family:'Chakra Petch',sans-serif;font-size:26px;font-weight:700;
-  color:#fff;margin-bottom:6px}
+.land-title{font-family:'Chakra Petch',sans-serif;font-size:26px;font-weight:700;color:#fff;margin-bottom:6px}
 .land-sub{font-size:14px;color:rgba(255,255,255,.5);margin-bottom:36px}
 .land-btns{display:grid;gap:12px}
-.land-btn{
-  display:flex;align-items:center;gap:14px;padding:16px 20px;
-  border-radius:14px;border:1px solid rgba(255,255,255,.15);
-  background:rgba(255,255,255,.06);cursor:pointer;
-  font-family:'Sarabun',sans-serif;font-size:15px;
-  color:rgba(255,255,255,.85);transition:all .2s;text-align:left;
-}
-.land-btn:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.3);
-  transform:translateY(-2px)}
-.land-btn-icon{font-size:26px;width:40px;height:40px;border-radius:10px;
-  display:grid;place-items:center;flex-shrink:0}
+.land-btn{display:flex;align-items:center;gap:14px;padding:16px 20px;border-radius:14px;
+  border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);cursor:pointer;
+  font-family:'Sarabun',sans-serif;font-size:15px;color:rgba(255,255,255,.85);transition:all .2s;text-align:left}
+.land-btn:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.3);transform:translateY(-2px)}
+.land-btn-icon{font-size:26px;width:40px;height:40px;border-radius:10px;display:grid;place-items:center;flex-shrink:0}
 .lb-student .land-btn-icon{background:rgba(245,166,35,.2)}
-.lb-admin   .land-btn-icon{background:rgba(6,182,212,.2)}
+.lb-admin .land-btn-icon{background:rgba(6,182,212,.2)}
 .land-btn strong{display:block;font-size:16px;font-weight:600}
 .land-btn span{font-size:12px;color:rgba(255,255,255,.45)}
-
-/* Student login screen */
-.login-screen{
-  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
-  border-radius:16px;padding:28px;margin-top:16px;text-align:left;
-}
-.login-label{font-size:12px;color:rgba(255,255,255,.5);
-  text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
-.login-input{
-  width:100%;padding:10px 14px;border-radius:9px;border:1.5px solid rgba(255,255,255,.15);
-  background:rgba(255,255,255,.08);color:#fff;
-  font-family:'Sarabun',sans-serif;font-size:15px;outline:none;
-  transition:border-color .2s;
-}
+.login-screen{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
+  border-radius:16px;padding:28px;margin-top:16px;text-align:left}
+.login-label{font-size:12px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.login-input{width:100%;padding:10px 14px;border-radius:9px;border:1.5px solid rgba(255,255,255,.15);
+  background:rgba(255,255,255,.08);color:#fff;font-family:'Sarabun',sans-serif;font-size:15px;outline:none;transition:border-color .2s}
 .login-input::placeholder{color:rgba(255,255,255,.3)}
 .login-input:focus{border-color:var(--gold)}
 .login-input option{background:#1e3a8a;color:#fff}
 .login-hint{font-size:12px;color:rgba(255,255,255,.35);margin-top:6px}
-.login-btn{
-  width:100%;margin-top:14px;padding:11px;border-radius:10px;
-  background:var(--gold);color:var(--slate);
-  font-family:'Sarabun',sans-serif;font-size:15px;font-weight:600;
-  border:none;cursor:pointer;transition:all .2s;
-}
+.login-btn{width:100%;margin-top:14px;padding:11px;border-radius:10px;background:var(--gold);color:var(--slate);
+  font-family:'Sarabun',sans-serif;font-size:15px;font-weight:600;border:none;cursor:pointer;transition:all .2s}
 .login-btn:hover{background:var(--goldf)}
-.login-back{
-  display:block;margin-top:12px;text-align:center;font-size:13px;
-  color:rgba(255,255,255,.4);cursor:pointer;transition:color .2s;
-  background:none;border:none;width:100%;
-}
+.login-back{display:block;margin-top:12px;text-align:center;font-size:13px;color:rgba(255,255,255,.4);
+  cursor:pointer;transition:color .2s;background:none;border:none;width:100%}
 .login-back:hover{color:rgba(255,255,255,.7)}
 
-/* ── SHARED APP LAYOUT ── */
+/* APP SHELL */
 .app-shell{display:none;min-height:100vh}
 .app-shell.show{display:flex}
-
-/* Sidebar */
-.sidebar{
-  width:var(--sw);min-height:100vh;
-  background:var(--slate);display:flex;flex-direction:column;
-  position:fixed;left:0;top:0;bottom:0;z-index:100;overflow-y:auto;
-}
+.sidebar{width:var(--sw);min-height:100vh;background:var(--slate);display:flex;flex-direction:column;
+  position:fixed;left:0;top:0;bottom:0;z-index:100;overflow-y:auto;transition:transform .25s}
 .sb-logo{padding:24px 20px 18px;border-bottom:1px solid rgba(255,255,255,.07)}
 .sb-logo-row{display:flex;align-items:center;gap:10px}
-.sb-icon{width:36px;height:36px;border-radius:9px;display:grid;place-items:center;
-  font-size:16px;flex-shrink:0}
+.sb-icon{width:36px;height:36px;border-radius:9px;display:grid;place-items:center;font-size:16px;flex-shrink:0}
 .sb-icon.gold{background:linear-gradient(135deg,var(--gold),var(--goldf))}
 .sb-icon.cyan{background:linear-gradient(135deg,var(--cyan),var(--emerald))}
 .sb-title{color:#fff;font-family:'Chakra Petch',sans-serif}
 .sb-title strong{display:block;font-size:14px;letter-spacing:.3px}
 .sb-title small{font-size:10px;color:rgba(255,255,255,.4);letter-spacing:1px;text-transform:uppercase}
-
 .sb-user{padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.07)}
-.sb-user-name{font-size:14px;font-weight:600;color:#fff}
+.sb-user-name{font-size:14px;font-weight:600;color:#fff;word-break:break-word}
 .sb-user-role{font-size:11px;color:rgba(255,255,255,.4)}
-
 .sb-nav{padding:12px 10px;flex:1}
-.sb-section{font-size:10px;color:rgba(255,255,255,.3);
-  letter-spacing:1.5px;text-transform:uppercase;padding:0 10px;margin:10px 0 4px}
-.sb-btn{
-  display:flex;align-items:center;gap:9px;width:100%;padding:9px 10px;
-  border:none;border-radius:7px;background:transparent;
-  color:rgba(255,255,255,.55);font-family:'Sarabun',sans-serif;
-  font-size:13px;cursor:pointer;text-align:left;transition:all .18s;position:relative;
-}
+.sb-section{font-size:10px;color:rgba(255,255,255,.3);letter-spacing:1.5px;text-transform:uppercase;padding:0 10px;margin:10px 0 4px}
+.sb-btn{display:flex;align-items:center;gap:9px;width:100%;padding:9px 10px;border:none;border-radius:7px;
+  background:transparent;color:rgba(255,255,255,.55);font-family:'Sarabun',sans-serif;font-size:13px;
+  cursor:pointer;text-align:left;transition:all .18s;position:relative}
 .sb-btn:hover{background:rgba(255,255,255,.05);color:rgba(255,255,255,.9)}
-.sb-btn.active{color:#fff}
 .sb-btn.s-active{background:rgba(245,166,35,.15);color:var(--goldf)}
-.sb-btn.s-active::before,.sb-btn.a-active::before{
-  content:'';position:absolute;left:0;top:22%;bottom:22%;
-  width:2.5px;border-radius:0 2px 2px 0;
-}
+.sb-btn.s-active::before,.sb-btn.a-active::before{content:'';position:absolute;left:0;top:22%;bottom:22%;width:2.5px;border-radius:0 2px 2px 0}
 .sb-btn.s-active::before{background:var(--gold)}
 .sb-btn.a-active{background:rgba(6,182,212,.12);color:var(--cyanf)}
 .sb-btn.a-active::before{background:var(--cyan)}
 .sb-ico{font-size:15px;width:18px;text-align:center;flex-shrink:0}
-.sb-badge{
-  margin-left:auto;background:rgba(255,255,255,.08);border-radius:10px;
-  padding:1px 7px;font-size:10px;font-family:'Chakra Petch',sans-serif;
-  color:rgba(255,255,255,.6);white-space:nowrap;flex-shrink:0;
-}
+.sb-badge{margin-left:auto;background:rgba(255,255,255,.08);border-radius:10px;padding:1px 7px;font-size:10px;
+  font-family:'Chakra Petch',sans-serif;color:rgba(255,255,255,.6);white-space:nowrap;flex-shrink:0}
 .sb-btn.s-active .sb-badge{background:rgba(245,166,35,.22);color:var(--goldf)}
 .sb-btn.a-active .sb-badge{background:rgba(6,182,212,.2);color:var(--cyanf)}
-
 .sb-footer{padding:14px 20px;border-top:1px solid rgba(255,255,255,.07)}
-.sb-exit{
-  width:100%;padding:8px;background:transparent;
-  border:1px solid rgba(255,255,255,.12);border-radius:7px;
-  color:rgba(255,255,255,.4);font-family:'Sarabun',sans-serif;
-  font-size:12px;cursor:pointer;transition:all .2s;
-}
+.sb-exit{width:100%;padding:8px;background:transparent;border:1px solid rgba(255,255,255,.12);border-radius:7px;
+  color:rgba(255,255,255,.4);font-family:'Sarabun',sans-serif;font-size:12px;cursor:pointer;transition:all .2s}
 .sb-exit:hover{border-color:var(--red);color:#fca5a5}
+.sb-ov{display:none;position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:90}
+.menu-btn{display:none;background:none;border:1px solid var(--border);border-radius:8px;width:36px;height:36px;
+  font-size:18px;cursor:pointer;color:var(--navy);margin-right:10px;flex-shrink:0}
 
-/* Main area */
-.main{margin-left:var(--sw);flex:1;min-height:100vh;display:flex;flex-direction:column}
-.topbar{
-  background:var(--card);border-bottom:1px solid var(--border);
-  height:60px;padding:0 28px;display:flex;align-items:center;
-  justify-content:space-between;position:sticky;top:0;z-index:50;
-}
-.topbar-title{font-family:'Chakra Petch',sans-serif;font-size:17px;font-weight:600;color:var(--navy)}
-.topbar-actions{display:flex;gap:8px}
+.main{margin-left:var(--sw);flex:1;min-height:100vh;display:flex;flex-direction:column;min-width:0}
+.topbar{background:var(--card);border-bottom:1px solid var(--border);height:60px;padding:0 28px;display:flex;
+  align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;gap:8px}
+.topbar-left{display:flex;align-items:center;min-width:0}
+.topbar-title{font-family:'Chakra Petch',sans-serif;font-size:17px;font-weight:600;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar-actions{display:flex;gap:8px;align-items:center}
 .content{padding:24px 28px;flex:1}
 
-/* ── PANELS ── */
 .panel{display:none}
 .panel.on{display:block}
 @keyframes fup{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -176,13 +120,8 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .panel.on>*:nth-child(3){animation-delay:.1s}
 .panel.on>*:nth-child(4){animation-delay:.15s}
 
-/* ── BUTTONS ── */
-.btn{
-  display:inline-flex;align-items:center;gap:6px;
-  padding:7px 14px;border-radius:7px;
-  font-family:'Sarabun',sans-serif;font-size:13px;
-  cursor:pointer;border:none;transition:all .18s;
-}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:7px;
+  font-family:'Sarabun',sans-serif;font-size:13px;cursor:pointer;border:none;transition:all .18s;white-space:nowrap}
 .btn-navy{background:var(--navy);color:#fff}.btn-navy:hover{background:var(--navy2)}
 .btn-gold{background:var(--gold);color:var(--slate);font-weight:600}.btn-gold:hover{background:var(--goldf)}
 .btn-cyan{background:var(--cyan);color:#fff}.btn-cyan:hover{background:#0891b2}
@@ -190,82 +129,55 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .btn-outline:hover{border-color:var(--navy);color:var(--navy)}
 .btn-danger{background:#fee2e2;color:var(--red)}.btn-danger:hover{background:#fecaca}
 .btn-sm{padding:5px 10px;font-size:12px}
+.btn.dirty{box-shadow:0 0 0 3px rgba(245,166,35,.45)}
 
-/* ── TIP CARD ── */
-.tip{
-  border-radius:10px;padding:12px 16px;font-size:13px;
-  display:flex;gap:10px;align-items:flex-start;margin-bottom:16px;
-}
+.tip{border-radius:10px;padding:12px 16px;font-size:13px;display:flex;gap:10px;align-items:flex-start;margin-bottom:16px}
 .tip-gold{background:var(--goldp);border:1px solid #f5d978;color:#92400e}
 .tip-orange{background:var(--orangep);border:1px solid #fed7aa;color:#9a3412}
-.tip-cyan{background:#ecfeff;border:1px solid #a5f3fc;color:#164e63}
 
-/* ── SUMMARY CARDS ── */
 .sum-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:14px;margin-bottom:22px}
-.sum-card{
-  background:var(--card);border-radius:13px;padding:18px;
-  border:1px solid var(--border);position:relative;overflow:hidden;
-  transition:transform .2s,box-shadow .2s;
-}
+.sum-card{background:var(--card);border-radius:13px;padding:18px;border:1px solid var(--border);position:relative;overflow:hidden;
+  transition:transform .2s,box-shadow .2s}
 .sum-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(15,27,76,.08)}
-.sum-card::after{content:'';position:absolute;top:0;right:0;width:65px;height:65px;
-  border-radius:0 13px 0 65px;opacity:.07}
+.sum-card::after{content:'';position:absolute;top:0;right:0;width:65px;height:65px;border-radius:0 13px 0 65px;opacity:.07}
 .sc-tgat::after{background:#6366f1}.sc-tpat::after{background:#ec4899}
-.sc-al::after{background:#14b8a6}.sc-ns::after{background:var(--orange)}
-.sc-tot::after{background:var(--gold)}
-.sc-icon{width:34px;height:34px;border-radius:8px;display:grid;place-items:center;
-  font-size:15px;margin-bottom:10px}
+.sc-al::after{background:#14b8a6}.sc-ns::after{background:var(--orange)}.sc-tot::after{background:var(--gold)}
+.sc-icon{width:34px;height:34px;border-radius:8px;display:grid;place-items:center;font-size:15px;margin-bottom:10px}
 .sc-tgat .sc-icon{background:#eef2ff}.sc-tpat .sc-icon{background:#fdf2f8}
-.sc-al .sc-icon{background:#f0fdfa}.sc-ns .sc-icon{background:var(--orangep)}
-.sc-tot .sc-icon{background:var(--goldp)}
+.sc-al .sc-icon{background:#f0fdfa}.sc-ns .sc-icon{background:var(--orangep)}.sc-tot .sc-icon{background:var(--goldp)}
 .sc-label{font-size:11px;color:var(--muted);margin-bottom:3px;line-height:1.3}
 .sc-val{font-family:'Chakra Petch',sans-serif;font-size:26px;font-weight:700;color:var(--navy);line-height:1}
 .sc-max{font-size:11px;color:var(--muted);margin-top:2px}
 .sc-bar{height:4px;background:var(--border);border-radius:2px;margin-top:10px;overflow:hidden}
 .sc-fill{height:100%;border-radius:2px;transition:width .6s cubic-bezier(.4,0,.2,1)}
 .sc-tgat .sc-fill{background:#6366f1}.sc-tpat .sc-fill{background:#ec4899}
-.sc-al .sc-fill{background:#14b8a6}.sc-ns .sc-fill{background:var(--orange)}
-.sc-tot .sc-fill{background:var(--gold)}
+.sc-al .sc-fill{background:#14b8a6}.sc-ns .sc-fill{background:var(--orange)}.sc-tot .sc-fill{background:var(--gold)}
 
-/* ── SECTION HEADER ── */
 .sec-head{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap}
-.sec-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 13px 5px 9px;
-  border-radius:7px;font-size:13px;font-weight:600}
-.badge-tgat{background:#eef2ff;color:#4338ca}
-.badge-tpat{background:#fdf2f8;color:#be185d}
-.badge-al{background:#f0fdfa;color:#0f766e}
-.badge-ns{background:var(--orangep);color:#9a3412}
-.badge-dash{background:#ecfeff;color:#164e63}
-.badge-stu{background:#f0fdf4;color:#166534}
-.badge-ana{background:#ede9fe;color:#6d28d9}
+.sec-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 13px 5px 9px;border-radius:7px;font-size:13px;font-weight:600}
+.badge-tgat{background:#eef2ff;color:#4338ca}.badge-tpat{background:#fdf2f8;color:#be185d}
+.badge-al{background:#f0fdfa;color:#0f766e}.badge-ns{background:var(--orangep);color:#9a3412}
 .sec-total{margin-left:auto;font-family:'Chakra Petch',sans-serif;font-size:13px;color:var(--muted)}
 .sec-total strong{color:var(--navy);font-size:16px}
 
-/* ── SCORE TABLE ── */
-.score-table{background:var(--card);border-radius:13px;border:1px solid var(--border);
-  overflow:hidden;margin-bottom:20px}
-.s-row{display:grid;grid-template-columns:1fr 170px 56px;
-  align-items:center;padding:12px 18px;border-bottom:1px solid var(--border);
-  gap:10px;transition:background .15s}
+.score-table{background:var(--card);border-radius:13px;border:1px solid var(--border);overflow:hidden;margin-bottom:20px}
+.s-row{display:grid;grid-template-columns:1fr 170px 90px;align-items:center;padding:12px 18px;
+  border-bottom:1px solid var(--border);gap:10px;transition:background .15s}
 .s-row:last-child{border-bottom:none}
 .s-row:hover:not(.s-head){background:#fafbff}
-.s-head{background:#f8fafc;font-size:11px;font-weight:600;
-  text-transform:uppercase;letter-spacing:.7px;color:var(--muted);padding:9px 18px}
+.s-head{background:#f8fafc;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);padding:9px 18px}
 .s-name{font-size:14px;font-weight:500;color:var(--text)}
 .s-code{font-size:11px;color:var(--muted);margin-top:1px}
 .inp-wrap{position:relative}
-.s-inp{
-  width:100%;padding:7px 36px 7px 10px;border:1.5px solid var(--border);
-  border-radius:7px;font-family:'Chakra Petch',sans-serif;font-size:14px;
-  color:var(--navy);outline:none;transition:border-color .2s,background .2s;
-  background:#fff;text-align:right;
-}
+.s-inp{width:100%;padding:7px 36px 7px 10px;border:1.5px solid var(--border);border-radius:7px;
+  font-family:'Chakra Petch',sans-serif;font-size:14px;color:var(--navy);outline:none;
+  transition:border-color .2s,background .2s;background:#fff;text-align:right}
 .s-inp:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(15,27,76,.07)}
 .s-inp.ok{border-color:#c7d2fe;background:#fafbff}
-.s-inp.err{border-color:var(--red);background:#fff5f5}
+.s-inp.err{border-color:var(--red);background:#fff5f5;color:var(--red)}
 .s-inp.best-val{border-color:#86efac;background:#f0fdf4;color:#16a34a;font-weight:700}
-.inp-max{position:absolute;right:8px;top:50%;transform:translateY(-50%);
-  font-size:10px;color:var(--muted);pointer-events:none;font-family:'Chakra Petch',sans-serif}
+.inp-max{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:10px;color:var(--muted);
+  pointer-events:none;font-family:'Chakra Petch',sans-serif}
 .mini-bar{width:100%;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
 .mini-fill{height:100%;border-radius:3px;transition:width .4s ease}
 .fill-tgat{background:linear-gradient(90deg,#818cf8,#6366f1)}
@@ -273,32 +185,19 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .fill-al{background:linear-gradient(90deg,#2dd4bf,#14b8a6)}
 .fill-ns{background:linear-gradient(90deg,#fb923c,#f97316)}
 
-/* ── NETSAT ROUND TABS ── */
 .round-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
-.rtab{
-  display:flex;align-items:center;gap:6px;padding:7px 14px;
-  border:1.5px solid var(--border);border-radius:9px;background:var(--card);
-  font-family:'Sarabun',sans-serif;font-size:13px;color:var(--muted);
-  cursor:pointer;transition:all .2s;
-}
+.rtab{display:flex;align-items:center;gap:6px;padding:7px 14px;border:1.5px solid var(--border);border-radius:9px;
+  background:var(--card);font-family:'Sarabun',sans-serif;font-size:13px;color:var(--muted);cursor:pointer;transition:all .2s}
 .rtab:hover{border-color:var(--orange);color:var(--orange)}
 .rtab.active{background:var(--orangep);border-color:var(--orange);color:var(--orange);font-weight:600}
-.rtab-dot{width:7px;height:7px;border-radius:50%;background:var(--border);
-  flex-shrink:0;transition:background .2s}
+.rtab-dot{width:7px;height:7px;border-radius:50%;background:var(--border);flex-shrink:0;transition:background .2s}
 .rtab.active .rtab-dot{background:var(--orange)}
 .rtab.has-data .rtab-dot{background:var(--green)}
-.rtab-sc{
-  display:none;margin-left:4px;background:rgba(249,115,22,.12);
-  border-radius:8px;padding:1px 6px;font-size:10px;font-family:'Chakra Petch',sans-serif;
-  color:var(--orange);
-}
+.rtab-sc{display:none;margin-left:4px;background:rgba(249,115,22,.12);border-radius:8px;padding:1px 6px;font-size:10px;
+  font-family:'Chakra Petch',sans-serif;color:var(--orange)}
 .rtab.has-data .rtab-sc{display:inline-block}
 
-/* ── NETSAT BEST TABLE ── */
-.best-head{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:14px 18px;border-bottom:1px solid var(--border);background:#f8fafc;
-}
+.best-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);background:#f8fafc}
 .best-title{font-size:13px;font-weight:600;color:var(--navy);display:flex;align-items:center;gap:6px}
 .best-grand{font-family:'Chakra Petch',sans-serif;font-size:18px;font-weight:700;color:#16a34a}
 .bsr{display:flex;align-items:center;gap:12px;padding:10px 18px;border-bottom:1px solid var(--border)}
@@ -306,24 +205,25 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .bsr-name{flex:1;font-size:13px}
 .bsr-bar{width:120px;height:6px;background:var(--border);border-radius:3px;overflow:hidden;flex-shrink:0}
 .bsr-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#fb923c,#f97316);transition:width .5s}
-.bsr-val{font-family:'Chakra Petch',sans-serif;font-size:13px;font-weight:700;color:var(--navy);width:32px;text-align:right;flex-shrink:0}
-.bsr-tag{font-size:10px;padding:2px 6px;border-radius:4px;font-weight:600;flex-shrink:0}
+.bsr-val{font-family:'Chakra Petch',sans-serif;font-size:13px;font-weight:700;color:var(--navy);width:36px;text-align:right;flex-shrink:0}
+.bsr-tag{font-size:10px;padding:2px 6px;border-radius:4px;font-weight:600;flex-shrink:0;min-width:48px;text-align:center}
 .tag-r0{background:#e0e7ff;color:#4338ca}.tag-r1{background:#fce7f3;color:#be185d}
 .tag-r2{background:#d1fae5;color:#065f46}.tag-r3{background:#fef3c7;color:#92400e}
 .tag-none{background:var(--bg);color:var(--muted)}
+.nsb-wrap{display:flex;align-items:center;gap:8px}
+.nsb-v{font-family:'Chakra Petch',sans-serif;font-size:15px;font-weight:700;color:#94a3b8}
+.nsb-v.ok{color:#16a34a}
+.nsb-tag{font-size:10px;padding:2px 6px;background:#dcfce7;color:#15803d;border-radius:4px;font-weight:600}
 
-/* ── TREND CHART ── */
-.trend-bars{display:flex;align-items:flex-end;gap:10px;height:100px;margin-top:10px}
+.trend-bars{display:flex;align-items:flex-end;gap:10px;height:120px;margin-top:10px}
 .t-col{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;height:100%}
 .t-bwrap{flex:1;display:flex;align-items:flex-end;width:100%}
-.t-bar{width:100%;border-radius:4px 4px 0 0;background:linear-gradient(to top,#f97316,#fb923c);
-  min-height:4px;transition:height .5s cubic-bezier(.4,0,.2,1)}
+.t-bar{width:100%;border-radius:4px 4px 0 0;background:linear-gradient(to top,#f97316,#fb923c);min-height:4px;transition:height .5s cubic-bezier(.4,0,.2,1)}
 .t-col.best .t-bar{background:linear-gradient(to top,#16a34a,#22c55e)}
 .t-val{font-family:'Chakra Petch',sans-serif;font-size:13px;font-weight:700;color:var(--navy)}
 .t-col.best .t-val{color:#15803d}
 .t-lbl{font-size:11px;color:var(--muted)}
 
-/* ── ADMIN STAT CARDS ── */
 .asc-tgat::after{background:var(--cyan)}.asc-avg::after{background:var(--emerald)}
 .asc-ns::after{background:var(--orange)}.asc-top::after{background:var(--violet)}
 .asc-tgat .sc-icon{background:#ecfeff}.asc-avg .sc-icon{background:#d1fae5}
@@ -331,18 +231,14 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .asc-tgat .sc-fill{background:var(--cyan)}.asc-avg .sc-fill{background:var(--emerald)}
 .asc-ns .sc-fill{background:var(--orange)}.asc-top .sc-fill{background:var(--violet)}
 
-/* ── CHART CARDS ── */
 .chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
 .chart-card{background:var(--card);border-radius:13px;border:1px solid var(--border);padding:20px}
-.chart-title{font-size:13px;font-weight:600;color:var(--navy);margin-bottom:14px;
-  display:flex;align-items:center;gap:6px}
+.chart-title{font-size:13px;font-weight:600;color:var(--navy);margin-bottom:14px;display:flex;align-items:center;gap:6px}
 .hbar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.hbar-label{font-size:12px;color:var(--muted);width:130px;flex-shrink:0;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hbar-label{font-size:12px;color:var(--muted);width:130px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hbar-track{flex:1;height:7px;background:var(--bg);border-radius:4px;overflow:hidden}
 .hbar-fill{height:100%;border-radius:4px;transition:width .5s}
-.hbar-val{font-family:'Chakra Petch',sans-serif;font-size:12px;color:var(--text);
-  width:34px;text-align:right;flex-shrink:0}
+.hbar-val{font-family:'Chakra Petch',sans-serif;font-size:12px;color:var(--text);width:48px;text-align:right;flex-shrink:0}
 .dist-chart{display:flex;align-items:flex-end;gap:4px;height:100px;margin-top:4px}
 .dist-col{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
 .dist-bwrap{flex:1;display:flex;align-items:flex-end;gap:1px;width:100%;height:80px}
@@ -353,127 +249,117 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .chart-legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
 .leg-row{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)}
 .ldot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.empty{padding:16px;text-align:center;color:var(--muted);font-size:13px}
 
-/* ── DATA TABLE (admin students) ── */
-.dt-toolbar{display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:12px;gap:10px;flex-wrap:wrap}
-.search-box{display:flex;align-items:center;gap:7px;background:var(--card);
-  border:1px solid var(--border);border-radius:7px;padding:6px 12px}
-.search-box input{border:none;background:transparent;outline:none;
-  font-family:'Sarabun',sans-serif;font-size:13px;color:var(--text);width:180px}
+.dt-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:10px;flex-wrap:wrap}
+.search-box{display:flex;align-items:center;gap:7px;background:var(--card);border:1px solid var(--border);border-radius:7px;padding:6px 12px}
+.search-box input{border:none;background:transparent;outline:none;font-family:'Sarabun',sans-serif;font-size:13px;color:var(--text);width:180px}
 .sort-pills{display:flex;gap:6px;flex-wrap:wrap}
-.s-pill{padding:4px 10px;border:1px solid var(--border);border-radius:5px;
-  background:var(--card);font-size:11px;color:var(--muted);cursor:pointer;transition:all .15s}
+.s-pill{padding:4px 10px;border:1px solid var(--border);border-radius:5px;background:var(--card);font-size:11px;color:var(--muted);cursor:pointer;transition:all .15s}
 .s-pill.active{background:var(--slate);color:#fff;border-color:var(--slate)}
-
-.data-table{background:var(--card);border-radius:13px;border:1px solid var(--border);overflow:hidden;margin-bottom:20px}
-.dt-head{background:#f8fafc;display:grid;padding:9px 14px;
-  font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;
-  color:var(--muted);border-bottom:1px solid var(--border)}
-.dt-row{display:grid;padding:11px 14px;border-bottom:1px solid var(--border);
-  align-items:center;gap:8px;transition:background .15s}
+.data-table{background:var(--card);border-radius:13px;border:1px solid var(--border);overflow-x:auto;margin-bottom:20px}
+.dt-head{background:#f8fafc;display:grid;padding:9px 14px;font-size:11px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.7px;color:var(--muted);border-bottom:1px solid var(--border);min-width:820px}
+.dt-row{display:grid;padding:11px 14px;border-bottom:1px solid var(--border);align-items:center;gap:8px;transition:background .15s;min-width:820px}
 .dt-row:last-child{border-bottom:none}
 .dt-row:hover{background:#fafbff}
-.dt-cols{grid-template-columns:36px 1fr 56px 76px 76px 76px 76px 86px 110px}
-.rank-chip{width:26px;height:26px;border-radius:6px;display:grid;place-items:center;
-  font-family:'Chakra Petch',sans-serif;font-size:11px;font-weight:700}
-.rc-top{background:#fef3c7;color:#92400e}
-.rc-mid{background:#f0fdf4;color:#15803d}
-.rc-low{background:#fff1f2;color:#be123c}
+.dt-cols{grid-template-columns:36px 1fr 56px 76px 76px 76px 86px 86px 100px}
+.top-cols{grid-template-columns:36px 1fr 76px 76px 76px 86px 86px 60px}
+.rank-chip{width:26px;height:26px;border-radius:6px;display:grid;place-items:center;font-family:'Chakra Petch',sans-serif;font-size:11px;font-weight:700}
+.rc-top{background:#fef3c7;color:#92400e}.rc-mid{background:#f0fdf4;color:#15803d}.rc-low{background:#fff1f2;color:#be123c}
 .p-mini{height:3px;background:var(--bg);border-radius:2px;overflow:hidden;margin-top:3px}
 .pm-fill{height:100%;border-radius:2px;background:var(--cyan)}
 .act-row{display:flex;gap:5px}
-.score-hi{color:#059669;font-weight:600}.score-mid{color:#d97706;font-weight:600}.score-lo{color:var(--red);font-weight:600}
+.ns-cell{cursor:pointer;border-radius:6px;padding:2px 4px;margin:-2px -4px;transition:background .15s}
+.ns-cell:hover{background:var(--orangep)}
+.ns-cell:hover .ns-cell-val{color:var(--orange);text-decoration:underline}
+.ns-cell-hint{font-size:9px;color:#cbd5e1}
+.ns-cell:hover .ns-cell-hint{color:var(--orange)}
 
-/* ── MODAL ── */
-.modal-ov{position:fixed;inset:0;background:rgba(15,23,42,.55);
-  z-index:2000;display:none;align-items:center;justify-content:center;padding:16px}
+.nsd-sub{font-size:12px;color:rgba(255,255,255,.85)}
+.nsd-hero{background:linear-gradient(135deg,var(--orange) 0%,#fb923c 100%);border-radius:12px;padding:16px 20px;color:#fff;
+  margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.nsd-hero-name{font-family:'Chakra Petch',sans-serif;font-size:17px;font-weight:700}
+.nsd-hero-total{font-family:'Chakra Petch',sans-serif;font-size:24px;font-weight:700;text-align:right}
+.nsd-hero-total small{display:block;font-size:10px;font-weight:400;opacity:.85}
+
+.modal-ov{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:2000;display:none;align-items:center;justify-content:center;padding:16px}
 .modal-ov.on{display:flex}
-.modal{background:var(--card);border-radius:14px;width:100%;max-width:680px;
-  max-height:92vh;display:flex;flex-direction:column;overflow:hidden;
-  box-shadow:0 24px 60px rgba(0,0,0,.2)}
-.modal-hd{padding:18px 22px;border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.modal{background:var(--card);border-radius:14px;width:100%;max-width:680px;max-height:92vh;display:flex;flex-direction:column;
+  overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.2)}
+.modal-hd{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .modal-title{font-size:16px;font-weight:600;color:var(--text)}
-.modal-x{background:none;border:none;font-size:20px;cursor:pointer;
-  color:var(--muted);width:30px;height:30px;border-radius:6px;display:grid;place-items:center}
+.modal-x{background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);width:30px;height:30px;border-radius:6px;display:grid;place-items:center}
 .modal-x:hover{background:var(--bg)}
 .modal-body{padding:18px 22px;overflow-y:auto;flex:1}
-.modal-ft{padding:12px 22px;border-top:1px solid var(--border);
-  display:flex;gap:8px;justify-content:flex-end;flex-shrink:0}
+.modal-ft{padding:12px 22px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0}
 .f-name{margin-bottom:16px}
-.f-label{display:block;font-size:11px;font-weight:600;color:var(--muted);
-  text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px}
-.f-name input{width:100%;padding:9px 12px;border:1.5px solid var(--border);
-  border-radius:7px;font-family:'Sarabun',sans-serif;font-size:14px;outline:none;transition:border-color .2s}
+.f-label{display:block;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px}
+.f-name input{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:7px;font-family:'Sarabun',sans-serif;font-size:14px;outline:none;transition:border-color .2s}
 .f-name input:focus{border-color:var(--cyan)}
 .f-sec{margin-bottom:16px}
-.f-sec-title{font-size:11px;font-weight:700;color:var(--text);text-transform:uppercase;
-  letter-spacing:.8px;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--border);
-  display:flex;align-items:center;gap:6px}
+.f-sec-title{font-size:11px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;
+  padding-bottom:5px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px}
 .f-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:8px}
 .f-field label{display:block;font-size:11px;color:var(--muted);margin-bottom:3px}
-.f-field input{width:100%;padding:6px 10px;border:1.5px solid var(--border);border-radius:6px;
-  font-family:'Chakra Petch',sans-serif;font-size:13px;text-align:right;outline:none;transition:border-color .2s}
+.f-field input{width:100%;padding:6px 10px;border:1.5px solid var(--border);border-radius:6px;font-family:'Chakra Petch',sans-serif;
+  font-size:13px;text-align:right;outline:none;transition:border-color .2s}
 .f-field input:focus{border-color:var(--cyan)}
+.f-field input.err{border-color:var(--red);background:#fff5f5}
 
-/* ── OVERVIEW HERO ── */
-.hero{
-  background:linear-gradient(135deg,var(--navy) 0%,#1e3a8a 100%);
-  border-radius:16px;padding:28px;color:#fff;margin-bottom:20px;
-  position:relative;overflow:hidden;
-}
-.hero::before{content:'';position:absolute;top:-50px;right:-50px;width:240px;height:240px;
-  background:radial-gradient(circle,rgba(245,166,35,.2) 0%,transparent 70%);pointer-events:none}
+.hero{background:linear-gradient(135deg,var(--navy) 0%,#1e3a8a 100%);border-radius:16px;padding:28px;color:#fff;margin-bottom:20px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-50px;right:-50px;width:240px;height:240px;background:radial-gradient(circle,rgba(245,166,35,.2) 0%,transparent 70%);pointer-events:none}
 .hero-label{font-size:11px;color:rgba(255,255,255,.45);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
-.hero-name{font-size:20px;font-weight:600;margin-bottom:20px}
+.hero-name{font-size:20px;font-weight:600;margin-bottom:20px;word-break:break-word}
 .hero-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
 .hs-label{font-size:11px;color:rgba(255,255,255,.45);margin-bottom:3px}
 .hs-val{font-family:'Chakra Petch',sans-serif;font-size:26px;font-weight:700;line-height:1}
 .hs-sub{font-size:11px;color:rgba(255,255,255,.35);margin-top:2px}
 .hs-gold .hs-val{color:var(--goldf)}
-
-/* Admin hero */
-.admin-hero{
-  background:linear-gradient(135deg,var(--slate) 0%,#1e293b 100%);
-  border-radius:16px;padding:24px 28px;margin-bottom:20px;
-  display:flex;align-items:center;justify-content:space-between;
-  position:relative;overflow:hidden;
-}
-.admin-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:200px;height:200px;
-  background:radial-gradient(circle,rgba(6,182,212,.15) 0%,transparent 70%);pointer-events:none}
-.ah-left{}
+.admin-hero{background:linear-gradient(135deg,var(--slate) 0%,#1e293b 100%);border-radius:16px;padding:24px 28px;margin-bottom:20px;
+  display:flex;align-items:center;justify-content:space-between;position:relative;overflow:hidden;gap:12px;flex-wrap:wrap}
+.admin-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:200px;height:200px;background:radial-gradient(circle,rgba(6,182,212,.15) 0%,transparent 70%);pointer-events:none}
 .ah-label{font-size:11px;color:rgba(255,255,255,.4);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
 .ah-title{font-family:'Chakra Petch',sans-serif;font-size:20px;color:#fff;font-weight:700}
 .ah-sub{font-size:12px;color:rgba(255,255,255,.4);margin-top:4px}
 .ah-actions{display:flex;gap:8px}
 
-/* ── TOAST ── */
-#toast{
-  position:fixed;bottom:20px;right:20px;background:var(--slate);color:#fff;
-  padding:10px 18px;border-radius:9px;font-size:13px;z-index:9999;
-  opacity:0;transform:translateY(6px);transition:all .25s;pointer-events:none;
-  display:flex;align-items:center;gap:8px;
-}
+#toast{position:fixed;bottom:20px;right:20px;background:var(--slate);color:#fff;padding:10px 18px;border-radius:9px;font-size:13px;
+  z-index:9999;opacity:0;transform:translateY(6px);transition:all .25s;pointer-events:none;max-width:calc(100vw - 40px)}
 #toast.on{opacity:1;transform:translateY(0)}
 #toast.err{background:#7f1d1d}
 
 @media(max-width:860px){
-  .sidebar{transform:translateX(-100%)}
+  .sidebar{transform:translateX(-100%);box-shadow:none}
+  .sidebar.open{transform:none;box-shadow:0 0 40px rgba(0,0,0,.4)}
+  .sb-ov.on{display:block}
+  .menu-btn{display:grid;place-items:center}
   .main{margin-left:0}
+  .topbar{padding:0 14px}
+  .content{padding:16px 14px}
   .chart-grid{grid-template-columns:1fr}
   .hero-stats{grid-template-columns:1fr 1fr}
-  .dt-cols{grid-template-columns:34px 1fr 66px 66px 80px 90px}
+  .s-row{grid-template-columns:1fr 112px 70px;padding:10px 12px}
+  .s-head{padding:9px 12px}
+  .s-inp{padding-right:30px;font-size:13px}
+  .hbar-label{width:96px}
+  .search-box input{width:110px}
+  .topbar-actions .btn-cyan{padding:7px 10px}
+  .land-card{padding:36px 22px}
 }
-@media print{.sidebar,.topbar-actions{display:none!important}.main{margin-left:0}}
+@media(max-width:480px){
+  .topbar-title{font-size:15px}
+  .bsr-bar{display:none}
+  .admin-hero{padding:18px}
+}
+@media print{.sidebar,.topbar-actions,.menu-btn{display:none!important}.main{margin-left:0}}
 </style>
 </head>
 <body>
 
-<!-- LOADING -->
 <div id="loading"><div class="spinner"></div><div class="loading-msg" id="load-msg">กำลังโหลด...</div></div>
 
-<!-- ── LANDING ── -->
+<!-- LANDING -->
 <div id="view-landing">
   <div class="land-card">
     <span class="land-icon">🎓</span>
@@ -491,15 +377,13 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
       </button>
     </div>
 
-    <!-- Student login -->
     <div class="login-screen" id="login-student" style="display:none">
       <div class="login-label">เลือกชื่อหรือสร้างโปรไฟล์ใหม่</div>
       <select class="login-input" id="s-select" onchange="onStudentSelect()">
         <option value="">— เลือกชื่อ —</option>
         <option value="__new__">+ สร้างโปรไฟล์ใหม่</option>
       </select>
-      <input class="login-input" id="s-newname" placeholder="ชื่อ-นามสกุล (ใหม่)"
-        style="display:none;margin-top:8px">
+      <input class="login-input" id="s-newname" placeholder="ชื่อ-นามสกุล (ใหม่)" style="display:none;margin-top:8px">
       <select class="login-input" id="s-newgrade" style="display:none;margin-top:8px">
         <option value="">— ระดับชั้น —</option>
         <option value="ม.4">ม.4</option>
@@ -512,62 +396,45 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
       <button class="login-back" onclick="backToLanding()">← กลับ</button>
     </div>
 
-    <!-- Admin login -->
     <div class="login-screen" id="login-admin" style="display:none">
       <div class="login-label">รหัสผ่าน Admin</div>
-      <input class="login-input" id="a-pw" type="password" placeholder="••••••••"
-        onkeydown="if(event.key==='Enter')enterAdminMode()">
+      <input class="login-input" id="a-pw" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')enterAdminMode()">
       <button class="login-btn" onclick="enterAdminMode()">เข้าสู่ระบบ Admin →</button>
       <button class="login-back" onclick="backToLanding()">← กลับ</button>
     </div>
   </div>
 </div>
 
-<!-- ── STUDENT APP ── -->
+<!-- STUDENT APP -->
 <div class="app-shell" id="view-student">
   <aside class="sidebar" id="student-sidebar">
-    <div class="sb-logo">
-      <div class="sb-logo-row">
-        <div class="sb-icon gold">🎓</div>
-        <div class="sb-title"><strong>TCAS Scores</strong><small>Student Portal</small></div>
-      </div>
-    </div>
+    <div class="sb-logo"><div class="sb-logo-row">
+      <div class="sb-icon gold">🎓</div>
+      <div class="sb-title"><strong>TCAS Scores</strong><small>Student Portal</small></div>
+    </div></div>
     <div class="sb-user">
       <div class="sb-user-name" id="sb-student-name">—</div>
       <div class="sb-user-role" id="sb-student-grade">นักเรียน</div>
     </div>
     <nav class="sb-nav">
       <div class="sb-section">เมนู</div>
-      <button class="sb-btn s-active" data-stab="overview" onclick="setSTab(this)">
-        <span class="sb-ico">📊</span>ภาพรวมคะแนน
-      </button>
-      <button class="sb-btn" data-stab="tgat" onclick="setSTab(this)">
-        <span class="sb-ico">🧠</span>TGAT
-        <span class="sb-badge" id="snav-tgat">0/300</span>
-      </button>
-      <button class="sb-btn" data-stab="tpat" onclick="setSTab(this)">
-        <span class="sb-ico">🎯</span>TPAT
-        <span class="sb-badge" id="snav-tpat">0/900</span>
-      </button>
-      <button class="sb-btn" data-stab="alevel" onclick="setSTab(this)">
-        <span class="sb-ico">📚</span>A-Level
-        <span class="sb-badge" id="snav-al">0/1700</span>
-      </button>
-      <button class="sb-btn" data-stab="netsat" onclick="setSTab(this)">
-        <span class="sb-ico">🔁</span>NETSAT
-        <span class="sb-badge" id="snav-ns">Best:0</span>
-      </button>
+      <button class="sb-btn s-active" data-stab="overview" onclick="setSTab(this)"><span class="sb-ico">📊</span>ภาพรวมคะแนน</button>
+      <button class="sb-btn" data-stab="tgat" onclick="setSTab(this)"><span class="sb-ico">🧠</span>TGAT<span class="sb-badge" id="snav-tgat">0/300</span></button>
+      <button class="sb-btn" data-stab="tpat" onclick="setSTab(this)"><span class="sb-ico">🎯</span>TPAT<span class="sb-badge" id="snav-tpat">0/900</span></button>
+      <button class="sb-btn" data-stab="alevel" onclick="setSTab(this)"><span class="sb-ico">📚</span>A-Level<span class="sb-badge" id="snav-al">0/1700</span></button>
+      <button class="sb-btn" data-stab="netsat" onclick="setSTab(this)"><span class="sb-ico">🔁</span>NETSAT<span class="sb-badge" id="snav-ns">Best:0</span></button>
     </nav>
-    <div class="sb-footer">
-      <button class="sb-exit" onclick="exitToLanding()">← ออกจากระบบ</button>
-    </div>
+    <div class="sb-footer"><button class="sb-exit" onclick="exitToLanding()">← ออกจากระบบ</button></div>
   </aside>
   <div class="main">
     <div class="topbar">
-      <div class="topbar-title" id="s-page-title">ภาพรวมคะแนน</div>
+      <div class="topbar-left">
+        <button class="menu-btn" onclick="toggleSidebar()" aria-label="เมนู">☰</button>
+        <div class="topbar-title" id="s-page-title">ภาพรวมคะแนน</div>
+      </div>
       <div class="topbar-actions">
         <button class="btn btn-outline btn-sm" onclick="window.print()">🖨 พิมพ์</button>
-        <button class="btn btn-gold" onclick="saveCurrentStudent()">💾 บันทึก</button>
+        <button class="btn btn-gold" id="s-save-btn" onclick="saveCurrentStudent()">💾 บันทึก</button>
       </div>
     </div>
     <div class="content">
@@ -580,52 +447,38 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
   </div>
 </div>
 
-<!-- ── ADMIN APP ── -->
+<!-- ADMIN APP -->
 <div class="app-shell" id="view-admin">
   <aside class="sidebar" id="admin-sidebar">
-    <div class="sb-logo">
-      <div class="sb-logo-row">
-        <div class="sb-icon cyan">🛡</div>
-        <div class="sb-title"><strong>Admin Panel</strong><small>TCAS Manager</small></div>
-      </div>
-    </div>
+    <div class="sb-logo"><div class="sb-logo-row">
+      <div class="sb-icon cyan">🛡</div>
+      <div class="sb-title"><strong>Admin Panel</strong><small>TCAS Manager</small></div>
+    </div></div>
     <div class="sb-user">
       <div class="sb-user-name">ครูผู้ดูแลระบบ</div>
       <div class="sb-user-role" id="a-student-count">นักเรียน 0 คน</div>
     </div>
     <nav class="sb-nav">
       <div class="sb-section">เมนูหลัก</div>
-      <button class="sb-btn a-active" data-atab="dash" onclick="setATab(this)">
-        <span class="sb-ico">📊</span>Dashboard
-      </button>
-      <button class="sb-btn" data-atab="students" onclick="setATab(this)">
-        <span class="sb-ico">👥</span>จัดการนักเรียน
-        <span class="sb-badge" id="anav-count">0</span>
-      </button>
-      <button class="sb-btn" data-atab="analysis" onclick="setATab(this)">
-        <span class="sb-ico">🔬</span>วิเคราะห์คะแนน
-      </button>
+      <button class="sb-btn a-active" data-atab="dash" onclick="setATab(this)"><span class="sb-ico">📊</span>Dashboard</button>
+      <button class="sb-btn" data-atab="students" onclick="setATab(this)"><span class="sb-ico">👥</span>จัดการนักเรียน<span class="sb-badge" id="anav-count">0</span></button>
+      <button class="sb-btn" data-atab="analysis" onclick="setATab(this)"><span class="sb-ico">🔬</span>วิเคราะห์คะแนน</button>
       <div class="sb-section" style="margin-top:16px">เครื่องมือ</div>
-      <button class="sb-btn" onclick="exportCSV()">
-        <span class="sb-ico">📄</span>Export CSV
-      </button>
-      <button class="sb-btn" onclick="openSheetUrl()">
-        <span class="sb-ico">📋</span>เปิด Google Sheet
-      </button>
+      <button class="sb-btn" onclick="exportCSV()"><span class="sb-ico">📄</span>Export CSV</button>
+      <button class="sb-btn" onclick="openSheetUrl()"><span class="sb-ico">📋</span>เปิด Google Sheet</button>
     </nav>
-    <div class="sb-footer">
-      <button class="sb-exit" onclick="exitToLanding()">← ออกจากระบบ</button>
-    </div>
+    <div class="sb-footer"><button class="sb-exit" onclick="exitToLanding()">← ออกจากระบบ</button></div>
   </aside>
   <div class="main">
     <div class="topbar">
-      <div class="topbar-title" id="a-page-title">Dashboard</div>
+      <div class="topbar-left">
+        <button class="menu-btn" onclick="toggleSidebar()" aria-label="เมนู">☰</button>
+        <div class="topbar-title" id="a-page-title">Dashboard</div>
+      </div>
       <div class="topbar-actions">
-        <div class="search-box">
-          <span style="color:var(--muted)">🔍</span>
-          <input type="text" id="a-search" placeholder="ค้นหานักเรียน..." oninput="onSearch()">
-        </div>
-        <button class="btn btn-cyan" onclick="openModal(null)">+ เพิ่มนักเรียน</button>
+        <div class="search-box"><span style="color:var(--muted)">🔍</span>
+          <input type="text" id="a-search" placeholder="ค้นหานักเรียน..." oninput="onSearch()"></div>
+        <button class="btn btn-cyan" onclick="openModal(null)">+ เพิ่ม</button>
       </div>
     </div>
     <div class="content">
@@ -636,13 +489,12 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
   </div>
 </div>
 
-<!-- ── MODAL (add/edit) ── -->
+<div class="sb-ov" id="sb-ov" onclick="closeSidebar()"></div>
+
+<!-- MODAL add/edit -->
 <div class="modal-ov" id="modal-ov">
   <div class="modal">
-    <div class="modal-hd">
-      <div class="modal-title" id="modal-title">เพิ่มนักเรียน</div>
-      <button class="modal-x" onclick="closeModal()">×</button>
-    </div>
+    <div class="modal-hd"><div class="modal-title" id="modal-title">เพิ่มนักเรียน</div><button class="modal-x" onclick="closeModal()">×</button></div>
     <div class="modal-body" id="modal-body"></div>
     <div class="modal-ft">
       <button class="btn btn-outline" onclick="closeModal()">ยกเลิก</button>
@@ -651,12 +503,22 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
   </div>
 </div>
 
+<!-- NETSAT DETAIL -->
+<div class="modal-ov" id="nsd-ov">
+  <div class="modal">
+    <div class="modal-hd"><div class="modal-title">🔁 คะแนน NETSAT รายวิชา</div><button class="modal-x" onclick="closeNsDetail()">×</button></div>
+    <div class="modal-body" id="nsd-body"></div>
+    <div class="modal-ft">
+      <button class="btn btn-outline" onclick="closeNsDetail()">ปิด</button>
+      <button class="btn btn-navy" onclick="editFromNsDetail()">✏️ แก้ไขคะแนน</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
-// ════════════════════════════════════════════════════════════
-//  SUBJECTS
-// ════════════════════════════════════════════════════════════
+// ════════════════ SUBJECTS ════════════════
 const TGAT=[
   {id:'tgat1',name:'การสื่อสารภาษาอังกฤษ',code:'TGAT1',max:100},
   {id:'tgat2',name:'การคิดอย่างมีเหตุผล',code:'TGAT2',max:100},
@@ -704,36 +566,26 @@ const NETSAT_S=[
   {id:'ns_eng',name:'ภาษาอังกฤษ'},
   {id:'ns_for',name:'ภาษาต่างประเทศ (อื่น)'},
 ];
-const NS_ROUNDS=4; const NS_MAX=1000; const AL_MAX=1700; const TPAT_MAX=900; const TGAT_MAX=300; const GRAND_MAX=2900;
+const ALL_MAIN=[...TGAT,...TPAT,...ALEVEL];
+const NS_ROUNDS=4, NS_MAX=1000, AL_MAX=1700, TPAT_MAX=900, TGAT_MAX=300, GRAND_MAX=2900;
 
-// ════════════════════════════════════════════════════════════
-//  STATE
-// ════════════════════════════════════════════════════════════
-const S={
-  students:[],
-  current:null,    // {id,name,scores,nscores}
-  adminAuthed:false,
-  nRound:0,
-  aTab:'dash',
-  sTab:'overview',
-  sort:{key:'total',dir:-1},
-  search:'',
-  editId:null,
-};
+// ════════════════ STATE ════════════════
+const S={students:[],current:null,adminAuthed:false,token:null,nRound:0,aTab:'dash',sTab:'overview',
+  sort:{key:'total',dir:-1},search:'',editId:null,nsdId:null,dirty:false};
 
-// ════════════════════════════════════════════════════════════
-//  GAS API + LOCAL FALLBACK
-// ════════════════════════════════════════════════════════════
-const IS_GAS = (()=>{ try{ return !!google.script.run; }catch(_){ return false; }})();
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const normName=s=>String(s||'').replace(/\s+/g,' ').trim();
+const clone=o=>JSON.parse(JSON.stringify(o));
 
-// Local fallback storage
-const LS_KEY='tcas_gas_data_v1';
-function _localData(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)||'{"students":[]}'); }catch(_){ return {students:[]}; }}
-function _saveLocal(d){ localStorage.setItem(LS_KEY,JSON.stringify(d)); }
+// ════════════════ GAS API + LOCAL FALLBACK ════════════════
+const IS_GAS=(()=>{try{return !!google.script.run;}catch(_){return false;}})();
+const LS_KEY='tcas_gas_data_v1', LOCAL_PW='tcas2025';
+function _localData(){try{return JSON.parse(localStorage.getItem(LS_KEY)||'{"students":[]}');}catch(_){return {students:[]};}}
+function _saveLocal(d){try{localStorage.setItem(LS_KEY,JSON.stringify(d));}catch(_){}}
 
-function gasCall(fn, arg, onOk, onErr){
-  const fail = onErr || (e=>{ hide(); toast('❌ '+( e.message||e),'err'); });
-  if(!IS_GAS){ _localFallback(fn,arg,onOk); return; }
+function gasCall(fn,arg,onOk,onErr){
+  const fail=onErr||(e=>{hide();toast('❌ '+(e&&e.message||e),'err');});
+  if(!IS_GAS){_localFallback(fn,arg,onOk);return;}
   const r=google.script.run.withSuccessHandler(onOk).withFailureHandler(fail);
   if(arg!==undefined) r[fn](arg); else r[fn]();
 }
@@ -741,28 +593,25 @@ function gasCall(fn, arg, onOk, onErr){
 function _localFallback(fn,arg,cb){
   setTimeout(()=>{
     const d=_localData();
-    if(fn==='getAllStudents'){ cb({ok:true,data:d.students}); }
+    if(fn==='getAllStudents') cb({ok:true,data:d.students});
     else if(fn==='saveStudent'){
-      if(arg.id){
-        const i=d.students.findIndex(s=>s.id===arg.id);
-        if(i>=0) d.students[i]={...arg};
-        else{ arg.id=String(Date.now()); d.students.push(arg); }
-      } else { arg.id=String(Date.now()); d.students.push(arg); }
-      _saveLocal(d); cb({ok:true,id:arg.id});
+      const nm=normName(arg.name); arg={...arg,name:nm};
+      const i=arg.id?d.students.findIndex(s=>s.id===arg.id):-1;
+      if(i>=0){d.students[i]={...arg};_saveLocal(d);cb({ok:true,id:arg.id});return;}
+      if(d.students.some(s=>normName(s.name)===nm)){cb({ok:false,error:'มีชื่อนี้ในระบบแล้ว'});return;}
+      arg.id=String(Date.now()); d.students.push(arg); _saveLocal(d); cb({ok:true,id:arg.id});
     }
-    else if(fn==='deleteStudent'){
-      d.students=d.students.filter(s=>s.id!==arg); _saveLocal(d); cb({ok:true});
-    }
-    else if(fn==='verifyAdmin'){ cb({ok:arg==='tcas2025'}); }
-    else if(fn==='getSheetUrl'){ cb({ok:true,url:null}); }
+    else if(fn==='deleteStudent'){d.students=d.students.filter(s=>s.id!==arg.id);_saveLocal(d);cb({ok:true});}
+    else if(fn==='deleteAllStudents'){d.students=[];_saveLocal(d);cb({ok:true});}
+    else if(fn==='verifyAdmin') cb(arg===LOCAL_PW?{ok:true,token:'local'}:{ok:false});
+    else if(fn==='getSheetUrl') cb({ok:true,url:null});
     else cb({ok:false,error:'unknown'});
-  },IS_GAS?0:300);
+  },IS_GAS?0:250);
 }
 
-// ════════════════════════════════════════════════════════════
-//  CALCULATIONS
-// ════════════════════════════════════════════════════════════
+// ════════════════ CALCULATIONS ════════════════
 const sc=(s,id)=>parseFloat((s.scores||{})[id])||0;
+const hasSc=(s,id)=>(s.scores||{})[id]!==undefined;
 const nsc=(s,r,id)=>parseFloat(((s.nscores||{})[r]||{})[id])||0;
 function calcTGAT(s){return TGAT.reduce((a,{id})=>a+sc(s,id),0);}
 function calcTPAT(s){return TPAT.reduce((a,{id})=>a+sc(s,id),0);}
@@ -772,136 +621,154 @@ function calcNsBests(s){
   const b={};
   NETSAT_S.forEach(({id})=>{
     let best=-1,round=-1;
-    for(let r=0;r<NS_ROUNDS;r++){ const v=nsc(s,r,id); if(v>best){best=v;round=r;}}
-    b[id]=best>0?best:0; b[id+'_r']=round;
+    for(let r=0;r<NS_ROUNDS;r++){const v=nsc(s,r,id);if(v>best){best=v;round=r;}}
+    b[id]=best>0?best:0; b[id+'_r']=best>0?round:-1;
   });
   return b;
 }
-function calcNsTotal(s){ const b=calcNsBests(s); return NETSAT_S.reduce((a,{id})=>a+b[id],0); }
-function calcTotal(s){ return calcTGAT(s)+calcTPAT(s)+calcAL(s); }
-function fmt(v){ v=parseFloat(v)||0; return v===Math.floor(v)?String(Math.round(v)):v.toFixed(1); }
-function pct(v,m){ return Math.min(100,v/m*100).toFixed(1); }
+function calcNsTotal(s){const b=calcNsBests(s);return NETSAT_S.reduce((a,{id})=>a+b[id],0);}
+function calcTotal(s){return calcTGAT(s)+calcTPAT(s)+calcAL(s);}
+// % เทียบกับ "วิชาที่สอบจริง" (ไม่ใช่เทียบ 2900 ซึ่งไม่มีใครสอบครบทุกวิชา)
+function maxTaken(s,list){return (list||ALL_MAIN).reduce((a,x)=>a+(hasSc(s,x.id)?x.max:0),0);}
+function pctTaken(s){const m=maxTaken(s);return m?calcTotal(s)/m*100:0;}
+function catPct(s,list){const m=maxTaken(s,list);return m?list.reduce((a,x)=>a+sc(s,x.id),0)/m*100:null;}
+function nsTaken(s){const b=calcNsBests(s);return NETSAT_S.filter(({id})=>b[id]>0).length;}
+function nsAvgSubj(s){const n=nsTaken(s);return n?calcNsTotal(s)/n:0;}
+function fmt(v){v=parseFloat(v)||0;return v===Math.floor(v)?String(Math.round(v)):v.toFixed(1);}
+function pct(v,m){return Math.max(0,Math.min(100,v/m*100)).toFixed(1);}
+const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:0;
 
-// ════════════════════════════════════════════════════════════
-//  LOADING / TOAST
-// ════════════════════════════════════════════════════════════
-function show(msg){
-  document.getElementById('load-msg').textContent=msg||'กำลังโหลด...';
-  document.getElementById('loading').classList.add('on');
+function validateScores(scores,nscores){
+  const bad=[];
+  ALL_MAIN.forEach(x=>{const v=scores[x.id];if(v!==undefined&&(isNaN(v)||v<0||v>x.max))bad.push(x.code);});
+  for(let r=0;r<NS_ROUNDS;r++){
+    NETSAT_S.forEach(({id,name})=>{const v=(nscores[r]||{})[id];
+      if(v!==undefined&&(isNaN(v)||v<0||v>100))bad.push('NETSAT ครั้งที่ '+(r+1)+' '+name);});
+  }
+  return bad;
 }
-function hide(){ document.getElementById('loading').classList.remove('on'); }
+
+// ════════════════ UI HELPERS ════════════════
+function show(msg){document.getElementById('load-msg').textContent=msg||'กำลังโหลด...';document.getElementById('loading').classList.add('on');}
+function hide(){document.getElementById('loading').classList.remove('on');}
 let _tTimer;
 function toast(msg,type){
   const el=document.getElementById('toast');
-  el.textContent=msg; el.className='on'+(type==='err'?' err':'');
-  clearTimeout(_tTimer); _tTimer=setTimeout(()=>el.className='',2400);
+  el.textContent=msg;el.className='on'+(type==='err'?' err':'');
+  clearTimeout(_tTimer);_tTimer=setTimeout(()=>el.className='',type==='err'?4200:2400);
 }
+function toggleSidebar(){
+  const sb=document.querySelector('.app-shell.show .sidebar'); if(!sb)return;
+  const open=sb.classList.toggle('open');
+  document.getElementById('sb-ov').classList.toggle('on',open);
+}
+function closeSidebar(){
+  document.querySelectorAll('.sidebar').forEach(s=>s.classList.remove('open'));
+  document.getElementById('sb-ov').classList.remove('on');
+}
+function markDirty(on){
+  S.dirty=on;
+  const b=document.getElementById('s-save-btn'); if(b)b.classList.toggle('dirty',on);
+}
+window.addEventListener('beforeunload',e=>{if(S.dirty){e.preventDefault();e.returnValue='';}});
 
-// ════════════════════════════════════════════════════════════
-//  LANDING / AUTH
-// ════════════════════════════════════════════════════════════
+// ════════════════ LANDING / AUTH ════════════════
 function showStudentLogin(){
   show('กำลังโหลดรายชื่อ...');
   gasCall('getAllStudents',undefined,res=>{
     hide();
-    if(!res.ok){ toast('❌ '+res.error,'err'); return; }
+    if(!res.ok){toast('❌ '+res.error,'err');return;}
     S.students=res.data;
     const sel=document.getElementById('s-select');
     sel.innerHTML='<option value="">— เลือกชื่อ —</option>';
-    res.data.forEach(st=>{
-      const o=document.createElement('option');
-      o.value=st.id; o.textContent=st.name; sel.appendChild(o);
+    [...res.data].sort((a,b)=>a.name.localeCompare(b.name,'th')).forEach(st=>{
+      const o=document.createElement('option');o.value=st.id;o.textContent=st.name+(st.grade?' ('+st.grade+')':'');sel.appendChild(o);
     });
-    const newO=document.createElement('option');
-    newO.value='__new__'; newO.textContent='+ สร้างโปรไฟล์ใหม่'; sel.appendChild(newO);
+    const newO=document.createElement('option');newO.value='__new__';newO.textContent='+ สร้างโปรไฟล์ใหม่';sel.appendChild(newO);
     document.getElementById('land-main').style.display='none';
     document.getElementById('login-student').style.display='block';
   });
 }
-
 function onStudentSelect(){
   const v=document.getElementById('s-select').value;
   document.getElementById('s-newname').style.display=v==='__new__'?'block':'none';
   document.getElementById('s-newgrade').style.display=v==='__new__'?'block':'none';
 }
-
 function enterStudentMode(){
   const v=document.getElementById('s-select').value;
-  if(!v){ toast('⚠️ กรุณาเลือกชื่อหรือสร้างโปรไฟล์ใหม่'); return; }
+  if(!v){toast('⚠️ กรุณาเลือกชื่อหรือสร้างโปรไฟล์ใหม่');return;}
   if(v==='__new__'){
-    const name=document.getElementById('s-newname').value.trim();
-    if(!name){ toast('⚠️ กรุณากรอกชื่อ-นามสกุล'); return; }
+    const name=normName(document.getElementById('s-newname').value);
+    if(!name){toast('⚠️ กรุณากรอกชื่อ-นามสกุล');return;}
+    const dup=S.students.find(s=>normName(s.name)===name);
+    if(dup){toast('⚠️ มีชื่อนี้ในระบบแล้ว — เลือกชื่อจากรายการแทน');return;}
     const grade=document.getElementById('s-newgrade').value;
+    if(!grade){toast('⚠️ กรุณาเลือกระดับชั้น');return;}
     S.current={id:null,name,grade,scores:{},nscores:{}};
   } else {
-    S.current=S.students.find(s=>s.id===v)||null;
-    if(!S.current){ toast('❌ ไม่พบข้อมูล','err'); return; }
-    // deep clone
-    S.current={...S.current,scores:{...S.current.scores},nscores:{...S.current.nscores}};
+    const f=S.students.find(s=>s.id===v);
+    if(!f){toast('❌ ไม่พบข้อมูล','err');return;}
+    S.current=clone(f);
+    if(!S.current.scores)S.current.scores={};
+    if(!S.current.nscores)S.current.nscores={};
   }
   launchStudent();
 }
-
 function showAdminLogin(){
   document.getElementById('land-main').style.display='none';
   document.getElementById('login-admin').style.display='block';
   setTimeout(()=>document.getElementById('a-pw').focus(),50);
 }
-
 function enterAdminMode(){
   const pw=document.getElementById('a-pw').value;
   show('กำลังตรวจสอบ...');
   gasCall('verifyAdmin',pw,res=>{
     hide();
-    if(!res.ok){ toast('❌ รหัสผ่านไม่ถูกต้อง','err'); return; }
-    S.adminAuthed=true;
+    if(!res.ok){toast('❌ รหัสผ่านไม่ถูกต้อง','err');return;}
+    S.adminAuthed=true;S.token=res.token;
     loadAdminStudents(()=>launchAdmin());
   });
 }
-
 function backToLanding(){
   document.getElementById('land-main').style.display='grid';
   document.getElementById('login-student').style.display='none';
   document.getElementById('login-admin').style.display='none';
   document.getElementById('a-pw').value='';
 }
-
 function exitToLanding(){
+  if(S.dirty&&!confirm('มีคะแนนที่ยังไม่ได้บันทึก ต้องการออกโดยไม่บันทึกหรือไม่?'))return;
+  closeSidebar();markDirty(false);
   document.getElementById('view-student').classList.remove('show');
   document.getElementById('view-admin').classList.remove('show');
   document.getElementById('view-landing').style.display='flex';
   backToLanding();
-  S.current=null; S.adminAuthed=false;
+  S.current=null;S.adminAuthed=false;S.token=null;
 }
 
-// ════════════════════════════════════════════════════════════
-//  STUDENT LAUNCH
-// ════════════════════════════════════════════════════════════
+// ════════════════ STUDENT ════════════════
 function launchStudent(){
   document.getElementById('view-landing').style.display='none';
   document.getElementById('view-student').classList.add('show');
   document.getElementById('sb-student-name').textContent=S.current.name;
   document.getElementById('sb-student-grade').textContent=S.current.grade||'นักเรียน';
-  S.sTab='overview'; S.nRound=0;
+  S.sTab='overview';S.nRound=0;markDirty(false);
   renderAllStudentPanels();
   setSTabById('overview');
 }
-
 function setSTab(btn){
   document.querySelectorAll('#student-sidebar .sb-btn').forEach(b=>b.classList.remove('s-active'));
   btn.classList.add('s-active');
-  const t=btn.dataset.stab;
-  S.sTab=t;
+  const t=btn.dataset.stab;S.sTab=t;
   document.querySelectorAll('[id^=sp-]').forEach(p=>p.classList.remove('on'));
   document.getElementById('sp-'+t).classList.add('on');
   const titles={overview:'ภาพรวมคะแนน',tgat:'TGAT',tpat:'TPAT',alevel:'A-Level',netsat:'NETSAT (4 ครั้ง)'};
   document.getElementById('s-page-title').textContent=titles[t]||t;
-  if(t==='netsat') renderNetsatPanel();
+  if(t==='overview')renderStudentOverview();
+  if(t==='netsat')renderNetsatPanel();
+  closeSidebar();
+  window.scrollTo(0,0);
 }
-function setSTabById(t){
-  const b=document.querySelector(`#student-sidebar .sb-btn[data-stab="${t}"]`);
-  if(b) setSTab(b);
-}
+function setSTabById(t){const b=document.querySelector(`#student-sidebar .sb-btn[data-stab="${t}"]`);if(b)setSTab(b);}
 
 function renderAllStudentPanels(){
   renderStudentOverview();
@@ -913,21 +780,22 @@ function renderAllStudentPanels(){
 }
 
 function renderStudentOverview(){
-  const s=S.current; if(!s) return;
+  const s=S.current;if(!s)return;
   const tg=calcTGAT(s),tp=calcTPAT(s),al=calcAL(s),ns=calcNsTotal(s),tot=tg+tp+al;
+  const mainN=ALL_MAIN.filter(x=>hasSc(s,x.id)).length, pt=maxTaken(s)?pctTaken(s):0;
   document.getElementById('sp-overview').innerHTML=`
     <div class="hero">
       <div class="hero-label">บัตรคะแนน TCAS</div>
-      <div class="hero-name">${s.name}</div>
+      <div class="hero-name">${esc(s.name)}</div>
       <div class="hero-stats">
         <div class="hs-gold"><div class="hs-label">TGAT+TPAT+A-Level</div>
-          <div class="hs-val">${fmt(tot)}</div><div class="hs-sub">/ ${GRAND_MAX} คะแนน</div></div>
+          <div class="hs-val">${fmt(tot)}</div><div class="hs-sub">จากวิชาที่กรอก ${mainN} วิชา</div></div>
         <div><div class="hs-label">NETSAT Best</div>
-          <div class="hs-val">${fmt(ns)}</div><div class="hs-sub">/ ${NS_MAX} คะแนน</div></div>
-        <div><div class="hs-label">เปอร์เซ็นต์</div>
-          <div class="hs-val">${pct(tot,GRAND_MAX)}%</div><div class="hs-sub">TGAT+TPAT+AL</div></div>
-        <div><div class="hs-label">วิชาที่กรอก</div>
-          <div class="hs-val">${countFilled(s)}</div><div class="hs-sub">วิชา</div></div>
+          <div class="hs-val">${fmt(ns)}</div><div class="hs-sub">${nsTaken(s)} วิชา · เฉลี่ย ${fmt(nsAvgSubj(s))}/วิชา</div></div>
+        <div><div class="hs-label">เฉลี่ยต่อวิชาที่สอบ</div>
+          <div class="hs-val">${pt.toFixed(1)}%</div><div class="hs-sub">TGAT+TPAT+A-Level</div></div>
+        <div><div class="hs-label">วิชาที่กรอกทั้งหมด</div>
+          <div class="hs-val">${mainN+nsTaken(s)}</div><div class="hs-sub">วิชา</div></div>
       </div>
     </div>
     <div class="sum-grid">
@@ -939,12 +807,12 @@ function renderStudentOverview(){
     </div>
     <div class="chart-grid">
       <div class="chart-card">
-        <div class="chart-title">📈 คะแนนหมวดหลัก</div>
-        ${[['TGAT',tg,TGAT_MAX,'#6366f1'],['TPAT',tp,TPAT_MAX,'#ec4899'],['A-Level',al,AL_MAX,'#14b8a6'],['NETSAT',ns,NS_MAX,'#f97316']]
-          .map(([l,v,m,c])=>`<div class="hbar-row">
-            <div class="hbar-label">${l}</div>
-            <div class="hbar-track"><div class="hbar-fill" style="width:${pct(v,m)}%;background:${c}"></div></div>
-            <div class="hbar-val">${fmt(v)}</div></div>`).join('')}
+        <div class="chart-title">📈 % ของคะแนนเต็มวิชาที่สอบ (แยกหมวด)</div>
+        ${[['TGAT',catPct(s,TGAT),'#6366f1'],['TPAT',catPct(s,TPAT),'#ec4899'],['A-Level',catPct(s,ALEVEL),'#14b8a6'],
+           ['NETSAT',nsTaken(s)?nsAvgSubj(s):null,'#f97316']]
+          .map(([l,v,c])=>`<div class="hbar-row"><div class="hbar-label">${l}</div>
+            <div class="hbar-track"><div class="hbar-fill" style="width:${v==null?0:pct(v,100)}%;background:${c}"></div></div>
+            <div class="hbar-val">${v==null?'—':fmt(v)+'%'}</div></div>`).join('')}
       </div>
       <div class="chart-card">
         <div class="chart-title">🔁 NETSAT Best ต่อวิชา</div>
@@ -952,42 +820,27 @@ function renderStudentOverview(){
       </div>
     </div>`;
 }
-
 function sumCard(cls,icon,label,val,max,raw){
-  return `<div class="sum-card ${cls}">
-    <div class="sc-icon">${icon}</div>
-    <div class="sc-label">${label}</div>
+  return `<div class="sum-card ${cls}"><div class="sc-icon">${icon}</div><div class="sc-label">${label}</div>
     <div class="sc-val">${val}</div><div class="sc-max">/ ${max.toLocaleString()} คะแนน</div>
-    <div class="sc-bar"><div class="sc-fill" style="width:${Math.min(100,raw/max*100)}%"></div></div>
-  </div>`;
+    <div class="sc-bar"><div class="sc-fill" style="width:${pct(raw,max)}%"></div></div></div>`;
 }
-
 function netsatBestBars(s){
   const b=calcNsBests(s);
-  return NETSAT_S.map(({id,name})=>`<div class="hbar-row">
-    <div class="hbar-label">${name}</div>
+  return NETSAT_S.map(({id,name})=>`<div class="hbar-row"><div class="hbar-label">${name}</div>
     <div class="hbar-track"><div class="hbar-fill fill-ns" style="width:${b[id]}%"></div></div>
     <div class="hbar-val">${b[id]>0?fmt(b[id]):'—'}</div></div>`).join('');
 }
 
-function countFilled(s){
-  let n=0;
-  [...TGAT,...TPAT,...ALEVEL].forEach(({id})=>{ if((s.scores||{})[id]!==undefined) n++; });
-  NETSAT_S.forEach(({id})=>{ for(let r=0;r<NS_ROUNDS;r++) if(((s.nscores||{})[r]||{})[id]!==undefined){n++;break;} });
-  return n;
-}
-
 function renderScorePanel(panelId,subjects,fillClass,badge,badgeCls,lblId,maxTotal){
-  const s=S.current; if(!s) return;
+  const s=S.current;if(!s)return;
   const total=subjects.reduce((a,{id})=>a+sc(s,id),0);
-  const el=document.getElementById(panelId);
-  const tip={tgat:'TGAT สอบในรูปแบบ CBT · แต่ละพาร์ท 100 คะแนน · รวม 300 คะแนน',
-    tpat:'TPAT 5 กลุ่ม · แต่ละกลุ่ม 100 คะแนน · สอบเฉพาะกลุ่มที่คณะ/สาขาต้องการ',
-    al:'A-Level สอบแยกวิชา · 100 คะแนนต่อวิชา · เลือกสอบตามที่คณะกำหนด',
-    ns:''};
-  const tipKey=panelId.replace('sp-','');
-  el.innerHTML=`
-    <div class="tip tip-gold">💡 <span>${tip[tipKey]||''}</span></div>
+  const tips={tgat:'TGAT สอบในรูปแบบ CBT · แต่ละพาร์ท 100 คะแนน · รวม 300 คะแนน',
+    tpat:'TPAT 5 กลุ่ม · แต่ละกลุ่ม 100 คะแนน · กรอกเฉพาะกลุ่มที่สอบ (ช่องที่ไม่ได้สอบปล่อยว่าง)',
+    alevel:'A-Level สอบแยกวิชา · 100 คะแนนต่อวิชา · กรอกเฉพาะวิชาที่สอบ (ช่องที่ไม่ได้สอบปล่อยว่าง)'};
+  const key=panelId.replace('sp-','');
+  document.getElementById(panelId).innerHTML=`
+    <div class="tip tip-gold">💡 <span>${tips[key]||''} · กรอกเสร็จอย่าลืมกด <strong>💾 บันทึก</strong></span></div>
     <div class="sec-head">
       <div class="sec-badge ${badgeCls}">${badge}</div>
       <div class="sec-total">รวม: <strong id="${lblId}">${fmt(total)}</strong> / ${maxTotal.toLocaleString()}</div>
@@ -997,262 +850,219 @@ function renderScorePanel(panelId,subjects,fillClass,badge,badgeCls,lblId,maxTot
       ${subjects.map(sub=>scoreRow(sub,s,fillClass)).join('')}
     </div>`;
 }
-
 function scoreRow({id,name,code,max},s,fillClass){
-  const v=sc(s,id);
-  const hasV=(s.scores||{})[id]!==undefined;
-  const cls=hasV?(v>max?'err':'ok'):'';
+  const v=sc(s,id),has=hasSc(s,id),cls=has?(v>max?'err':'ok'):'';
   return `<div class="s-row">
     <div><div class="s-name">${name}</div><div class="s-code">${code} · เต็ม ${max}</div></div>
     <div class="inp-wrap">
-      <input class="s-inp ${cls}" type="number" min="0" max="${max}" step="0.01"
-        placeholder="—" data-id="${id}" data-max="${max}"
-        value="${hasV?v:''}" oninput="onScoreChange(this)">
+      <input class="s-inp ${cls}" type="number" inputmode="decimal" min="0" max="${max}" step="0.01" placeholder="—"
+        data-id="${id}" data-max="${max}" value="${has?v:''}" oninput="onScoreChange(this)">
       <span class="inp-max">/${max}</span>
     </div>
-    <div><div class="mini-bar"><div class="mini-fill ${fillClass}" id="mb-${id}"
-      style="width:${hasV?Math.min(100,v/max*100):0}%"></div></div></div>
+    <div><div class="mini-bar"><div class="mini-fill ${fillClass}" id="mb-${id}" style="width:${has?pct(v,max):0}%"></div></div></div>
   </div>`;
 }
-
 function onScoreChange(inp){
-  const id=inp.dataset.id, max=parseFloat(inp.dataset.max);
+  const id=inp.dataset.id,max=parseFloat(inp.dataset.max);
   const v=inp.value===''?undefined:parseFloat(inp.value);
   inp.classList.remove('ok','err');
-  if(!S.current.scores) S.current.scores={};
-  if(v===undefined){ delete S.current.scores[id]; }
-  else { S.current.scores[id]=v; inp.classList.add(v>max?'err':'ok'); }
+  if(!S.current.scores)S.current.scores={};
+  if(v===undefined||isNaN(v)){delete S.current.scores[id];}
+  else{S.current.scores[id]=v;inp.classList.add(v>max||v<0?'err':'ok');}
   const mb=document.getElementById('mb-'+id);
-  if(mb) mb.style.width=(v!==undefined?Math.min(100,v/max*100):0)+'%';
-  updateNavBadges();
+  if(mb)mb.style.width=(v!==undefined&&!isNaN(v)?pct(v,max):0)+'%';
+  // อัปเดตยอดรวมของหมวดทันที
+  const s=S.current;
+  [['tgat-lbl',calcTGAT],['tpat-lbl',calcTPAT],['al-lbl',calcAL]].forEach(([i,f])=>{const e=document.getElementById(i);if(e)e.textContent=fmt(f(s));});
+  markDirty(true);updateNavBadges();
 }
-
 function updateNavBadges(){
-  const s=S.current; if(!s) return;
+  const s=S.current;if(!s)return;
   document.getElementById('snav-tgat').textContent=fmt(calcTGAT(s))+'/300';
   document.getElementById('snav-tpat').textContent=fmt(calcTPAT(s))+'/900';
   document.getElementById('snav-al').textContent=fmt(calcAL(s))+'/1700';
   document.getElementById('snav-ns').textContent='Best:'+fmt(calcNsTotal(s));
 }
 
+// ── NETSAT (student) ──
+function nsBestCell(b,id){
+  return b[id]>0?`<span class="nsb-v ok">${fmt(b[id])}</span><span class="nsb-tag">Best</span>`:`<span class="nsb-v">—</span>`;
+}
+function nsBestList(s){
+  const b=calcNsBests(s);
+  return NETSAT_S.map(({id,name})=>{
+    const v=b[id],r=b[id+'_r'];
+    return `<div class="bsr"><div class="bsr-name">${name}</div>
+      <div class="bsr-bar"><div class="bsr-fill" style="width:${v}%"></div></div>
+      <div class="bsr-val">${v>0?fmt(v):'—'}</div>
+      <span class="bsr-tag ${r>=0?'tag-r'+r:'tag-none'}">${r>=0?'ครั้ง'+(r+1):'ยังไม่มี'}</span></div>`;
+  }).join('');
+}
 function renderNetsatPanel(){
-  const s=S.current; if(!s) return;
-  const bests=calcNsBests(s);
-  const bestTotal=NETSAT_S.reduce((a,{id})=>a+bests[id],0);
-  const el=document.getElementById('sp-netsat');
-  el.innerHTML=`
-    <div class="tip tip-orange">🔁 <span>NETSAT สอบได้ <strong>สูงสุด 4 ครั้ง</strong> ต่อปี — ระบบเลือก <strong>คะแนนสูงสุดต่อวิชา</strong> อัตโนมัติ · ครั้งที่ยังไม่สอบปล่อยว่างได้</span></div>
+  const s=S.current;if(!s)return;
+  const bests=calcNsBests(s),bestTotal=calcNsTotal(s);
+  document.getElementById('sp-netsat').innerHTML=`
+    <div class="tip tip-orange">🔁 <span>NETSAT สอบได้ <strong>สูงสุด 4 ครั้ง</strong> — ระบบเลือก <strong>คะแนนสูงสุดต่อวิชา</strong> ให้อัตโนมัติ · ครั้งที่/วิชาที่ยังไม่สอบปล่อยว่างได้ · อย่าลืมกด <strong>💾 บันทึก</strong></span></div>
     <div class="sec-head">
       <div class="sec-badge badge-ns">🔁 NETSAT</div>
-      <div class="sec-total">Best รวม: <strong>${fmt(bestTotal)}</strong> / ${NS_MAX}</div>
+      <div class="sec-total">Best รวม: <strong id="ns-sec-total">${fmt(bestTotal)}</strong> / ${NS_MAX}</div>
     </div>
-    <div class="round-tabs" id="round-tabs">
+    <div class="round-tabs">
       ${[0,1,2,3].map(r=>{
-        const rt=calcNsRound(s,r), hasD=NETSAT_S.some(({id})=>nsc(s,r,id)>0);
+        const rt=calcNsRound(s,r),hasD=NETSAT_S.some(({id})=>nsc(s,r,id)>0);
         return `<button class="rtab${r===S.nRound?' active':''}${hasD?' has-data':''}" onclick="setNRound(${r})">
-          <span class="rtab-dot"></span>ครั้งที่${r+1}
-          <span class="rtab-sc">${fmt(rt)}</span>
-        </button>`;
+          <span class="rtab-dot"></span>ครั้งที่${r+1}<span class="rtab-sc">${fmt(rt)}</span></button>`;
       }).join('')}
     </div>
-    <div class="score-table" id="ns-round-table">
-      <div class="s-row s-head">
-        <div>วิชา</div><div>คะแนนครั้งที่${S.nRound+1}</div><div>Best ของฉัน</div>
-      </div>
+    <div class="score-table">
+      <div class="s-row s-head"><div>วิชา</div><div>ครั้งที่${S.nRound+1}</div><div>Best</div></div>
       ${NETSAT_S.map(({id,name})=>{
-        const v=nsc(s,S.nRound,id), hasV=((s.nscores||{})[S.nRound]||{})[id]!==undefined;
-        const isBest=hasV&&v===bests[id]&&v>0;
+        const v=nsc(s,S.nRound,id),has=((s.nscores||{})[S.nRound]||{})[id]!==undefined;
+        const isBest=has&&v===bests[id]&&v>0;
         return `<div class="s-row">
           <div><div class="s-name">${name}</div><div class="s-code">เต็ม 100</div></div>
           <div class="inp-wrap">
-            <input class="s-inp ${isBest?'best-val':hasV?'ok':''}" type="number"
-              min="0" max="100" step="0.01" placeholder="—"
-              data-nsid="${id}" data-round="${S.nRound}"
-              value="${hasV?v:''}" oninput="onNsChange(this)">
-            <span class="inp-max">/100</span>
+            <input class="s-inp ${isBest?'best-val':has?(v>100?'err':'ok'):''}" type="number" inputmode="decimal"
+              min="0" max="100" step="0.01" placeholder="—" data-nsid="${id}" data-round="${S.nRound}"
+              value="${has?v:''}" oninput="onNsChange(this)"><span class="inp-max">/100</span>
           </div>
-          <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-family:'Chakra Petch',sans-serif;font-size:15px;font-weight:700;
-              color:${bests[id]>0?'#16a34a':'#94a3b8'}" id="nsb-${id}">${bests[id]>0?fmt(bests[id]):'—'}</span>
-            ${bests[id]>0?`<span style="font-size:10px;padding:2px 6px;background:#dcfce7;color:#15803d;border-radius:4px;font-weight:600">Best</span>`:''}
-          </div>
-        </div>`;
-      }).join('')}
+          <div class="nsb-wrap" id="nsb-${id}">${nsBestCell(bests,id)}</div>
+        </div>`;}).join('')}
     </div>
     <div class="score-table" style="margin-top:16px">
       <div class="best-head">
         <div class="best-title">🏆 คะแนนสูงสุดต่อวิชา (ใช้ยื่นสมัคร)</div>
-        <div class="best-grand">${fmt(bestTotal)} คะแนน</div>
+        <div class="best-grand" id="ns-best-grand">${fmt(bestTotal)} คะแนน</div>
       </div>
-      ${NETSAT_S.map(({id,name})=>{
-        const v=bests[id], r=bests[id+'_r'];
-        const tCls=r>=0?`tag-r${r}`:'tag-none';
-        const tLbl=r>=0?`ครั้ง${r+1}`:'ยังไม่มี';
-        return `<div class="bsr">
-          <div class="bsr-name">${name}</div>
-          <div class="bsr-bar"><div class="bsr-fill" style="width:${v}%"></div></div>
-          <div class="bsr-val">${v>0?fmt(v):'—'}</div>
-          <span class="bsr-tag ${tCls}">${tLbl}</span>
-        </div>`;
-      }).join('')}
+      <div id="ns-best-list">${nsBestList(s)}</div>
     </div>
     <div class="chart-card" style="margin-top:16px">
       <div class="chart-title">📈 พัฒนาการคะแนนรวมต่อครั้ง</div>
-      ${renderNsTrend(s)}
+      <div id="ns-trend">${renderNsTrend(s)}</div>
     </div>`;
 }
-
 function renderNsTrend(s){
   const totals=[0,1,2,3].map(r=>calcNsRound(s,r));
-  const mx=Math.max(...totals,1);
-  const bestIdx=totals.indexOf(Math.max(...totals));
-  if(totals.every(v=>v===0)) return '<div style="padding:16px;text-align:center;color:var(--muted);font-size:13px">ยังไม่มีข้อมูล</div>';
+  const mx=Math.max(...totals,1),bestIdx=totals.indexOf(Math.max(...totals));
+  if(totals.every(v=>v===0))return '<div class="empty">ยังไม่มีข้อมูล</div>';
   return `<div class="trend-bars">${totals.map((v,i)=>`
     <div class="t-col${i===bestIdx&&v>0?' best':''}">
       <div class="t-val">${v>0?fmt(v):'—'}</div>
       <div class="t-bwrap"><div class="t-bar" style="height:${v>0?Math.max(6,v/mx*80):4}px"></div></div>
-      <div class="t-lbl">ครั้งที่${i+1}${i===bestIdx&&v>0?' ⭐':''}</div>
-    </div>`).join('')}</div>`;
+      <div class="t-lbl">ครั้งที่${i+1}${i===bestIdx&&v>0?' ⭐':''}</div></div>`).join('')}</div>`;
 }
-
 function onNsChange(inp){
-  const id=inp.dataset.nsid, r=parseInt(inp.dataset.round);
+  const id=inp.dataset.nsid,r=parseInt(inp.dataset.round);
   const v=inp.value===''?undefined:parseFloat(inp.value);
-  if(!S.current.nscores) S.current.nscores={};
-  if(!S.current.nscores[r]) S.current.nscores[r]={};
-  inp.classList.remove('ok','err','best-val');
-  if(v===undefined){ delete S.current.nscores[r][id]; }
-  else { S.current.nscores[r][id]=v; inp.classList.add(v>100?'err':'ok'); }
-  // refresh best display
-  const bests=calcNsBests(S.current);
-  const nbEl=document.getElementById('nsb-'+id);
-  if(nbEl) nbEl.textContent=bests[id]>0?fmt(bests[id]):'—';
-  // update round tab
-  refreshNsRoundTabs();
-  updateNavBadges();
+  if(!S.current.nscores)S.current.nscores={};
+  if(!S.current.nscores[r])S.current.nscores[r]={};
+  if(v===undefined||isNaN(v))delete S.current.nscores[r][id];
+  else S.current.nscores[r][id]=v;
+  markDirty(true);refreshNsLive();updateNavBadges();
 }
-
-function refreshNsRoundTabs(){
-  const s=S.current;
+// อัปเดตทุกส่วนของหน้า NETSAT ทันทีที่พิมพ์ โดยไม่ render ช่องกรอกใหม่ (เคอร์เซอร์ไม่หลุด)
+function refreshNsLive(){
+  const s=S.current,b=calcNsBests(s),tot=calcNsTotal(s);
+  NETSAT_S.forEach(({id})=>{
+    const cell=document.getElementById('nsb-'+id);if(cell)cell.innerHTML=nsBestCell(b,id);
+    const inp=document.querySelector(`input[data-nsid="${id}"]`);
+    if(inp){
+      inp.classList.remove('ok','err','best-val');
+      if(inp.value!==''){const v=parseFloat(inp.value);
+        inp.classList.add(v>100||v<0?'err':(v===b[id]&&v>0?'best-val':'ok'));}
+    }
+  });
+  const set=(i,h)=>{const e=document.getElementById(i);if(e)e.innerHTML=h;};
+  set('ns-sec-total',fmt(tot));set('ns-best-grand',fmt(tot)+' คะแนน');
+  set('ns-best-list',nsBestList(s));set('ns-trend',renderNsTrend(s));
   document.querySelectorAll('.rtab').forEach((tab,r)=>{
-    const rt=calcNsRound(s,r);
-    const hasD=NETSAT_S.some(({id})=>nsc(s,r,id)>0);
-    tab.classList.toggle('has-data',hasD);
-    const sc=tab.querySelector('.rtab-sc');
-    if(sc) sc.textContent=fmt(rt);
+    tab.classList.toggle('has-data',NETSAT_S.some(({id})=>nsc(s,r,id)>0));
+    const e=tab.querySelector('.rtab-sc');if(e)e.textContent=fmt(calcNsRound(s,r));
   });
 }
+function setNRound(r){S.nRound=r;renderNetsatPanel();}
 
-function setNRound(r){
-  S.nRound=r; renderNetsatPanel();
-}
-
-// ════════════════════════════════════════════════════════════
-//  SAVE STUDENT
-// ════════════════════════════════════════════════════════════
 function saveCurrentStudent(){
-  const s=S.current; if(!s) return;
+  const s=S.current;if(!s)return;
+  const bad=validateScores(s.scores||{},s.nscores||{});
+  if(bad.length){toast('⚠️ คะแนนไม่ถูกต้อง (เกินคะแนนเต็มหรือติดลบ): '+bad.slice(0,4).join(', ')+(bad.length>4?' …':''),'err');return;}
   show('กำลังบันทึก...');
   gasCall('saveStudent',s,res=>{
     hide();
-    if(!res.ok){ toast('❌ บันทึกไม่สำเร็จ: '+res.error,'err'); return; }
-    if(!s.id) s.id=res.id;
-    toast('✅ บันทึกแล้ว');
+    if(!res.ok){toast('❌ บันทึกไม่สำเร็จ: '+res.error,'err');return;}
+    if(!s.id)s.id=res.id;
+    markDirty(false);toast('✅ บันทึกแล้ว');
   });
 }
 
-// ════════════════════════════════════════════════════════════
-//  ADMIN LAUNCH
-// ════════════════════════════════════════════════════════════
+// ════════════════ ADMIN ════════════════
 function loadAdminStudents(cb){
   show('กำลังโหลดข้อมูลนักเรียน...');
   gasCall('getAllStudents',undefined,res=>{
     hide();
-    if(!res.ok){ toast('❌ '+res.error,'err'); return; }
+    if(!res.ok){toast('❌ '+res.error,'err');return;}
     S.students=res.data;
-    if(cb) cb();
+    if(cb)cb();
   });
 }
-
 function launchAdmin(){
   document.getElementById('view-landing').style.display='none';
   document.getElementById('view-admin').classList.add('show');
-  S.aTab='dash';
-  renderAdminAll();
-  setATabById('dash');
+  S.aTab='dash';renderAdminAll();setATabById('dash');
 }
-
 function setATab(btn){
   document.querySelectorAll('#admin-sidebar .sb-btn[data-atab]').forEach(b=>b.classList.remove('a-active'));
   btn.classList.add('a-active');
-  const t=btn.dataset.atab;
-  S.aTab=t;
+  const t=btn.dataset.atab;S.aTab=t;
   document.querySelectorAll('[id^=ap-]').forEach(p=>p.classList.remove('on'));
   document.getElementById('ap-'+t).classList.add('on');
-  const titles={dash:'Dashboard',students:'จัดการนักเรียน',analysis:'วิเคราะห์คะแนน'};
-  document.getElementById('a-page-title').textContent=titles[t]||t;
-  if(t==='analysis') renderAnalysis();
+  document.getElementById('a-page-title').textContent={dash:'Dashboard',students:'จัดการนักเรียน',analysis:'วิเคราะห์คะแนน'}[t]||t;
+  if(t==='analysis')renderAnalysis();
+  closeSidebar();window.scrollTo(0,0);
 }
-function setATabById(t){ const b=document.querySelector(`#admin-sidebar .sb-btn[data-atab="${t}"]`); if(b) setATab(b); }
-
+function setATabById(t){const b=document.querySelector(`#admin-sidebar .sb-btn[data-atab="${t}"]`);if(b)setATab(b);}
 function renderAdminAll(){
   const n=S.students.length;
   document.getElementById('a-student-count').textContent=`นักเรียน ${n} คน`;
   document.getElementById('anav-count').textContent=n;
-  renderDash();
-  renderStudentsTable();
+  renderDash();renderStudentsTable();
+  if(S.aTab==='analysis')renderAnalysis();
 }
 
-// ── DASHBOARD ──
 function renderDash(){
-  const sts=S.students, n=sts.length;
-  const avgTot  = n ? sts.reduce((a,s)=>a+calcTotal(s),0)/n : 0;
-  const avgNs   = n ? sts.reduce((a,s)=>a+calcNsTotal(s),0)/n : 0;
-  const top     = n ? [...sts].sort((a,b)=>calcTotal(b)-calcTotal(a))[0] : null;
-  const topTot  = top ? calcTotal(top) : 0;
-
+  const sts=S.students,n=sts.length;
+  const withMain=sts.filter(s=>maxTaken(s)>0), withNs=sts.filter(s=>nsTaken(s)>0);
+  const avgPct=avg(withMain.map(pctTaken)), avgNsSubj=avg(withNs.map(nsAvgSubj));
+  const top=n?[...sts].sort((a,b)=>calcTotal(b)-calcTotal(a))[0]:null;
+  const topTot=top?calcTotal(top):0;
   document.getElementById('ap-dash').innerHTML=`
     <div class="admin-hero">
-      <div class="ah-left">
-        <div class="ah-label">TCAS Score Manager — Admin</div>
+      <div><div class="ah-label">TCAS Score Manager — Admin</div>
         <div class="ah-title">Dashboard ภาพรวมชั้นเรียน</div>
-        <div class="ah-sub">นักเรียน ${n} คน · อัปเดตล่าสุดขณะนี้</div>
-      </div>
+        <div class="ah-sub">นักเรียน ${n} คน · กรอกคะแนนหลัก ${withMain.length} คน · กรอก NETSAT ${withNs.length} คน</div></div>
       <div class="ah-actions">
-        <button class="btn btn-outline btn-sm" onclick="loadAdminStudents(renderAdminAll)">🔄 รีเฟรช</button>
+        <button class="btn btn-outline btn-sm" style="color:#fff;border-color:rgba(255,255,255,.3)" onclick="loadAdminStudents(renderAdminAll)">🔄 รีเฟรช</button>
         <button class="btn btn-cyan btn-sm" onclick="openModal(null)">+ เพิ่มนักเรียน</button>
       </div>
     </div>
     <div class="sum-grid">
-      <div class="sum-card asc-tgat">
-        <div class="sc-icon">👥</div>
-        <div class="sc-label">จำนวนนักเรียน</div>
+      <div class="sum-card asc-tgat"><div class="sc-icon">👥</div><div class="sc-label">จำนวนนักเรียน</div>
         <div class="sc-val">${n}</div><div class="sc-max">คนในระบบ</div>
-        <div class="sc-bar"><div class="sc-fill" style="width:100%"></div></div>
-      </div>
-      <div class="sum-card asc-avg">
-        <div class="sc-icon">📈</div>
-        <div class="sc-label">คะแนนเฉลี่ยรวม</div>
-        <div class="sc-val">${fmt(avgTot)}</div><div class="sc-max">/ ${GRAND_MAX} คะแนน</div>
-        <div class="sc-bar"><div class="sc-fill" style="width:${pct(avgTot,GRAND_MAX)}%"></div></div>
-      </div>
-      <div class="sum-card asc-ns">
-        <div class="sc-icon">🔁</div>
-        <div class="sc-label">NETSAT Best เฉลี่ย</div>
-        <div class="sc-val">${fmt(avgNs)}</div><div class="sc-max">/ ${NS_MAX} คะแนน</div>
-        <div class="sc-bar"><div class="sc-fill" style="width:${pct(avgNs,NS_MAX)}%"></div></div>
-      </div>
-      <div class="sum-card asc-top">
-        <div class="sc-icon">🏆</div>
-        <div class="sc-label">คะแนนสูงสุด</div>
-        <div class="sc-val" style="font-size:15px;font-family:'Sarabun',sans-serif">${top?top.name:'—'}</div>
-        <div class="sc-max">${top?fmt(topTot)+' คะแนน':'—'}</div>
-        <div class="sc-bar"><div class="sc-fill" style="width:${top?pct(topTot,GRAND_MAX):0}%"></div></div>
-      </div>
+        <div class="sc-bar"><div class="sc-fill" style="width:100%"></div></div></div>
+      <div class="sum-card asc-avg"><div class="sc-icon">📈</div><div class="sc-label">เฉลี่ย TGAT+TPAT+A-Level (% ของวิชาที่สอบ)</div>
+        <div class="sc-val">${avgPct.toFixed(1)}%</div><div class="sc-max">จาก ${withMain.length} คนที่กรอก</div>
+        <div class="sc-bar"><div class="sc-fill" style="width:${avgPct}%"></div></div></div>
+      <div class="sum-card asc-ns"><div class="sc-icon">🔁</div><div class="sc-label">NETSAT Best เฉลี่ยต่อวิชา</div>
+        <div class="sc-val">${fmt(avgNsSubj)}</div><div class="sc-max">/ 100 · จาก ${withNs.length} คนที่กรอก</div>
+        <div class="sc-bar"><div class="sc-fill" style="width:${avgNsSubj}%"></div></div></div>
+      <div class="sum-card asc-top"><div class="sc-icon">🏆</div><div class="sc-label">คะแนนรวมสูงสุด (TGAT+TPAT+A-Level)</div>
+        <div class="sc-val" style="font-size:15px;font-family:'Sarabun',sans-serif">${top&&topTot>0?esc(top.name):'—'}</div>
+        <div class="sc-max">${top&&topTot>0?fmt(topTot)+' คะแนน':'—'}</div>
+        <div class="sc-bar"><div class="sc-fill" style="width:${top?pct(topTot,GRAND_MAX):0}%"></div></div></div>
     </div>
     <div class="chart-grid">
       <div class="chart-card">
-        <div class="chart-title">📊 การกระจายคะแนน (% ของคะแนนเต็ม)</div>
+        <div class="chart-title">📊 การกระจายคะแนน (% ของคะแนนเต็มวิชาที่สอบ)</div>
         <div id="dist-chart"></div>
         <div class="chart-legend">
           <div class="leg-row"><div class="ldot" style="background:#6366f1"></div>TGAT</div>
@@ -1260,341 +1070,287 @@ function renderDash(){
           <div class="leg-row"><div class="ldot" style="background:#14b8a6"></div>A-Level</div>
         </div>
       </div>
-      <div class="chart-card">
-        <div class="chart-title">📈 คะแนนเฉลี่ยต่อหมวด</div>
-        <div id="avg-chart"></div>
-      </div>
+      <div class="chart-card"><div class="chart-title">📈 % เฉลี่ยต่อหมวด (เฉพาะคนที่สอบหมวดนั้น)</div><div id="avg-chart"></div></div>
     </div>
-    <div class="score-table">
-      <div style="padding:13px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
-        <div style="font-size:13px;font-weight:600;color:var(--navy)">🏅 Top 10 อันดับ</div>
+    <div class="data-table">
+      <div style="padding:13px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;left:0">
+        <div style="font-size:13px;font-weight:600;color:var(--navy)">🏅 Top 10 อันดับ (คะแนนรวม TGAT+TPAT+A-Level)</div>
         <button class="btn btn-outline btn-sm" onclick="setATabById('students')">ดูทั้งหมด →</button>
       </div>
-      <div class="dt-head dt-cols" style="grid-template-columns:36px 1fr 76px 76px 76px 76px 86px 60px">
-        <span>#</span><span>ชื่อ</span><span>TGAT</span><span>TPAT</span>
-        <span>A-Level</span><span>NETSAT</span><span>รวม</span><span>%</span>
-      </div>
+      <div class="dt-head top-cols"><span>#</span><span>ชื่อ</span><span>TGAT</span><span>TPAT</span><span>A-Level</span><span>NETSAT</span><span>รวม</span><span>%</span></div>
       <div id="top10-table"></div>
     </div>`;
-  renderDistChart();
-  renderAvgChart();
-  renderTop10();
+  renderDistChart();renderAvgChart();renderTop10();
 }
-
 function renderDistChart(){
-  const el=document.getElementById('dist-chart'); if(!el||!S.students.length) return;
+  const el=document.getElementById('dist-chart');if(!el)return;
+  const cats=[['tg',TGAT],['tp',TPAT],['al',ALEVEL]];
+  if(!cats.some(([,l])=>S.students.some(s=>catPct(s,l)!==null))){el.innerHTML='<div class="empty">ยังไม่มีข้อมูล</div>';return;}
   const ranges=['0-20%','20-40%','40-60%','60-80%','80-100%'];
   const cnt={tg:[0,0,0,0,0],tp:[0,0,0,0,0],al:[0,0,0,0,0]};
-  S.students.forEach(s=>{
-    [[calcTGAT(s),TGAT_MAX,'tg'],[calcTPAT(s),TPAT_MAX,'tp'],[calcAL(s),AL_MAX,'al']].forEach(([v,m,k])=>{
-      cnt[k][Math.min(4,Math.floor(v/m*5))]++;
-    });
-  });
+  S.students.forEach(s=>cats.forEach(([k,l])=>{const p=catPct(s,l);if(p!==null)cnt[k][Math.min(4,Math.floor(p/20))]++;}));
   const mx=Math.max(...Object.values(cnt).flat(),1);
-  el.innerHTML=`<div class="dist-chart">${ranges.map((r,i)=>`
-    <div class="dist-col">
-      <div class="dist-bwrap">${[['tg','#6366f1'],['tp','#ec4899'],['al','#14b8a6']].map(([k,c])=>`
-        <div class="dist-bar" style="flex:1;height:${Math.max(2,cnt[k][i]/mx*80)}px;background:${c};opacity:.85"
-          data-tip="${k.toUpperCase()} ${r}: ${cnt[k][i]} คน"></div>`).join('')}
-      </div><div class="dist-lbl">${r}</div>
-    </div>`).join('')}</div>`;
+  el.innerHTML=`<div class="dist-chart">${ranges.map((r,i)=>`<div class="dist-col"><div class="dist-bwrap">
+    ${[['tg','#6366f1','TGAT'],['tp','#ec4899','TPAT'],['al','#14b8a6','A-Level']].map(([k,c,nm])=>
+      `<div class="dist-bar" style="height:${Math.max(2,cnt[k][i]/mx*80)}px;background:${c};opacity:.85" data-tip="${nm} ${r}: ${cnt[k][i]} คน"></div>`).join('')}
+    </div><div class="dist-lbl">${r}</div></div>`).join('')}</div>`;
 }
-
 function renderAvgChart(){
-  const el=document.getElementById('avg-chart'); if(!el) return;
-  const n=S.students.length||1;
-  const items=[
-    ['TGAT เฉลี่ย',S.students.reduce((a,s)=>a+calcTGAT(s),0)/n,TGAT_MAX,'#6366f1'],
-    ['TPAT เฉลี่ย',S.students.reduce((a,s)=>a+calcTPAT(s),0)/n,TPAT_MAX,'#ec4899'],
-    ['A-Level เฉลี่ย',S.students.reduce((a,s)=>a+calcAL(s),0)/n,AL_MAX,'#14b8a6'],
-    ['NETSAT Best เฉลี่ย',S.students.reduce((a,s)=>a+calcNsTotal(s),0)/n,NS_MAX,'#f97316'],
-  ];
-  el.innerHTML=items.map(([l,v,m,c])=>`<div class="hbar-row">
-    <div class="hbar-label">${l}</div>
-    <div class="hbar-track"><div class="hbar-fill" style="width:${pct(v,m)}%;background:${c}"></div></div>
-    <div class="hbar-val">${fmt(v)}</div></div>`).join('');
+  const el=document.getElementById('avg-chart');if(!el)return;
+  const mk=(l,list,c)=>{const a=S.students.map(s=>catPct(s,list)).filter(v=>v!==null);return [l,a.length?avg(a):null,a.length,c];};
+  const nsA=S.students.filter(s=>nsTaken(s)>0).map(nsAvgSubj);
+  const items=[mk('TGAT',TGAT,'#6366f1'),mk('TPAT',TPAT,'#ec4899'),mk('A-Level',ALEVEL,'#14b8a6'),
+    ['NETSAT Best',nsA.length?avg(nsA):null,nsA.length,'#f97316']];
+  el.innerHTML=items.map(([l,v,c,col])=>`<div class="hbar-row"><div class="hbar-label">${l} (${c} คน)</div>
+    <div class="hbar-track"><div class="hbar-fill" style="width:${v==null?0:pct(v,100)}%;background:${col}"></div></div>
+    <div class="hbar-val">${v==null?'—':fmt(v)+'%'}</div></div>`).join('');
 }
-
 function renderTop10(){
-  const el=document.getElementById('top10-table'); if(!el) return;
-  const list=[...S.students].sort((a,b)=>calcTotal(b)-calcTotal(a)).slice(0,10);
-  if(!list.length){ el.innerHTML='<div style="padding:24px;text-align:center;color:var(--muted);font-size:13px">ยังไม่มีข้อมูล</div>'; return; }
+  const el=document.getElementById('top10-table');if(!el)return;
+  const list=[...S.students].filter(s=>calcTotal(s)>0).sort((a,b)=>calcTotal(b)-calcTotal(a)).slice(0,10);
+  if(!list.length){el.innerHTML='<div class="empty" style="padding:24px">ยังไม่มีข้อมูลคะแนน TGAT/TPAT/A-Level</div>';return;}
   el.innerHTML=list.map((s,i)=>{
     const tg=calcTGAT(s),tp=calcTPAT(s),al=calcAL(s),ns=calcNsTotal(s),tot=tg+tp+al;
     const rc=i===0?'rc-top':i<=2?'rc-mid':'rc-low';
-    return `<div class="dt-row dt-cols" style="grid-template-columns:36px 1fr 76px 76px 76px 76px 86px 60px">
+    return `<div class="dt-row top-cols">
       <div><div class="rank-chip ${rc}">${i+1}</div></div>
-      <div style="font-weight:500">${s.name}</div>
-      <div>${fmt(tg)}</div><div>${fmt(tp)}</div><div>${fmt(al)}</div><div>${fmt(ns)}</div>
+      <div style="font-weight:500">${esc(s.name)}</div>
+      <div>${fmt(tg)}</div><div>${fmt(tp)}</div><div>${fmt(al)}</div>
+      <div class="ns-cell" onclick="showNsDetail('${esc(s.id)}')" title="ดูคะแนน NETSAT รายวิชา">
+        <span class="ns-cell-val">${fmt(ns)}</span><div class="ns-cell-hint">รายวิชา →</div></div>
       <div style="font-family:'Chakra Petch',sans-serif;font-size:15px;font-weight:700">${fmt(tot)}</div>
-      <div>${pct(tot,GRAND_MAX)}%</div>
-    </div>`;
+      <div>${pctTaken(s).toFixed(1)}%</div></div>`;
   }).join('');
 }
 
-// ── STUDENTS TABLE ──
 function getSortedStudents(){
-  const q=S.search.toLowerCase();
-  let list=S.students.filter(s=>!q||s.name.includes(S.search)||s.name.toLowerCase().includes(q));
+  const q=S.search.trim().toLowerCase();
+  const list=S.students.filter(s=>!q||s.name.toLowerCase().includes(q));
   const {key,dir}=S.sort;
   list.sort((a,b)=>{
-    if(key==='name') return a.name.localeCompare(b.name,'th')*dir;
-    const getV={tgat:calcTGAT,tpat:calcTPAT,al:calcAL,ns:calcNsTotal,total:calcTotal}[key];
-    return ((getV?getV(a):0)-(getV?getV(b):0))*dir;
+    if(key==='name')return a.name.localeCompare(b.name,'th')*dir;
+    const f={tgat:calcTGAT,tpat:calcTPAT,al:calcAL,ns:calcNsTotal,total:calcTotal}[key];
+    return ((f?f(a):0)-(f?f(b):0))*dir;
   });
   return list;
 }
-
 function renderStudentsTable(){
   const list=getSortedStudents();
-  const all=[...S.students].map(s=>calcTotal(s)).sort((a,b)=>a-b);
-  const p25=all[Math.floor(all.length*.25)]||0, p75=all[Math.floor(all.length*.75)]||Infinity;
-  const sortedByTotal=[...S.students].sort((a,b)=>calcTotal(b)-calcTotal(a));
-
+  const totals=S.students.map(calcTotal).sort((a,b)=>a-b);
+  const p25=totals[Math.floor(totals.length*.25)]||0,p75=totals[Math.floor(totals.length*.75)];
+  const byTotal=[...S.students].sort((a,b)=>calcTotal(b)-calcTotal(a));
   document.getElementById('ap-students').innerHTML=`
     <div class="dt-toolbar">
       <div class="sort-pills">
         ${[['total','คะแนนรวม'],['tgat','TGAT'],['tpat','TPAT'],['al','A-Level'],['ns','NETSAT'],['name','ชื่อ A-Z']]
-          .map(([k,l])=>`<button class="s-pill${S.sort.key===k?' active':''}" onclick="setSort('${k}',this)">${l}${S.sort.key===k?(S.sort.dir>0?' ↑':' ↓'):''}</button>`).join('')}
+          .map(([k,l])=>`<button class="s-pill${S.sort.key===k?' active':''}" onclick="setSort('${k}')">${l}${S.sort.key===k?(S.sort.dir>0?' ↑':' ↓'):''}</button>`).join('')}
       </div>
       <button class="btn btn-danger btn-sm" onclick="clearAll()">🗑 ล้างทั้งหมด</button>
     </div>
     <div class="data-table">
-      <div class="dt-head dt-cols">
-        <span>#</span><span>ชื่อนักเรียน</span><span>ชั้น</span><span>TGAT</span><span>TPAT</span>
-        <span>A-Level</span><span>NETSAT</span><span>รวม</span><span>การดำเนินการ</span>
-      </div>
-      ${!list.length?'<div style="padding:24px;text-align:center;color:var(--muted)">ไม่พบนักเรียน</div>':
-        list.map(s=>{
-          const tg=calcTGAT(s),tp=calcTPAT(s),al=calcAL(s),ns=calcNsTotal(s),tot=tg+tp+al;
-          const rank=sortedByTotal.findIndex(x=>x.id===s.id)+1;
-          const rc=tot>=p75?'rc-top':tot<=p25?'rc-low':'rc-mid';
-          return `<div class="dt-row dt-cols">
-            <div><div class="rank-chip ${rc}">${rank}</div></div>
-            <div>
-              <div style="font-weight:500">${s.name}</div>
-              <div class="p-mini"><div class="pm-fill" style="width:${pct(tot,GRAND_MAX)}%"></div></div>
-            </div>
-            <div><span style="font-size:12px;background:var(--goldp);color:#92400e;padding:2px 8px;border-radius:20px;font-weight:600">${s.grade||'—'}</span></div>
-            <div>${fmt(tg)}<div style="font-size:10px;color:var(--muted)">/300</div></div>
-            <div>${fmt(tp)}<div style="font-size:10px;color:var(--muted)">/900</div></div>
-            <div>${fmt(al)}<div style="font-size:10px;color:var(--muted)">/1700</div></div>
-            <div>${fmt(ns)}<div style="font-size:10px;color:var(--muted)">/1000</div></div>
-            <div>
-              <div style="font-family:'Chakra Petch',sans-serif;font-size:15px;font-weight:700">${fmt(tot)}</div>
-              <div style="font-size:11px;color:var(--muted)">${pct(tot,GRAND_MAX)}%</div>
-            </div>
-            <div class="act-row">
-              <button class="btn btn-outline btn-sm" onclick="openModal('${s.id}')">✏️</button>
-              <button class="btn btn-danger btn-sm" onclick="deleteStu('${s.id}')">🗑</button>
-            </div>
-          </div>`;
-        }).join('')}
+      <div class="dt-head dt-cols"><span>#</span><span>ชื่อนักเรียน</span><span>ชั้น</span><span>TGAT</span><span>TPAT</span>
+        <span>A-Level</span><span>NETSAT</span><span>รวม</span><span>จัดการ</span></div>
+      ${!list.length?'<div class="empty" style="padding:24px">ไม่พบนักเรียน</div>':list.map(s=>{
+        const tg=calcTGAT(s),tp=calcTPAT(s),al=calcAL(s),ns=calcNsTotal(s),tot=tg+tp+al;
+        const rank=byTotal.findIndex(x=>x.id===s.id)+1;
+        const rc=tot>0&&tot>=p75?'rc-top':tot<=p25?'rc-low':'rc-mid';
+        return `<div class="dt-row dt-cols">
+          <div><div class="rank-chip ${rc}">${rank}</div></div>
+          <div><div style="font-weight:500">${esc(s.name)}</div>
+            <div class="p-mini"><div class="pm-fill" style="width:${pctTaken(s)}%"></div></div></div>
+          <div><span style="font-size:12px;background:var(--goldp);color:#92400e;padding:2px 8px;border-radius:20px;font-weight:600">${esc(s.grade)||'—'}</span></div>
+          <div>${fmt(tg)}<div style="font-size:10px;color:var(--muted)">/300</div></div>
+          <div>${fmt(tp)}<div style="font-size:10px;color:var(--muted)">/900</div></div>
+          <div>${fmt(al)}<div style="font-size:10px;color:var(--muted)">/1700</div></div>
+          <div class="ns-cell" onclick="showNsDetail('${esc(s.id)}')" title="ดูคะแนน NETSAT รายวิชา">
+            <span class="ns-cell-val">${fmt(ns)}</span><div class="ns-cell-hint">${nsTaken(s)} วิชา · รายวิชา →</div></div>
+          <div><div style="font-family:'Chakra Petch',sans-serif;font-size:15px;font-weight:700">${fmt(tot)}</div>
+            <div style="font-size:11px;color:var(--muted)">${pctTaken(s).toFixed(1)}%</div></div>
+          <div class="act-row">
+            <button class="btn btn-outline btn-sm" onclick="openModal('${esc(s.id)}')">✏️</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteStu('${esc(s.id)}')">🗑</button></div>
+        </div>`;}).join('')}
     </div>`;
 }
-
-function setSort(key,btn){
-  if(S.sort.key===key) S.sort.dir*=-1; else { S.sort.key=key; S.sort.dir=-1; }
-  document.querySelectorAll('.s-pill').forEach(b=>b.classList.remove('active'));
-  if(btn) btn.classList.add('active');
+function setSort(key){
+  if(S.sort.key===key)S.sort.dir*=-1;else{S.sort.key=key;S.sort.dir=key==='name'?1:-1;}
+  renderStudentsTable();
+}
+function onSearch(){
+  S.search=document.getElementById('a-search').value;
+  if(S.aTab!=='students')setATabById('students');
   renderStudentsTable();
 }
 
-function onSearch(){ S.search=document.getElementById('a-search').value; renderStudentsTable(); }
+function showNsDetail(id){
+  const s=S.students.find(x=>x.id===id);
+  if(!s){toast('❌ ไม่พบนักเรียน','err');return;}
+  S.nsdId=id;
+  const bestTotal=calcNsTotal(s);
+  document.getElementById('nsd-body').innerHTML=`
+    <div class="nsd-hero">
+      <div><div class="nsd-hero-name">${esc(s.name)}</div>
+        <div class="nsd-sub">${esc(s.grade)||'นักเรียน'} · คะแนน NETSAT สูงสุดต่อวิชา (จาก 4 ครั้ง)</div></div>
+      <div class="nsd-hero-total">${fmt(bestTotal)}<small>/ ${NS_MAX} คะแนน · ${nsTaken(s)} วิชา</small></div>
+    </div>
+    <div class="score-table">${nsBestList(s)}</div>
+    <div class="chart-card" style="margin-top:16px">
+      <div class="chart-title">📈 คะแนนรวมแต่ละครั้งที่สอบ</div>${renderNsTrend(s)}</div>`;
+  document.getElementById('nsd-ov').classList.add('on');
+}
+function closeNsDetail(){document.getElementById('nsd-ov').classList.remove('on');S.nsdId=null;}
+function editFromNsDetail(){const id=S.nsdId;closeNsDetail();if(id)openModal(id);}
 
-// ── ANALYSIS ──
 function renderAnalysis(){
   const el=document.getElementById('ap-analysis');
-  const n=S.students.length||1;
-  const nsTrend=[0,1,2,3].map(r=>{
-    const vals=S.students.map(s=>calcNsRound(s,r)).filter(v=>v>0);
-    return vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0;
-  });
-  const mx=Math.max(...nsTrend,1);
-  const tot=S.students.map(s=>calcTotal(s));
-  const ranges=[
-    ['≥ 90% (≥2070)',tot.filter(v=>v>=2070).length,'#059669'],
-    ['80-89% (≥1840)',tot.filter(v=>v>=1840&&v<2070).length,'#10b981'],
-    ['70-79% (≥1610)',tot.filter(v=>v>=1610&&v<1840).length,'#34d399'],
-    ['60-69% (≥1380)',tot.filter(v=>v>=1380&&v<1610).length,'#f59e0b'],
-    ['50-59% (≥1150)',tot.filter(v=>v>=1150&&v<1380).length,'#f97316'],
-    ['< 50%',tot.filter(v=>v<1150).length,'#ef4444'],
-  ];
+  const sts=S.students;
+  const nsTrend=[0,1,2,3].map(r=>avg(sts.map(s=>calcNsRound(s,r)).filter(v=>v>0)));
+  const nsCnt=[0,1,2,3].map(r=>sts.filter(s=>calcNsRound(s,r)>0).length);
+  const mx=Math.max(...nsTrend,1),bestI=nsTrend.indexOf(Math.max(...nsTrend));
+  const withMain=sts.filter(s=>maxTaken(s)>0),pp=withMain.map(pctTaken);
+  const ranges=[['≥ 90%',pp.filter(v=>v>=90).length,'#059669'],['80–89%',pp.filter(v=>v>=80&&v<90).length,'#10b981'],
+    ['70–79%',pp.filter(v=>v>=70&&v<80).length,'#34d399'],['60–69%',pp.filter(v=>v>=60&&v<70).length,'#f59e0b'],
+    ['50–59%',pp.filter(v=>v>=50&&v<60).length,'#f97316'],['< 50%',pp.filter(v=>v<50).length,'#ef4444']];
+  const alRows=ALEVEL.map(({id,name})=>{const v=sts.filter(s=>hasSc(s,id)).map(s=>sc(s,id));return [name,v.length?avg(v):null,v.length];}).filter(r=>r[2]>0);
+  const nsRows=NETSAT_S.map(({id,name})=>{const v=sts.map(s=>calcNsBests(s)[id]).filter(x=>x>0);return [name,v.length?avg(v):null,v.length];}).filter(r=>r[2]>0);
+  const bars=(rows,col)=>rows.length?rows.map(([l,v,c])=>`<div class="hbar-row"><div class="hbar-label">${l} (${c})</div>
+    <div class="hbar-track"><div class="hbar-fill" style="width:${v}%;background:${col}"></div></div><div class="hbar-val">${fmt(v)}</div></div>`).join(''):'<div class="empty">ยังไม่มีข้อมูล</div>';
   el.innerHTML=`
     <div class="chart-grid">
-      <div class="chart-card">
-        <div class="chart-title">🔁 NETSAT — คะแนนเฉลี่ยต่อครั้ง (ทั้งห้อง)</div>
-        ${S.students.length?`<div class="trend-bars">${nsTrend.map((v,i)=>`
-          <div class="t-col${i===nsTrend.indexOf(Math.max(...nsTrend))&&v>0?' best':''}">
-            <div class="t-val">${v>0?fmt(v):'—'}</div>
-            <div class="t-bwrap"><div class="t-bar" style="height:${v>0?Math.max(5,v/mx*80):4}px"></div></div>
-            <div class="t-lbl">ครั้งที่ ${i+1}</div>
-          </div>`).join('')}</div>`:'<div style="padding:16px;text-align:center;color:var(--muted);font-size:12px">ยังไม่มีข้อมูล</div>'}
+      <div class="chart-card"><div class="chart-title">🔁 NETSAT — คะแนนรวมเฉลี่ยต่อครั้ง (เฉพาะคนที่สอบครั้งนั้น)</div>
+        ${nsTrend.some(v=>v>0)?`<div class="trend-bars">${nsTrend.map((v,i)=>`
+          <div class="t-col${i===bestI&&v>0?' best':''}"><div class="t-val">${v>0?fmt(v):'—'}</div>
+          <div class="t-bwrap"><div class="t-bar" style="height:${v>0?Math.max(5,v/mx*80):4}px"></div></div>
+          <div class="t-lbl">ครั้งที่ ${i+1} (${nsCnt[i]} คน)</div></div>`).join('')}</div>`:'<div class="empty">ยังไม่มีข้อมูล</div>'}
       </div>
-      <div class="chart-card">
-        <div class="chart-title">🎯 สัดส่วนนักเรียน ตามช่วงคะแนนรวม</div>
-        ${ranges.map(([l,c,col])=>`<div class="hbar-row">
-          <div class="hbar-label">${l}</div>
-          <div class="hbar-track"><div class="hbar-fill" style="width:${S.students.length?c/S.students.length*100:0}%;background:${col}"></div></div>
-          <div class="hbar-val">${c} คน</div></div>`).join('')}
+      <div class="chart-card"><div class="chart-title">🎯 นักเรียนตามช่วง % เฉลี่ยต่อวิชา (TGAT+TPAT+A-Level)</div>
+        ${withMain.length?ranges.map(([l,c,col])=>`<div class="hbar-row"><div class="hbar-label">${l}</div>
+          <div class="hbar-track"><div class="hbar-fill" style="width:${c/withMain.length*100}%;background:${col}"></div></div>
+          <div class="hbar-val">${c} คน</div></div>`).join(''):'<div class="empty">ยังไม่มีข้อมูล</div>'}
       </div>
     </div>
     <div class="chart-grid">
-      <div class="chart-card">
-        <div class="chart-title">📚 A-Level — คะแนนเฉลี่ยต่อวิชา</div>
-        ${ALEVEL.slice(0,9).map(({id,name})=>{
-          const vals=S.students.map(s=>sc(s,id)).filter(v=>v>0);
-          const avg=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0;
-          return `<div class="hbar-row">
-            <div class="hbar-label">${name}</div>
-            <div class="hbar-track"><div class="hbar-fill" style="width:${avg}%;background:#14b8a6"></div></div>
-            <div class="hbar-val">${avg>0?fmt(avg):'—'}</div></div>`;
-        }).join('')}
-      </div>
-      <div class="chart-card">
-        <div class="chart-title">🔬 NETSAT — คะแนน Best เฉลี่ยต่อวิชา</div>
-        ${NETSAT_S.map(({id,name})=>{
-          const vals=S.students.map(s=>calcNsBests(s)[id]).filter(v=>v>0);
-          const avg=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0;
-          return `<div class="hbar-row">
-            <div class="hbar-label">${name}</div>
-            <div class="hbar-track"><div class="hbar-fill" style="width:${avg}%;background:#f97316"></div></div>
-            <div class="hbar-val">${avg>0?fmt(avg):'—'}</div></div>`;
-        }).join('')}
-      </div>
+      <div class="chart-card"><div class="chart-title">📚 A-Level — คะแนนเฉลี่ยต่อวิชา (จำนวนผู้สอบ)</div>${bars(alRows,'#14b8a6')}</div>
+      <div class="chart-card"><div class="chart-title">🔬 NETSAT — Best เฉลี่ยต่อวิชา (จำนวนผู้สอบ)</div>${bars(nsRows,'#f97316')}</div>
     </div>`;
 }
 
-// ════════════════════════════════════════════════════════════
-//  CRUD MODAL (admin)
-// ════════════════════════════════════════════════════════════
+// ════════════════ CRUD MODAL ════════════════
 function openModal(id){
   S.editId=id;
   const stu=id?S.students.find(s=>s.id===id):null;
-  document.getElementById('modal-title').textContent=id?'✏️ แก้ไข — '+(stu?.name||''):'+ เพิ่มนักเรียน';
+  document.getElementById('modal-title').textContent=id?'✏️ แก้ไข — '+(stu?stu.name:''):'+ เพิ่มนักเรียน';
   document.getElementById('modal-body').innerHTML=buildModalForm(stu);
   document.getElementById('modal-ov').classList.add('on');
 }
-
-function closeModal(){ document.getElementById('modal-ov').classList.remove('on'); S.editId=null; }
-
+function closeModal(){document.getElementById('modal-ov').classList.remove('on');S.editId=null;}
 function buildModalForm(stu){
-  const sc2=(id)=>stu&&(stu.scores||{})[id]!==undefined?(stu.scores[id]):'';
-  const nsc2=(r,id)=>stu&&((stu.nscores||{})[r]||{})[id]!==undefined?((stu.nscores||{})[r]||{})[id]:'';
+  const g=id=>stu&&(stu.scores||{})[id]!==undefined?stu.scores[id]:'';
+  const gn=(r,id)=>stu&&((stu.nscores||{})[r]||{})[id]!==undefined?stu.nscores[r][id]:'';
+  const gr=stu?stu.grade:'';
   return `<div class="f-name"><label class="f-label">ชื่อ-นามสกุล</label>
-    <input type="text" id="f_name" placeholder="เช่น นายสมชาย ใจดี" value="${stu?stu.name:''}"/>
+    <input type="text" id="f_name" placeholder="เช่น นายสมชาย ใจดี" value="${esc(stu?stu.name:'')}"/>
     <label class="f-label" style="margin-top:10px">ระดับชั้น</label>
     <select id="f_grade" style="width:100%;padding:8px 10px;border-radius:8px;border:1.5px solid var(--border);font-family:inherit;font-size:14px;margin-top:2px">
       <option value="">— เลือก —</option>
-      <option value="ม.4" ${stu?.grade==='ม.4'?'selected':''}>ม.4</option>
-      <option value="ม.5" ${stu?.grade==='ม.5'?'selected':''}>ม.5</option>
-      <option value="ม.6" ${stu?.grade==='ม.6'?'selected':''}>ม.6</option>
-      <option value="จบแล้ว" ${stu?.grade==='จบแล้ว'?'selected':''}>จบแล้ว / Gap Year</option>
+      ${['ม.4','ม.5','ม.6'].map(x=>`<option value="${x}" ${gr===x?'selected':''}>${x}</option>`).join('')}
+      <option value="จบแล้ว" ${gr==='จบแล้ว'?'selected':''}>จบแล้ว / Gap Year</option>
     </select></div>
-    ${[{t:'🧠 TGAT',items:TGAT},{t:'🎯 TPAT',items:TPAT},{t:'📚 A-Level',items:ALEVEL}]
-      .map(({t,items})=>`<div class="f-sec">
-        <div class="f-sec-title">${t}</div>
-        <div class="f-grid">${items.map(({id,name,max})=>`
-          <div class="f-field"><label>${name}/${max}</label>
-          <input type="number" id="f_${id}" min="0" max="${max}" step="0.01" placeholder="—" value="${sc2(id)}"/></div>`).join('')}
-        </div></div>`).join('')}
+    ${[{t:'🧠 TGAT',items:TGAT},{t:'🎯 TPAT',items:TPAT},{t:'📚 A-Level',items:ALEVEL}].map(({t,items})=>`<div class="f-sec">
+      <div class="f-sec-title">${t}</div><div class="f-grid">${items.map(({id,name,max})=>`
+        <div class="f-field"><label>${name}/${max}</label>
+        <input type="number" inputmode="decimal" id="f_${id}" min="0" max="${max}" step="0.01" placeholder="—" value="${g(id)}"/></div>`).join('')}</div></div>`).join('')}
     <div class="f-sec"><div class="f-sec-title">🔁 NETSAT (4 ครั้ง)</div>
-      ${[0,1,2,3].map(r=>`
-        <div style="margin-bottom:10px">
-          <div style="font-size:11px;font-weight:700;color:#ea580c;margin-bottom:6px">ครั้งที่ ${r+1}</div>
-          <div class="f-grid">${NETSAT_S.map(({id,name})=>`
-            <div class="f-field"><label>${name}/100</label>
-            <input type="number" id="fn_${r}_${id}" min="0" max="100" step="0.01" placeholder="—" value="${nsc2(r,id)}"/></div>`).join('')}
-          </div></div>`).join('')}
+      ${[0,1,2,3].map(r=>`<div style="margin-bottom:10px">
+        <div style="font-size:11px;font-weight:700;color:#ea580c;margin-bottom:6px">ครั้งที่ ${r+1}</div>
+        <div class="f-grid">${NETSAT_S.map(({id,name})=>`
+          <div class="f-field"><label>${name}/100</label>
+          <input type="number" inputmode="decimal" id="fn_${r}_${id}" min="0" max="100" step="0.01" placeholder="—" value="${gn(r,id)}"/></div>`).join('')}</div></div>`).join('')}
     </div>`;
 }
-
 function submitModal(){
-  const name=document.getElementById('f_name').value.trim();
-  if(!name){ toast('⚠️ กรุณากรอกชื่อ'); return; }
-  const scores={};
-  [...TGAT,...TPAT,...ALEVEL].forEach(({id})=>{
-    const v=document.getElementById('f_'+id)?.value;
-    if(v!==''&&v!=null) scores[id]=parseFloat(v);
+  const name=normName(document.getElementById('f_name').value);
+  if(!name){toast('⚠️ กรุณากรอกชื่อ');return;}
+  const isEdit=!!S.editId;
+  if(!isEdit&&S.students.some(s=>normName(s.name)===name)){toast('⚠️ มีชื่อนี้ในระบบแล้ว','err');return;}
+  const scores={},nscores={};let firstBad=null;
+  document.querySelectorAll('#modal-body input.err').forEach(i=>i.classList.remove('err'));
+  ALL_MAIN.forEach(({id,max})=>{
+    const el=document.getElementById('f_'+id),v=el?el.value:'';
+    if(v!==''){const n=parseFloat(v);scores[id]=n;if(isNaN(n)||n<0||n>max){el.classList.add('err');firstBad=firstBad||el;}}
   });
-  const nscores={};
   for(let r=0;r<NS_ROUNDS;r++){
     nscores[r]={};
     NETSAT_S.forEach(({id})=>{
-      const v=document.getElementById(`fn_${r}_${id}`)?.value;
-      if(v!==''&&v!=null) nscores[r][id]=parseFloat(v);
+      const el=document.getElementById(`fn_${r}_${id}`),v=el?el.value:'';
+      if(v!==''){const n=parseFloat(v);nscores[r][id]=n;if(isNaN(n)||n<0||n>100){el.classList.add('err');firstBad=firstBad||el;}}
     });
   }
-  const grade=document.getElementById('f_grade').value;
-  const payload={id:S.editId||null,name,grade,scores,nscores};
+  if(firstBad){toast('⚠️ มีคะแนนเกินคะแนนเต็ม (ช่องสีแดง)','err');firstBad.scrollIntoView({block:'center'});return;}
+  const payload={id:S.editId||null,name,grade:document.getElementById('f_grade').value,scores,nscores};
   show('กำลังบันทึก...');
   gasCall('saveStudent',payload,res=>{
-    hide(); closeModal();
-    if(!res.ok){ toast('❌ '+res.error,'err'); return; }
-    toast('✅ '+(S.editId?'อัปเดต':'เพิ่ม')+`"${name}"แล้ว`);
+    hide();
+    if(!res.ok){toast('❌ '+res.error,'err');return;}   // ไม่ปิด modal เพื่อให้แก้ต่อได้
+    closeModal();
+    toast('✅ '+(isEdit?'อัปเดต':'เพิ่ม')+` "${name}" แล้ว`);
     loadAdminStudents(renderAdminAll);
   });
 }
-
 function deleteStu(id){
   const s=S.students.find(x=>x.id===id);
-  if(!s||!confirm(`ลบ "${s.name}" ออกจากระบบ?`)) return;
+  if(!s||!confirm(`ลบ "${s.name}" ออกจากระบบ?`))return;
   show('กำลังลบ...');
-  gasCall('deleteStudent',id,res=>{
+  gasCall('deleteStudent',{id,token:S.token},res=>{
     hide();
-    if(!res.ok){ toast('❌ '+res.error,'err'); return; }
-    toast('✅ ลบแล้ว');
-    loadAdminStudents(renderAdminAll);
+    if(!res.ok){toast('❌ '+res.error,'err');return;}
+    toast('✅ ลบแล้ว');loadAdminStudents(renderAdminAll);
   });
 }
-
 function clearAll(){
-  if(!confirm('ล้างข้อมูลนักเรียนทั้งหมด?\nการกระทำนี้ไม่สามารถย้อนกลับได้!')) return;
+  if(!S.students.length){toast('⚠️ ไม่มีข้อมูล');return;}
+  if(!confirm(`ล้างข้อมูลนักเรียนทั้งหมด ${S.students.length} คน?\nการกระทำนี้ไม่สามารถย้อนกลับได้!`))return;
+  if(prompt('พิมพ์คำว่า "ลบทั้งหมด" เพื่อยืนยัน')!=='ลบทั้งหมด'){toast('ยกเลิกแล้ว');return;}
   show('กำลังลบ...');
-  const ids=S.students.map(s=>s.id);
-  let done=0;
-  if(!ids.length){ hide(); return; }
-  ids.forEach(id=>{
-    gasCall('deleteStudent',id,()=>{
-      done++;
-      if(done===ids.length){ hide(); toast('✅ ล้างข้อมูลแล้ว'); loadAdminStudents(renderAdminAll); }
-    });
+  gasCall('deleteAllStudents',S.token,res=>{
+    hide();
+    if(!res.ok){toast('❌ '+res.error,'err');return;}
+    toast('✅ ล้างข้อมูลแล้ว');loadAdminStudents(renderAdminAll);
   });
 }
 
-// ── EXPORT ──
+// ════════════════ EXPORT ════════════════
+function csvCell(v){v=String(v==null?'':v);return /[",\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}
 function exportCSV(){
-  if(!S.students.length){ toast('⚠️ ไม่มีข้อมูล'); return; }
-  const hdr=['ชื่อ','ระดับชั้น','TGAT','TPAT','A-Level','NETSAT Best','รวม','%'];
+  if(!S.students.length){toast('⚠️ ไม่มีข้อมูล');return;}
+  const hdr=['ชื่อ','ระดับชั้น',...ALL_MAIN.map(x=>x.code),
+    ...[0,1,2,3].flatMap(r=>NETSAT_S.map(n=>`NETSAT ครั้ง${r+1}-${n.name}`)),
+    ...NETSAT_S.map(n=>'NETSAT Best-'+n.name),'TGAT รวม','TPAT รวม','A-Level รวม','NETSAT Best รวม','รวม TGAT+TPAT+AL','% เฉลี่ยต่อวิชาที่สอบ'];
   const rows=S.students.map(s=>{
-    const tg=calcTGAT(s),tp=calcTPAT(s),al=calcAL(s),ns=calcNsTotal(s),tot=tg+tp+al;
-    return [s.name,s.grade||'',fmt(tg),fmt(tp),fmt(al),fmt(ns),fmt(tot),pct(tot,GRAND_MAX)+'%'];
+    const b=calcNsBests(s);
+    return [s.name,s.grade||'',
+      ...ALL_MAIN.map(x=>hasSc(s,x.id)?fmt(sc(s,x.id)):''),
+      ...[0,1,2,3].flatMap(r=>NETSAT_S.map(n=>{const v=((s.nscores||{})[r]||{})[n.id];return v!==undefined?fmt(v):'';})),
+      ...NETSAT_S.map(n=>b[n.id]>0?fmt(b[n.id]):''),
+      fmt(calcTGAT(s)),fmt(calcTPAT(s)),fmt(calcAL(s)),fmt(calcNsTotal(s)),fmt(calcTotal(s)),pctTaken(s).toFixed(1)+'%'];
   });
-  const csv=[hdr,...rows].map(r=>r.join(',')).join('\n');
+  const csv=[hdr,...rows].map(r=>r.map(csvCell).join(',')).join('\r\n');
   const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'}));
-  a.download='tcas-scores.csv'; a.click();
+  a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}));
+  a.download='tcas-scores.csv';a.click();
 }
-
 function openSheetUrl(){
-  gasCall('getSheetUrl',undefined,res=>{
-    if(res.ok&&res.url) window.open(res.url,'_blank');
+  gasCall('getSheetUrl',S.token,res=>{
+    if(res.ok&&res.url)window.open(res.url,'_blank');
     else toast('⚠️ ยังไม่มีข้อมูล Sheet (กรอกข้อมูลนักเรียนก่อน)');
   });
 }
 
-// ════════════════════════════════════════════════════════════
-//  INIT
-// ════════════════════════════════════════════════════════════
+// ════════════════ INIT ════════════════
 document.addEventListener('DOMContentLoaded',()=>{
-  // Close modal on overlay click
-  document.getElementById('modal-ov').addEventListener('click',e=>{
-    if(e.target===document.getElementById('modal-ov')) closeModal();
-  });
-  // Admin password enter key
-  document.addEventListener('keydown',e=>{
-    if(e.key==='Escape') closeModal();
-  });
+  document.getElementById('modal-ov').addEventListener('click',e=>{if(e.target.id==='modal-ov')closeModal();});
+  document.getElementById('nsd-ov').addEventListener('click',e=>{if(e.target.id==='nsd-ov')closeNsDetail();});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closeNsDetail();closeSidebar();}});
 });
 </script>
 </body>
